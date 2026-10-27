@@ -1,0 +1,141 @@
+# Haider Abbas: portfolio
+
+The source for Muhammad Haider Abbas's portfolio: fast pre-built pages over a live 3D background, with an admin panel that controls everything on the site.
+
+- **Fast:** every page is pre-built HTML with its CSS inlined. Images are right-sized WebP and lazy-loaded. The 3D background is about 4 KB of hand-written canvas code (no libraries); it pauses in hidden tabs and stays still for visitors who prefer reduced motion.
+- **Everything is editable** at `/admin/`:
+  - **Content:** profile (photo, CV, roles, intro, about, contact details, social links), projects, blog posts, certifications, experience and education, skills (with % bars), services (prices and what's included), snapshot numbers and "What I do".
+  - **Site text & settings:** every heading, button, menu label, form label and footer line; accent colour, default theme, 3D background on/off and detail, card tilt, and showing or hiding each homepage section.
+  - **Uploads:** images are resized and converted to WebP in the browser before upload.
+  - **Messages** from the contact form.
+- **Publishing:** saving in the admin panel stores the change. **Publish site** rebuilds the pages, and the change is live in about a minute.
+
+```
+Admin panel ──save──▶ Supabase (database, login, uploads, messages)
+     │                         │
+     └──Publish──▶ GitHub Actions ──reads content──┘
+                          │
+                          ▼
+                 GitHub Pages (custom domain or username.github.io/Portfolio/)
+```
+
+The site works before Supabase is connected: it then builds from `src/data/seed.json`, which holds all the content from the original site.
+
+---
+
+## Setup
+
+### 1. Turn on GitHub Pages
+
+Repository → **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
+Then **Actions → Deploy site → Run workflow** (or push to `main`). The site goes live at `https://muhammadhaiderabbas.github.io/Portfolio/`.
+
+### 2. Create the Supabase database
+
+1. Create a free project at [supabase.com](https://supabase.com) (region **London, eu-west-2**).
+2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**.
+3. **New query:** paste all of [`supabase/seed.sql`](supabase/seed.sql), then **Run**. This imports all the content: projects, profile, contact details, experience, education, skills, certifications, services, snapshot numbers and "What I do".
+
+### 3. Create your admin login
+
+1. **Authentication → Users → Add user → Create new user:** your email and a strong password; tick **Auto confirm user**.
+2. **Authentication → Sign In / Providers:** turn off **Allow new users to sign up**.
+3. **Authentication → URL Configuration:** set **Site URL** to your site address and add `<your site address>/admin/` under **Redirect URLs** (needed for password-reset emails).
+4. **SQL Editor**, with your email:
+
+   ```sql
+   insert into public.admins (user_id)
+   select id from auth.users where email = 'you@example.com';
+   ```
+
+### 4. Connect the site to the database
+
+In Supabase: **Project Settings → API Keys.** Copy the **Project URL** and the **anon** (or **publishable**) key, and put them in [`supabase.config.json`](supabase.config.json):
+
+```json
+{ "url": "https://abcd1234.supabase.co", "anonKey": "eyJ…" }
+```
+
+This key is designed to be public; the security rules in `schema.sql` decide what it can do. **Never put the `service_role` or secret key here.**
+
+(Instead of the file you can set GitHub repository variables `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY`; they take priority.)
+
+### 5. Turn on the Publish button
+
+1. GitHub: **profile picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.**
+   - Repository access: **Only select repositories → Portfolio**.
+   - Permissions → Repository permissions → **Contents: Read and write**. Nothing else.
+2. Supabase **SQL Editor**:
+
+   ```sql
+   select vault.create_secret('github_pat_PASTE_YOUR_TOKEN', 'github_token');
+   select vault.create_secret('MuhammadHaiderAbbas/Portfolio', 'github_repo');
+   ```
+
+   To replace an expired token later:
+
+   ```sql
+   select vault.update_secret(id, 'github_pat_NEW_TOKEN') from vault.secrets where name = 'github_token';
+   ```
+
+### 6. Use your own domain (when you're ready)
+
+GitHub lets only one repository use a domain at a time.
+
+1. In the **old** repository: **Settings → Pages → Custom domain**: remove `personalportfolio.website`.
+2. In **this** repository: **Settings → Pages → Custom domain**: enter `personalportfolio.website` and save; tick **Enforce HTTPS** once it's offered.
+3. **Actions → Deploy site → Run workflow.** The build picks up the new address automatically.
+4. In Supabase, update **Site URL** and **Redirect URLs** (step 3.3) to the domain.
+
+Old addresses such as `/resume.html`, `/portfolio.html`, the old project pages and the CV link redirect or keep working.
+
+---
+
+## Everyday use
+
+| To… | Do this |
+| --- | --- |
+| Change any wording on the site | Admin → **Site text & settings**. Use the search box to find it. |
+| Change the colour or the 3D background | Admin → **Site text & settings → Look and feel** |
+| Hide a homepage section | Admin → **Site text & settings → Homepage** |
+| Add a project or blog post | Admin → Projects / Blog posts → **Add**. Turn on **Show on the website**, save, then **Publish site**. |
+| Keep a draft | Leave **Show on the website** off. |
+| Change the order of anything | Set **Position** (lower first). |
+| Feature a project on the homepage | Tick **Feature on the homepage** (up to 3 are shown). |
+| Update your CV or photo | Admin → Profile → **Upload**, save, publish. |
+| Read messages | Admin → Messages. |
+
+## Developing locally
+
+```bash
+npm install
+npm run dev        # http://localhost:4321
+npm run build      # production build into dist/
+```
+
+After editing `src/data/seed.json`, run `npm run seed-sql` to regenerate `supabase/seed.sql`.
+
+## How it fits together
+
+| Path | What it is |
+| --- | --- |
+| `src/pages/` | Public pages, the admin page, and redirects from old addresses |
+| `src/lib/site-text.ts` | Every editable label and setting, with its default |
+| `src/admin/schema.ts` | Every editable content field |
+| `src/admin/app.ts` | The admin panel |
+| `src/scripts/bg3d.ts` | The 3D background |
+| `src/lib/content.ts` | Loads content from Supabase (or `seed.json`) at build time |
+| `supabase/schema.sql` | Tables, security rules, uploads and the publish function |
+| `.github/workflows/deploy.yml` | Builds and deploys on push, on Publish, on demand and nightly |
+
+### Security
+
+- Visitors can read published content and send contact messages, nothing else. Drafts, messages, uploads and all changes are limited to accounts in the `admins` table.
+- The contact form refuses new messages after 30 in an hour.
+- The GitHub token is stored encrypted in Supabase Vault and is only used by `publish_site()`, which checks that the caller is an admin.
+
+### Free-plan notes
+
+- Supabase pauses free projects after a week without activity; the nightly rebuild queries the database daily, which should keep it active. Even if it pauses, the public pages and images keep working; only the contact form and admin panel need it.
+- GitHub turns off scheduled workflows after 60 days without commits. Publish still works either way.

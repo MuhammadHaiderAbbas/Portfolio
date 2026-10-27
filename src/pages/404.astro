@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { getContent } from '../lib/content';
+import { url } from '../lib/paths';
+
+const { text: t } = await getContent();
+---
+
+<Base title={t['notfound.title']}>
+  <PageBand title={t['notfound.title']} lead={t['notfound.text']}>
+    <div class="actions">
+      <a class="btn" href={url('/')}>{t['notfound.button']}</a>
+      <a class="btn btn-ghost" href={url('/projects/')}>{t['nav.projects']}</a>
+    </div>
+  </PageBand>
+</Base>

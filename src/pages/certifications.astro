@@ -1,0 +1,74 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import Toolbar from '../components/Toolbar.astro';
+import ItemCard from '../components/ItemCard.astro';
+import { getContent, md, countBy } from '../lib/content';
+import { url } from '../lib/paths';
+
+const { certifications, text: t } = await getContent();
+const filters = countBy(certifications.map((c) => c.issuer));
+---
+
+<Base title={t['certs.title']} description={t['certs.intro']}>
+  <PageBand title={t['certs.title']} lead={t['certs.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['certs.title'] }]} />
+
+  <section class="wrap section" data-collection="certifications">
+    {certifications.length ? (
+      <>
+        <Toolbar filters={filters} />
+        <ul class="items" data-items>
+          {certifications.map((c) => (
+            <ItemCard
+              image={c.image_url}
+              icon="award"
+              kicker={[c.issuer, c.issued_label].filter(Boolean).join(', ')}
+              title={c.title}
+              text={c.summary}
+              keys={[c.issuer]}
+              extra={c.details}
+              tilt={false}
+            >
+              {c.details && (
+                <details class="more">
+                  <summary>{t['certs.more']}</summary>
+                  <div class="prose" set:html={md(c.details)} />
+                </details>
+              )}
+              {c.credential_url && <a class="verify" href={url(c.credential_url)} rel="noopener">{t['certs.verify']}</a>}
+            </ItemCard>
+          ))}
+        </ul>
+        <p class="muted" data-empty hidden>{t['list.empty']}</p>
+      </>
+    ) : (
+      <p class="muted">{t['certs.empty']}</p>
+    )}
+  </section>
+</Base>
+
+<style>
+  .more {
+    margin-top: 0.4rem;
+    font-size: 0.88rem;
+  }
+  .more summary {
+    cursor: pointer;
+    color: var(--accent-text);
+    font-weight: 500;
+  }
+  .more .prose {
+    margin-top: 0.5rem;
+    color: var(--muted);
+  }
+  .more .prose :global(h3) {
+    font-size: 0.92rem;
+    color: var(--ink);
+    margin: 0.9em 0 0.3em;
+  }
+  .verify {
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-top: 0.4rem;
+  }
+</style>

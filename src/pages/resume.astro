@@ -1,0 +1,227 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { getContent, md } from '../lib/content';
+import { url } from '../lib/paths';
+
+const { profile, timeline, skills, certifications, text: t } = await getContent();
+const work = timeline.filter((x) => x.kind === 'work');
+const education = timeline.filter((x) => x.kind === 'education');
+const groups = Object.entries(
+  skills.reduce<Record<string, typeof skills>>((acc, s) => {
+    (acc[s.group_name] ??= []).push(s);
+    return acc;
+  }, {})
+);
+const barGroups = groups.filter(([, list]) => list.some((s) => s.level != null));
+const chipGroups = groups.filter(([, list]) => list.every((s) => s.level == null));
+---
+
+<Base title={t['resume.title']} description={t['resume.intro']}>
+  <PageBand title={t['resume.title']} lead={t['resume.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['resume.title'] }]}>
+    {profile.cv_url && (
+      <div class="actions">
+        <a class="btn" href={url(profile.cv_url)} download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"></path></svg>
+          {t['resume.cv_button']}
+        </a>
+      </div>
+    )}
+  </PageBand>
+
+  <div class="wrap columns">
+    {[
+      { title: t['resume.experience_title'], items: work },
+      { title: t['resume.education_title'], items: education },
+    ]
+      .filter((s) => s.items.length)
+      .map((s) => (
+        <section class="section">
+          <div class="title"><h2>{s.title}</h2></div>
+          <ol class="timeline">
+            {s.items.map((x) => (
+              <li>
+                <span class="period">{x.period}</span>
+                <h3>{x.title}</h3>
+                {x.organisation && <p class="org">{x.organisation}</p>}
+                {x.description && <div class="desc" set:html={md(x.description)} />}
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+  </div>
+
+  {barGroups.length > 0 && (
+    <section class="wrap section">
+      <div class="title"><h2>{t['resume.skills_title']}</h2></div>
+      <div class="bars">
+        {barGroups.map(([group, list]) => (
+          <div>
+            <h3>{group}</h3>
+            <ul>
+              {list.map((s) => (
+                <li>
+                  <div class="bar-head">
+                    <span>{s.name}</span>
+                    {s.level != null && <span class="muted">{s.level}%</span>}
+                  </div>
+                  {s.level != null && (
+                    <div class="bar" role="img" aria-label={`${s.name}: ${s.level}%`}>
+                      <span style={`width:${Math.max(0, Math.min(100, s.level))}%`}></span>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {chipGroups.length > 0 && (
+    <section class="wrap section">
+      <div class="chips">
+        {chipGroups.map(([group, list]) => (
+          <div>
+            <h3>{group}</h3>
+            <ul class="tags">
+              {list.map((s) => <li>{s.name}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {certifications.length > 0 && (
+    <section class="wrap section">
+      <div class="title">
+        <h2>{t['resume.certs_title']}</h2>
+        <a href={url('/certifications/')}>{t['resume.certs_link']}</a>
+      </div>
+      <ul class="cert-list">
+        {certifications.map((c) => (
+          <li class="card">
+            <span class="cert-name">{c.title}</span>
+            <span class="muted">{[c.issuer, c.issued_label].filter(Boolean).join(', ')}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</Base>
+
+<style>
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+    gap: 0 3rem;
+  }
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 1.4rem;
+    border-left: 2px solid var(--line);
+  }
+  .timeline li {
+    position: relative;
+    padding-bottom: 1.8rem;
+  }
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    left: calc(-1.4rem - 7px);
+    top: 0.35rem;
+    inline-size: 12px;
+    block-size: 12px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+  .period {
+    display: inline-block;
+    font-size: 0.78rem;
+    padding: 0.1rem 0.65rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+  .timeline h3 {
+    margin: 0;
+  }
+  .org {
+    color: var(--accent-text);
+    font-size: 0.9rem;
+    margin: 0.1rem 0 0.4rem;
+  }
+  .desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    max-width: var(--measure);
+  }
+  .desc :global(p) {
+    margin: 0 0 0.6em;
+  }
+  .desc :global(ul) {
+    margin: 0 0 0.6em;
+    padding-left: 1.1rem;
+  }
+  .bars,
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 1.5rem 3rem;
+  }
+  .bars h3,
+  .chips h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  .bars ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .bar-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.88rem;
+    margin-bottom: 0.35rem;
+  }
+  .bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 60%, #9fd2ff), var(--accent));
+  }
+  .cert-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .cert-list li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1.5rem;
+    padding: 0.9rem 1.2rem;
+  }
+  .cert-name {
+    font-weight: 500;
+  }
+</style>

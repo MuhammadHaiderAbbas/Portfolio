@@ -1,0 +1,184 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { getContent, supabaseConfig } from '../lib/content';
+import { iconSvg } from '../lib/icons';
+
+const { profile, text: t } = await getContent();
+const formEnabled = Boolean(supabaseConfig.url && supabaseConfig.key);
+const intro = t['contact.intro'] || profile.availability;
+---
+
+<Base title={t['contact.title']} description={intro}>
+  <PageBand title={t['contact.title']} lead={intro} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['contact.title'] }]} />
+
+  <section class="wrap section contact">
+    <ul class="details">
+      {profile.email && (
+        <li class="card">
+          <span class="icon-tile" set:html={iconSvg('globe')} />
+          <div>
+            <span class="label">{t['contact.email_label']}</span>
+            <a href={`mailto:${profile.email}`}>{profile.email}</a>
+          </div>
+        </li>
+      )}
+      {profile.phone && (
+        <li class="card">
+          <span class="icon-tile" set:html={iconSvg('monitor')} />
+          <div>
+            <span class="label">{t['contact.phone_label']}</span>
+            <a href={`tel:${profile.phone.replace(/\s/g, '')}`}>{profile.phone}</a>
+          </div>
+        </li>
+      )}
+      {profile.location && (
+        <li class="card">
+          <span class="icon-tile" set:html={iconSvg('cloud')} />
+          <div>
+            <span class="label">{t['contact.location_label']}</span>
+            <span>{profile.location}</span>
+          </div>
+        </li>
+      )}
+      {profile.socials.length > 0 && (
+        <li class="card">
+          <span class="icon-tile" set:html={iconSvg('rocket')} />
+          <div>
+            <span class="label">{t['contact.social_label']}</span>
+            <span class="socials">{profile.socials.map((s) => <a href={s.url} rel="me noopener">{s.label}</a>)}</span>
+          </div>
+        </li>
+      )}
+    </ul>
+
+    <div class="form-card card">
+      <h2>{t['contact.form_title']}</h2>
+      {formEnabled ? (
+        <form id="contact-form" novalidate data-url={supabaseConfig.url} data-key={supabaseConfig.key} data-sent={t['contact.sent']} data-failed={t['contact.failed']}>
+          <div class="row2">
+            <div class="field">
+              <label for="cf-name">{t['contact.name_field']}</label>
+              <input id="cf-name" name="name" required maxlength="120" autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="cf-email">{t['contact.email_field']}</label>
+              <input id="cf-email" name="email" type="email" required maxlength="200" autocomplete="email" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="cf-subject">{t['contact.subject_field']}</label>
+            <input id="cf-subject" name="subject" maxlength="200" />
+          </div>
+          <div class="field">
+            <label for="cf-body">{t['contact.message_field']}</label>
+            <textarea id="cf-body" name="body" required maxlength="5000"></textarea>
+          </div>
+          <div class="hp" aria-hidden="true">
+            <label for="cf-website">Leave this empty</label>
+            <input id="cf-website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <button class="btn" type="submit">{t['contact.send']}</button>
+          <p class="form-status" id="cf-status" role="status" aria-live="polite"></p>
+        </form>
+      ) : (
+        profile.email && <a class="btn" href={`mailto:${profile.email}`}>{t['contact.send']}</a>
+      )}
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  (() => {
+    const form = document.getElementById('contact-form');
+    if (!form) return;
+    const subject = new URL(location.href).searchParams.get('subject');
+    if (subject) form.querySelector('#cf-subject').value = subject.slice(0, 200);
+    const status = document.getElementById('cf-status');
+    const btn = form.querySelector('button[type=submit]');
+    const say = (msg, state) => {
+      status.textContent = msg;
+      status.dataset.state = state;
+    };
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      if (data.website) return say(form.dataset.sent, 'ok');
+      if (!data.name.trim() || !data.body.trim()) return say('Add your name and a message, then send again.', 'error');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) return say('Enter a valid email address so I can reply.', 'error');
+      btn.disabled = true;
+      say('Sending…', '');
+      try {
+        const res = await fetch(form.dataset.url + '/rest/v1/messages', {
+          method: 'POST',
+          headers: { apikey: form.dataset.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ name: data.name.trim(), email: data.email.trim(), subject: data.subject.trim(), body: data.body.trim() }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        say(form.dataset.sent, 'ok');
+      } catch {
+        say(form.dataset.failed, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: 1.5rem 2.5rem;
+    align-items: start;
+  }
+  @media (max-width: 56rem) {
+    .contact {
+      grid-template-columns: 1fr;
+    }
+  }
+  .details {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .details li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    overflow-wrap: anywhere;
+  }
+  .details div {
+    display: grid;
+  }
+  .label {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+  .socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .form-card {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    transform: none;
+  }
+  .form-card h2 {
+    font-size: var(--step-2);
+  }
+  .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1rem;
+  }
+  @media (max-width: 34rem) {
+    .row2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

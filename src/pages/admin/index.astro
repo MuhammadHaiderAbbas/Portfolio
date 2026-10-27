@@ -1,0 +1,35 @@
+---
+import '../../styles/global.css';
+import { supabaseConfig } from '../../lib/content';
+import { url } from '../../lib/paths';
+
+const repo = import.meta.env.PUBLIC_GITHUB_REPO ?? '';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const fonts = [400, 500, 600, 700];
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Site admin</title>
+    <link rel="icon" href={url('/favicon.png')} type="image/png" />
+    <style set:html={fonts.map((w) => `@font-face{font-family:'Poppins';font-style:normal;font-weight:${w};font-display:swap;src:url('${url(`/fonts/poppins-${w}.woff2`)}') format('woff2')}`).join('')} />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="app" data-url={supabaseConfig.url} data-key={supabaseConfig.key} data-repo={repo} data-base={base}>
+      <p style="padding:2rem">Loading the admin panel…</p>
+    </div>
+    <script>
+      import '../../admin/app.ts';
+    </script>
+  </body>
+</html>

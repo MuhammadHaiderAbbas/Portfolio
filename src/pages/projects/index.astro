@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
+import Toolbar from '../../components/Toolbar.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getContent, countBy } from '../../lib/content';
+
+const { projects, text: t } = await getContent();
+const filters = countBy(projects.map((p) => p.category));
+const icons: Record<string, string> = {
+  Cybersecurity: 'shield',
+  'Web Systems': 'code',
+  'Game Development': 'gamepad',
+  '3D / VFX / Animation': 'cube',
+  'E-commerce / Business': 'cart',
+  'AI / Machine Learning': 'brain',
+  'AI / Automation': 'rocket',
+  'Data / Cloud': 'cloud',
+  'Academic Projects': 'award',
+};
+---
+
+<Base title={t['projects.title']} description={t['projects.intro']}>
+  <PageBand title={t['projects.title']} lead={t['projects.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['projects.title'] }]} />
+
+  <section class="wrap section" data-collection="projects">
+    <Toolbar filters={filters} />
+    <ul class="items" data-items>
+      {projects.map((p, i) => (
+        <ItemCard
+          href={`/projects/${p.slug}/`}
+          image={p.cover_url}
+          icon={icons[p.category] ?? 'rocket'}
+          kicker={p.category}
+          title={p.title}
+          text={p.summary}
+          meta={[p.role, p.status, p.year].filter(Boolean)}
+          keys={[p.category]}
+          extra={p.tech.join(' ')}
+          eager={i < 3}
+        />
+      ))}
+    </ul>
+    <p class="muted" data-empty hidden>{t['list.empty']}</p>
+  </section>
+</Base>

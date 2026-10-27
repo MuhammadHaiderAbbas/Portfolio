@@ -1,0 +1,52 @@
+---
+// One card in a listing. Works in both grid and list view.
+import { url } from '../lib/paths';
+import { iconSvg } from '../lib/icons';
+
+interface Props {
+  href?: string;
+  image?: string;
+  icon?: string;
+  kicker?: string;
+  title: string;
+  text?: string;
+  meta?: string[];
+  keys?: string[];
+  extra?: string;
+  eager?: boolean;
+  tilt?: boolean;
+  /** Without an image: show a small icon beside the text instead of a large placeholder. */
+  compact?: boolean;
+}
+const { href, image, icon = 'rocket', kicker, title, text, meta = [], keys = [], extra = '', eager = false, tilt = true, compact = false } = Astro.props;
+const Tag = href ? 'a' : 'div';
+const searchText = [title, kicker, text, ...meta, ...keys, extra].filter(Boolean).join(' ');
+---
+
+<li data-keys={keys.join('|')} data-text={searchText}>
+  <Tag class="card item" href={href ? url(href) : undefined} data-tilt={tilt ? '5' : undefined}>
+    {
+      image ? (
+        <div class="media">
+          <img src={url(image)} alt="" width="800" height="450" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+        </div>
+      ) : compact ? null : (
+        <div class="media">
+          <div class="media-icon" set:html={iconSvg(icon)} />
+        </div>
+      )
+    }
+    <div class="body">
+      {!image && compact && <span class="icon-tile" set:html={iconSvg(icon)} />}
+      {kicker && <span class="kicker">{kicker}</span>}
+      <h3>{title}</h3>
+      {text && <p>{text}</p>}
+      <slot />
+      {meta.length > 0 && (
+        <div class="meta">
+          {meta.map((m) => <span>{m}</span>)}
+        </div>
+      )}
+    </div>
+  </Tag>
+</li>

@@ -1,0 +1,23 @@
+{
+  "name": "haider-abbas-portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/fetch-media.mjs && astro build",
+    "preview": "astro preview",
+    "seed-sql": "node scripts/gen-seed-sql.mjs",
+    "optimize-images": "node scripts/optimize-images.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "astro": "^7.4.2",
+    "marked": "^18.1.2"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
+  }
+}

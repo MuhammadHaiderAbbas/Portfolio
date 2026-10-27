@@ -1,0 +1,291 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getContent, md, formatPrice } from '../../lib/content';
+import { url } from '../../lib/paths';
+import { iconSvg } from '../../lib/icons';
+import type { Service } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const { services } = await getContent();
+  return services.filter((s) => s.slug).map((service) => ({ params: { slug: service.slug! }, props: { service } }));
+}
+
+const { service: s } = Astro.props as { service: Service };
+const { services, projects, text: t } = await getContent();
+const price = formatPrice(s.price_label, t['services.currency']);
+const related = s.related_category ? projects.filter((p) => p.category === s.related_category).slice(0, 3) : [];
+const others = services.filter((x) => x.slug && x.slug !== s.slug);
+const steps = s.process.map((line) => {
+  const i = line.indexOf(':');
+  return i > 0 && i < 40 ? { name: line.slice(0, i).trim(), text: line.slice(i + 1).trim() } : { name: '', text: line };
+});
+const subject = encodeURIComponent(`${s.title} enquiry`);
+---
+
+<Base title={s.title} description={s.tagline || s.description}>
+  <PageBand
+    title={s.title}
+    lead={s.tagline || s.description}
+    crumbs={[{ href: '/', label: t['nav.about'] }, { href: '/services/', label: t['services.title'] }, { label: s.title }]}
+  >
+    <dl class="facts">
+      {price && (
+        <div>
+          <dt>{t['services.price_label']}</dt>
+          <dd>{price} {s.price_note && <small>{s.price_note}</small>}</dd>
+        </div>
+      )}
+      {s.delivery_time && (
+        <div>
+          <dt>{t['services.delivery_label']}</dt>
+          <dd>{s.delivery_time}</dd>
+        </div>
+      )}
+    </dl>
+    <div class="actions">
+      <a class="btn" href={url(`/contact/?subject=${subject}`)}>{t['services.cta_button']}</a>
+    </div>
+  </PageBand>
+
+  <div class="wrap section service">
+    <article>
+      {s.body ? <div class="prose" set:html={md(s.body)} /> : s.description && <p class="prose">{s.description}</p>}
+
+      {steps.length > 0 && (
+        <section class="block">
+          <h2>{t['services.process_title']}</h2>
+          <ol class="steps">
+            {steps.map((st) => (
+              <li class="card">
+                {st.name && <h3>{st.name}</h3>}
+                <p>{st.text}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+    </article>
+
+    <aside>
+      <div class="card side">
+        {s.icon && <span class="icon-tile" set:html={iconSvg(s.icon)} />}
+        {price && (
+          <p class="price">
+            {price}
+            {s.price_note && <small>{s.price_note}</small>}
+          </p>
+        )}
+        {s.features.length > 0 && (
+          <>
+            <h2>{t['services.included_title']}</h2>
+            <ul class="checks">
+              {s.features.map((f) => <li>{f}</li>)}
+            </ul>
+          </>
+        )}
+        {s.tools.length > 0 && (
+          <>
+            <h2>{t['services.tools_title']}</h2>
+            <ul class="tags">
+              {s.tools.map((x) => <li>{x}</li>)}
+            </ul>
+          </>
+        )}
+        <a class="btn" href={url(`/contact/?subject=${subject}`)}>{t['services.cta_button']}</a>
+      </div>
+    </aside>
+  </div>
+
+  {related.length > 0 && (
+    <section class="wrap section">
+      <div class="title">
+        <h2>{t['services.related_title']}</h2>
+        <a href={url(`/projects/?c=${encodeURIComponent(s.related_category)}`)}>{t['home.featured_all']}</a>
+      </div>
+      <ul class="items">
+        {related.map((p) => (
+          <ItemCard href={`/projects/${p.slug}/`} image={p.cover_url} kicker={p.category} title={p.title} text={p.summary} meta={[p.role, p.year].filter(Boolean)} />
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <section class="wrap section">
+    <div class="band enquiry">
+      <div>
+        <h2>{t['services.cta_title']}</h2>
+        <p class="muted">{t['services.cta_text']}</p>
+      </div>
+      <a class="btn enquiry-btn" href={url(`/contact/?subject=${subject}`)}>{t['services.cta_button']}</a>
+    </div>
+  </section>
+
+  {others.length > 0 && (
+    <section class="wrap section">
+      <div class="title"><h2>{t['services.other_title']}</h2></div>
+      <ul class="items">
+        {others.map((o) => (
+          <ItemCard
+            href={`/services/${o.slug}/`}
+            icon={o.icon || 'rocket'}
+            kicker={[formatPrice(o.price_label, t['services.currency']), o.price_note].filter(Boolean).join(' ')}
+            title={o.title}
+            text={o.tagline || o.description}
+            compact
+          />
+        ))}
+      </ul>
+    </section>
+  )}
+</Base>
+
+<style>
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 3rem;
+    margin: 1.5rem 0 0;
+  }
+  .facts dt {
+    font-size: var(--step--1);
+    color: var(--band-muted);
+  }
+  .facts dd {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  .facts small {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--band-muted);
+  }
+  .service {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+    gap: 2.5rem 3.5rem;
+    align-items: start;
+  }
+  @media (max-width: 56rem) {
+    .service {
+      grid-template-columns: 1fr;
+    }
+  }
+  .block {
+    margin-top: 2.5rem;
+  }
+  .block h2 {
+    font-size: var(--step-2);
+  }
+  .steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.8rem;
+  }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 1rem 1.2rem 1rem 4rem;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 1.1rem;
+    top: 1rem;
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent-fill);
+    color: var(--accent-ink);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .steps h3 {
+    margin: 0 0 0.15rem;
+    font-size: 1rem;
+  }
+  .steps p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .side {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    padding: 1.5rem;
+    display: grid;
+    gap: 0.9rem;
+    justify-items: start;
+  }
+  .side h2 {
+    font-size: 0.95rem;
+    margin: 0.4rem 0 0;
+  }
+  .side .price {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .side .price small {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .checks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+    font-size: 0.92rem;
+  }
+  .checks li {
+    position: relative;
+    padding-left: 1.6rem;
+  }
+  .checks li::before {
+    content: '';
+    position: absolute;
+    left: 0.1rem;
+    top: 0.45em;
+    inline-size: 0.9rem;
+    block-size: 0.5rem;
+    border-left: 2px solid var(--accent-text);
+    border-bottom: 2px solid var(--accent-text);
+    transform: rotate(-45deg);
+  }
+  .side .btn {
+    width: 100%;
+    margin-top: 0.4rem;
+  }
+  .enquiry {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    border-radius: var(--r-md);
+  }
+  .enquiry h2 {
+    font-size: var(--step-2);
+    margin-bottom: 0.3rem;
+  }
+  .enquiry p {
+    margin: 0;
+  }
+  .enquiry-btn {
+    background: #fff;
+    border-color: #fff;
+    color: #062457;
+  }
+</style>

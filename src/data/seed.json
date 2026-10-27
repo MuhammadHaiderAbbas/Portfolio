@@ -1,0 +1,1124 @@
+{
+  "profile": {
+    "id": 1,
+    "name": "Muhammad Haider Abbas",
+    "short_name": "Haider Abbas",
+    "headline": "",
+    "intro": "I build practical digital products across games, web systems, 3D content, cybersecurity labs and AI research. My strongest work includes a PHP/MySQL car marketplace with Stripe payments, Unity tactical FPS systems, Blender/Unreal 3D environments, DVWA/Burp Suite security testing, Shopify e-commerce growth work, and an MSc research direction in ML-based anomaly detection with concept drift.",
+    "roles": [
+      "Game Developer",
+      "2D/3D Animator",
+      "VFX Artist",
+      "Web & AI Systems Builder"
+    ],
+    "about": "I am Muhammad Haider Abbas, a UK-based MSc Computer Science & Technology student and multidisciplinary creator working across AI, cybersecurity, web systems, game development, 3D animation and VFX. My work combines academic research, practical software engineering, operational discipline and visual storytelling. I like building systems that are clean, scalable, secure-thinking and visually strong, so every project feels ready for real users, employers, clients and academic presentation.\n\n> My portfolio is designed to show one clear identity: a technical problem-solver who can also design, present and build polished digital experiences.",
+    "availability": "Available for AI, web, game, VFX and cybersecurity projects",
+    "location": "Birmingham, United Kingdom",
+    "email": "muhammad2004haider@gmail.com",
+    "phone": "+44 7856 126502",
+    "photo_url": "/img/profile/haider.webp",
+    "cv_url": "/CV_File/MuhammadHaiderAbbasCV.pdf",
+    "disciplines": [
+      {
+        "label": "AI / Machine Learning",
+        "category": "AI / Machine Learning"
+      },
+      {
+        "label": "Web Systems",
+        "category": "Web Systems"
+      },
+      {
+        "label": "Academic Projects",
+        "category": "Academic Projects"
+      },
+      {
+        "label": "Data / Cloud",
+        "category": "Data / Cloud"
+      },
+      {
+        "label": "Cybersecurity",
+        "category": "Cybersecurity"
+      },
+      {
+        "label": "Game Development",
+        "category": "Game Development"
+      },
+      {
+        "label": "AI / Automation",
+        "category": "AI / Automation"
+      },
+      {
+        "label": "3D / VFX / Animation",
+        "category": "3D / VFX / Animation"
+      },
+      {
+        "label": "E-commerce / Business",
+        "category": "E-commerce / Business"
+      }
+    ],
+    "socials": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/MuhammadHaiderAbbas"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://shorturl.at/5ngri"
+      },
+      {
+        "label": "Facebook",
+        "url": "https://shorturl.at/rYi4T"
+      }
+    ],
+    "seo_description": "Haider Abbas: cyber security learner and developer in Birmingham, UK. Web application security, game development, web systems, 3D and e-commerce projects."
+  },
+  "stats": [
+    {
+      "label": "Core projects",
+      "value": "16",
+      "icon": "monitor",
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "label": "Tech stack",
+      "value": "20+",
+      "icon": "sliders",
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "label": "Certifications",
+      "value": "6",
+      "icon": "award",
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "label": "Live web work",
+      "value": "5+",
+      "icon": "cloud",
+      "sort_order": 4,
+      "published": true
+    }
+  ],
+  "focus_areas": [
+    {
+      "title": "AI / Machine Learning",
+      "description": "Research-focused ML, anomaly detection, concept drift, data preprocessing and model evaluation.",
+      "icon": "brain",
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "title": "AI/ML Engineering",
+      "description": "Building intelligent systems through semantic web technologies, ontologies, and AI reasoning techniques",
+      "icon": "chart",
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "title": "Cybersecurity & Ethical Hacking",
+      "description": "DVWA labs, Burp Suite workflows, OWASP concepts, risk awareness and professional reporting.",
+      "icon": "shield",
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "title": "Web Systems & Backend",
+      "description": "Responsive interfaces, PHP/MySQL systems, admin panels, Stripe flows and reusable data structures.",
+      "icon": "code",
+      "sort_order": 4,
+      "published": true
+    },
+    {
+      "title": "Unity Game Development",
+      "description": "FPS prototypes, AI behaviour, mission systems, vehicles, weapons and level design.",
+      "icon": "gamepad",
+      "sort_order": 5,
+      "published": true
+    },
+    {
+      "title": "Blender 3D / VFX",
+      "description": "3D assets, animation, cinematic visuals, video editing and presentation-ready creative production.",
+      "icon": "cube",
+      "sort_order": 6,
+      "published": true
+    },
+    {
+      "title": "Business & E-commerce",
+      "description": "Shopify stores, product research, digital marketing direction and commercial platform thinking.",
+      "icon": "cart",
+      "sort_order": 7,
+      "published": true
+    }
+  ],
+  "projects": [
+    {
+      "slug": "ml-anomaly-detection-concept-drift",
+      "title": "ML-Based Anomaly Detection with Concept Drift",
+      "summary": "A streaming machine learning research project focused on detecting anomalies when behaviour changes over time.",
+      "category": "AI / Machine Learning",
+      "tech": [
+        "Python",
+        "Scikit-learn",
+        "River",
+        "Streaming ML",
+        "Pandas",
+        "Matplotlib"
+      ],
+      "cover_url": "/img/projects/ml-anomaly-detection-concept-drift.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nThis project focuses on detecting anomalies in streaming or changing data environments where normal behaviour changes over time. This change is called concept drift. Traditional models trained on old data may fail when user behaviour, network traffic, sensor behaviour or transaction patterns evolve. River is especially relevant because it is designed for online machine learning on data streams, while scikit-learn provides baseline anomaly detection methods.\n\n### Problem\n\nMany anomaly detection systems assume that the data distribution remains stable. In real-world systems such as cybersecurity, IoT, finance or user behaviour monitoring, patterns change over time. A model that was accurate yesterday may become unreliable after drift.\n\n### Solution\n\nThe project proposes an adaptive anomaly detection pipeline that continuously learns from streaming data, monitors drift, updates model behaviour and evaluates performance using precision, recall, F1-score, false alarm rate and detection delay.\n\n### Main Features\n\nFeatureDescription\n\nStreaming Data Input\n\nProcesses data continuously\n\nBaseline Model\n\nIsolation Forest, One-Class SVM or similar\n\nOnline Model\n\nRiver-based adaptive model\n\nDrift Detection\n\nDetects behaviour change\n\nEvaluation Metrics\n\nPrecision, recall, F1, false positives\n\nVisualisation\n\nDrift timeline and anomaly graphs\n\nUse Cases\n\nCybersecurity, IoT, finance, system monitoring\n\n### Documentation Angle\n\nThis should be written as an **MSc-level research proposal or experimental ML paper**. Include literature review, dataset plan, methodology, baseline comparison, drift handling, evaluation framework and ethical/GDPR-safe dataset discussion.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/ml-anomaly-detection-concept-drift.pdf",
+      "status": "Academic Research",
+      "role": "Researcher & Developer",
+      "year": "2026",
+      "featured": true,
+      "published": true,
+      "sort_order": 1,
+      "project_date": null
+    },
+    {
+      "slug": "miners-spice-restaurant-platform",
+      "title": "The Miner’s Spice Restaurant Platform",
+      "summary": "A restaurant website and management system with menu, ordering, admin and customer-facing pages.",
+      "category": "Web Systems",
+      "tech": [
+        "PHP",
+        "MySQL",
+        "Admin Dashboard",
+        "Ordering",
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
+      "cover_url": "/img/projects/miners-spice-restaurant-platform.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nThe Miner’s Spice Restaurant Platform is a live restaurant website and digital management system for a restaurant in Coalville. The live website includes Home, Menu, Order Online, Book a Table, Gallery, Contact, Allergens, Login and Sign Up pages. It also advertises online ordering, table booking, secure checkout, live tracking and allergen information.\n\n### Problem\n\nRestaurants need more than a static website. They need a digital system that can handle customer browsing, online ordering, bookings, food safety information, contact management and business presentation.\n\n### Solution\n\nThe project provides a complete restaurant-facing web platform with online menu browsing, ordering, booking, gallery, contact forms, allergen communication, account system and business information such as opening hours, phone number, location and delivery radius.\n\n### Main Features\n\nFeatureDescription\n\nOnline Menu\n\nCustomers browse restaurant items\n\nOrder Online\n\nCustomers place orders digitally\n\nTable Booking\n\nGuests reserve tables\n\nGallery\n\nShows restaurant/food visuals\n\nContact Page\n\nAllows customer enquiries\n\nAllergen Page\n\nGives food safety information\n\nLogin/Sign Up\n\nSupports customer accounts\n\nAdmin Potential\n\nMenu, order, booking and media management\n\n### Documentation Angle\n\nThis is your strongest real-world project. It should remain a **full IEEE-style system documentation** project with diagrams, ERD, booking sequence, ordering workflow, admin dashboard design, deployment model, testing and compliance.",
+      "live_url": "https://theminersspice.co.uk/",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/miners-spice-restaurant-platform.docx",
+      "status": "Commercial Project",
+      "role": "Full-Stack Developer",
+      "year": "2026",
+      "featured": true,
+      "published": true,
+      "sort_order": 2,
+      "project_date": null
+    },
+    {
+      "slug": "smartcv-ai-cv-analyzer",
+      "title": "SmartCV AI CV Analyzer",
+      "summary": "An AI-supported CV optimisation workspace with ATS feedback, role-fit analysis and subscription logic.",
+      "category": "AI / Machine Learning",
+      "tech": [
+        "AI",
+        "ATS",
+        "Stripe",
+        "CV Analysis",
+        "AI workflows",
+        "Web stack",
+        "Resume parsing"
+      ],
+      "cover_url": "/img/projects/smartcv-ai-cv-analyzer.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nThe Q-Learning Grid World Agent is a reinforcement learning project where an autonomous agent learns how to navigate a 5×5 grid world containing obstacles, sparse rewards, penalties, and a special jump transition. The agent uses Q-learning and ε-greedy exploration to learn an optimal policy through trial and error. Your uploaded paper defines this as a 5×5 grid problem with obstacles, a terminal reward, a jump reward, step penalties, and experiments using different epsilon values.\n\n### Problem\n\nThe challenge is to train an agent to reach a goal state efficiently while avoiding obstacles and minimising unnecessary steps. The agent must balance exploration and exploitation: exploring unknown paths while gradually exploiting the best learned route.\n\n### Solution\n\nThe solution uses a Q-table where each state-action pair is updated using the Q-learning update rule. Different ε values are compared to evaluate how exploration affects convergence and total reward. The best-performing configuration is used to derive the final greedy policy.\n\n### Main Features\n\nFeatureDescription\n\nGrid Environment\n\n5×5 state space\n\nObstacles\n\nImpassable states that force route planning\n\nReward System\n\nStep penalty, terminal reward and jump reward\n\nQ-table\n\nStores learned action values\n\nε-greedy Policy\n\nControls exploration vs exploitation\n\nTraining Graphs\n\nShows reward progression and episode steps\n\nPolicy Visualisation\n\nShows final optimal direction from each state\n\n### Documentation Angle\n\nThis is one of your strongest academic projects. It should be documented as a **reinforcement learning experimental paper** with sections for problem formulation, Bellman equation, Q-table construction, training process, hyperparameter tuning, results, convergence analysis and limitations.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/smartcv-ai-cv-analyzer.pdf",
+      "status": "Live / In Progress",
+      "role": "Product Builder",
+      "year": "2026",
+      "featured": true,
+      "published": true,
+      "sort_order": 3,
+      "project_date": null
+    },
+    {
+      "slug": "q-learning-grid-world-agent",
+      "title": "Q-Learning Grid World Agent",
+      "summary": "A reinforcement learning coursework project using Q-learning in a 5×5 grid with obstacles and sparse rewards.",
+      "category": "AI / Machine Learning",
+      "tech": [
+        "RL",
+        "Q-Learning",
+        "Python",
+        "AI",
+        "NumPy",
+        "Matplotlib"
+      ],
+      "cover_url": "/img/projects/q-learning-grid-world-agent.webp",
+      "gallery": [],
+      "body": "Project Description:\n\nThe Q-Learning Grid World Agent is a reinforcement learning project where an autonomous agent learns how to navigate a 5×5 grid world containing obstacles, sparse rewards, penalties, and a special jump transition. The agent uses Q-learning and ε-greedy exploration to learn an optimal policy through trial and error. Your uploaded paper defines this as a 5×5 grid problem with obstacles, a terminal reward, a jump reward, step penalties, and experiments using different epsilon values.\n\n### Problem\n\nThe challenge is to train an agent to reach a goal state efficiently while avoiding obstacles and minimising unnecessary steps. The agent must balance exploration and exploitation: exploring unknown paths while gradually exploiting the best learned route.\n\n### Solution\n\nThe solution uses a Q-table where each state-action pair is updated using the Q-learning update rule. Different ε values are compared to evaluate how exploration affects convergence and total reward. The best-performing configuration is used to derive the final greedy policy.\n\n### Q-Learning Grid World Agent\n\nFieldDetail\n\nProject Type\n\nReinforcement Learning\n\nBest Category\n\nAI / Machine Learning / Academic Project\n\nStatus\n\nStrong academic project\n\nMain Skill Shown\n\nQ-learning, ε-greedy exploration, reward optimisation\n\nSuggested Tech Stack\n\nPython, NumPy, Matplotlib, Jupyter/Google Colab\n\n### Main Features\n\nFeatureDescription\n\nGrid Environment\n\n5×5 state space\n\nObstacles\n\nImpassable states that force route planning\n\nReward System\n\nStep penalty, terminal reward and jump reward\n\nQ-table\n\nStores learned action values\n\nε-greedy Policy\n\nControls exploration vs exploitation\n\nTraining Graphs\n\nShows reward progression and episode steps\n\nPolicy Visualisation\n\nShows final optimal direction from each state\n\n### Documentation Angle\n\nThis is one of your strongest academic projects. It should be documented as a **reinforcement learning experimental paper** with sections for problem formulation, Bellman equation, Q-table construction, training process, hyperparameter tuning, results, convergence analysis and limitations.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/q-learning-grid-world-agent.pdf",
+      "status": "Academic Project",
+      "role": "ML Developer",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 4,
+      "project_date": null
+    },
+    {
+      "slug": "coursera-digital-transformation-strategy",
+      "title": "Coursera Digital Transformation Strategy",
+      "summary": "A digital transformation strategy analysis for Coursera covering AI, data analytics, cloud and EdTech maturity.",
+      "category": "Academic Projects",
+      "tech": [
+        "Digital Strategy",
+        "AI",
+        "Cloud",
+        "EdTech",
+        "Research",
+        "Strategy",
+        "Presentation",
+        "Data analysis"
+      ],
+      "cover_url": "/img/projects/coursera-digital-transformation-strategy.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nThe Coursera Digital Transformation Strategy project analyses Coursera as a digitally mature EdTech platform and proposes strategic improvements using AI, learner analytics, cloud infrastructure, recommendation systems and student segmentation models. Your uploaded Coursera deck identifies Coursera as an EdTech organisation, discusses its digital maturity, proposes datasets and outlines AI/data prototypes for course recommendation and learner segmentation.\n\nCoursera’s own current materials describe it as a platform working with more than 350 university and industry partners, while its Global Skills Report uses insights from 170M+ learners, so this project can be written with strong external context.\n\n### Problem\n\nOnline learning platforms must continuously improve personalisation, completion rates, learner engagement, skills alignment and career outcomes. As competition in EdTech increases, platforms need better use of AI and data-driven strategy.\n\n### Solution\n\nThe project proposes an AI-enabled transformation strategy based on course recommendation, learner behaviour analytics, student segmentation, predictive dropout analysis, cloud infrastructure and blockchain-based certification ideas.\n\n### Main Features / Analysis Areas\n\nAreaDetail\n\nDigital Maturity\n\nReviews Coursera’s existing digital capability\n\nAI Personalisation\n\nRecommends learner-specific course suggestions\n\nData Analytics\n\nUses learner behaviour and course data\n\nStudent Segmentation\n\nGroups learners by activity and engagement\n\nCloud Strategy\n\nSupports scalable learning delivery\n\nBusiness Model\n\nExamines platform ecosystem and partners\n\nFuture Innovation\n\nAI tutors, blockchain certificates, predictive analytics\n\n### Documentation Angle\n\nThis should be written as a **digital transformation strategy report** with business models, value chain, AI roadmap, data architecture, risk analysis, digital maturity model and transformation KPIs.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/coursera-digital-transformation-strategy.pdf",
+      "status": "Academic Project",
+      "role": "Research Analyst",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 5,
+      "project_date": null
+    },
+    {
+      "slug": "cloud-air-pollution-respiratory-analysis",
+      "title": "Cloud-Native Air Pollution & Respiratory Death Analysis",
+      "summary": "A cloud data project analysing average PM2.5 pollution and respiratory deaths using Azure and PySpark.",
+      "category": "Data / Cloud",
+      "tech": [
+        "Azure",
+        "PySpark",
+        "Big Data",
+        "Analytics",
+        "Azure Data Lake Gen2",
+        "Synapse Spark",
+        "Plotly"
+      ],
+      "cover_url": "/img/projects/cloud-air-pollution-respiratory-analysis.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nThis project analyses the relationship between air pollution exposure and respiratory mortality using a cloud-native data processing workflow. It is designed as a public-health analytics system where pollution and mortality datasets are ingested, cleaned, transformed, modelled and visualised through dashboards. WHO identifies ambient air pollution as a major global health issue and estimates millions of premature deaths linked to outdoor air pollution, making this a strong real-world data project.\n\n### Problem\n\nEnvironmental and health datasets are often large, distributed and difficult to interpret. Public-health decision makers need dashboards and analytical pipelines that can connect air quality indicators with respiratory death trends.\n\n### Solution\n\nThe project proposes a cloud-native analytics architecture using data lake storage, scalable Spark processing, transformed analytical datasets and interactive dashboards. Microsoft Azure Data Lake and Azure Synapse Spark are suitable for this type of scalable cloud data processing.\n\n### Main Features\n\nFeatureDescription\n\nData Ingestion\n\nImports pollution and mortality datasets\n\nData Lake Storage\n\nStores raw and processed datasets\n\nPySpark Processing\n\nCleans, joins and aggregates data\n\nAnalytical Modelling\n\nCompares pollution exposure and health outcomes\n\nVisual Dashboard\n\nShows trends by location, year and pollutant\n\nRisk Interpretation\n\nIdentifies high-risk regions or periods\n\n### Documentation Angle\n\nThis project should be documented as a **cloud data engineering and public health analytics case study**. Include architecture diagram, data pipeline, ETL process, dataset table, dashboard screenshots, limitations and ethical use of public health data.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/cloud-air-pollution-respiratory-analysis.pdf",
+      "status": "Academic Project",
+      "role": "Data Engineer",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 6,
+      "project_date": null
+    },
+    {
+      "slug": "pentest-ont-cybersecurity-ontology",
+      "title": "PenTest-Ont Cybersecurity Ontology",
+      "summary": "A cybersecurity ontology modelling tools, techniques, vulnerabilities and penetration testing knowledge.",
+      "category": "Cybersecurity",
+      "tech": [
+        "OWL",
+        "Protégé",
+        "SPARQL",
+        "Cybersecurity",
+        "Knowledge Graphs"
+      ],
+      "cover_url": "/img/projects/pentest-ont-cybersecurity-ontology.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nPenTest-Ont Cybersecurity Ontology is a semantic knowledge-modelling project that structures penetration testing concepts, tools, vulnerabilities, attack techniques and mitigation relationships using ontology engineering. OWL 2 is a W3C ontology language for representing classes, properties, individuals and relationships, while SPARQL is used to query RDF/semantic graph data. Protégé is a widely used ontology editor for building and reasoning over OWL ontologies.\n\n### Problem\n\nCybersecurity knowledge is often fragmented across tools, reports, vulnerability databases, attack techniques and testing methodologies. This makes it difficult to connect what vulnerability exists, which tool detects it, which attack technique exploits it and which mitigation reduces risk.\n\n### Solution\n\nThe ontology creates a structured knowledge graph where cybersecurity entities are linked logically. For example, a vulnerability can be connected to an attack category, a testing tool, an affected asset and a mitigation technique.\n\n### Main Features\n\nFeatureDescription\n\nOntology Classes\n\nVulnerability, Tool, Attack, Asset, Mitigation\n\nObject Properties\n\nDetects, exploits, affects, mitigates\n\nReasoning\n\nInfers relationships between concepts\n\nSPARQL Queries\n\nRetrieves meaningful security knowledge\n\nKnowledge Graph\n\nVisual structure of cybersecurity domain\n\nReporting Support\n\nCan support AI/report automation later\n\n### Documentation Angle\n\nThis project should be documented as a **cybersecurity knowledge engineering research project** with ontology design, competency questions, class hierarchy, property table, SPARQL query examples and reasoning results.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/pentest-ont-cybersecurity-ontology.pdf",
+      "status": "Academic Project",
+      "role": "Security Researcher",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 7,
+      "project_date": null
+    },
+    {
+      "slug": "automarketpro-car-marketplace",
+      "title": "AutoMarketPro Car Marketplace",
+      "summary": "A car-selling marketplace with seller ads, subscriptions, Stripe checkout, image uploads and admin moderation.",
+      "category": "Web Systems",
+      "tech": [
+        "PHP",
+        "MySQL",
+        "Stripe",
+        "Marketplace",
+        "Admin",
+        "User Panels"
+      ],
+      "cover_url": "/img/projects/automarketpro-car-marketplace.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nAutoMarketPro is a car-selling marketplace system designed like a lightweight AutoTrader-style platform. The project allows users to register, buy posting packages, publish vehicle ads, upload car images, manage listings and connect with buyers. The system includes monetisation logic using paid ad packages, featured listings and seller-side controls. Stripe Checkout is suitable for handling hosted payment flows, subscriptions and checkout sessions.\n\n### Problem\n\nSmall sellers and local dealers need a focused platform where they can list cars professionally without depending only on social media marketplaces. The business also needs a monetisation model based on ad packages, featured ads and commission.\n\n### Solution\n\nThe platform supports seller registration, subscription packages, ad publishing, admin moderation, image uploads, vehicle details, featured upgrades and payment integration.\n\n### Main Features\n\nFeatureDescription\n\nSeller Accounts\n\nUsers can register and manage listings\n\nAd Packages\n\nPaid posting plans\n\nVehicle Listings\n\nTitle, price, mileage, fuel, transmission, location\n\nImage Uploads\n\nMultiple vehicle images\n\nFeatured Ads\n\nPaid visibility upgrade\n\nAdmin Approval\n\nAdmin reviews listings\n\nSearch/Filters\n\nBuyers filter by vehicle details\n\nStripe Checkout\n\nHandles payments\n\n### Documentation Angle\n\nWrite this as a **marketplace web system design** with user roles, subscription workflow, vehicle listing schema, payment flow, admin moderation, security, commission model and deployment plan.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/automarketpro-car-marketplace.pdf",
+      "status": "In Progress",
+      "role": "Full-Stack Developer",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 8,
+      "project_date": null
+    },
+    {
+      "slug": "unity-fps-sniper-contracts-prototype",
+      "title": "Unity FPS Sniper Contracts Prototype",
+      "summary": "A tactical FPS sniper prototype with AI states, missions, vehicles, weapons, ADS and large terrain design.",
+      "category": "Game Development",
+      "tech": [
+        "Unity",
+        "C#",
+        "AI",
+        "Level Design",
+        "Blender",
+        "AI Systems",
+        "Vehicle Controller"
+      ],
+      "cover_url": "/img/projects/unity-fps-sniper-contracts-prototype.webp",
+      "gallery": [
+        "/img/projects/tactical-fps.webp"
+      ],
+      "body": "### Project Description\n\nUnity FPS Sniper Contracts Prototype is a tactical first-person shooter game prototype inspired by mission-based sniper gameplay. It includes a large playable environment, mission objectives, AI patrol/combat states, weapon mechanics, scope overlays, vehicle systems and player interaction logic. Unity’s execution model and event function lifecycle are important when documenting systems such as Update, FixedUpdate, physics, input, animation and AI behaviour.\n\n### Problem\n\nBuilding a tactical FPS requires coordinating multiple gameplay systems: player controller, weapon firing, AI state machines, mission objectives, vehicles, UI, physics and level design. If these systems are not modular, the project becomes difficult to scale.\n\n### Solution\n\nThe project is structured as a modular prototype where each major gameplay function is separated into systems: weapon system, mission manager, AI controller, vehicle controller, scope UI and game manager.\n\n### Main Features\n\nFeatureDescription\n\nFPS Player Controller\n\nMovement, camera, input\n\nWeapon System\n\nADS, recoil, firing, projectile logic\n\nSniper Scope\n\nZoom, overlay, night/thermal possibility\n\nAI System\n\nPatrol, alert, investigate, combat\n\nMission System\n\nObjectives and extraction\n\nVehicle System\n\nDriving, braking, wheel collider logic\n\nTerrain Map\n\nLarge industrial/refinery map concept\n\nUI System\n\nPause, objective markers, scope overlay\n\n### Documentation Angle\n\nDocument this as a **game systems engineering case study**. Include gameplay architecture, AI state diagram, weapon flow diagram, vehicle physics logic, mission sequence and future level roadmap.",
+      "live_url": "",
+      "repo_url": "https://github.com/MuhammadHaiderAbbas/TacticalFPS-Unity",
+      "video_url": "",
+      "document_url": "/docs/unity-fps-sniper-contracts-prototype.pdf",
+      "status": "Prototype",
+      "role": "Game Developer",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 9,
+      "project_date": null
+    },
+    {
+      "slug": "dvwa-ethical-hacking-labs",
+      "title": "Cybersecurity DVWA & Ethical Hacking Labs",
+      "summary": "Hands-on cybersecurity labs using DVWA, Burp Suite, OWASP concepts and professional reporting practice.",
+      "category": "Cybersecurity",
+      "tech": [
+        "DVWA",
+        "Burp Suite",
+        "OWASP",
+        "Security",
+        "OWASP testing workflow"
+      ],
+      "cover_url": "/img/projects/dvwa-ethical-hacking-labs.webp",
+      "gallery": [
+        "/img/projects/dvwa-01.webp",
+        "/img/projects/dvwa-02.webp",
+        "/img/projects/dvwa-03.webp",
+        "/img/projects/dvwa-04.webp",
+        "/img/projects/dvwa-05.webp",
+        "/img/projects/dvwa-06.webp",
+        "/img/projects/dvwa-07.webp"
+      ],
+      "body": "### Project Description\n\nThis project is a controlled ethical hacking lab using DVWA and related web security tools to practise vulnerability discovery, exploitation and remediation. DVWA is a deliberately vulnerable web application designed for legal security training. OWASP Top 10 provides a widely recognised framework for common web application security risks, and Burp Suite is a common tool for web penetration testing.\n\n### Problem\n\nStudents and junior security professionals need a safe environment to practise security testing without attacking real systems. Real websites cannot be tested without permission, so controlled labs are essential.\n\n### Solution\n\nThe lab uses intentionally vulnerable applications to practise SQL injection, XSS, CSRF, brute force, insecure upload, weak authentication and other common vulnerabilities. Each test can be documented with vulnerability description, impact, evidence and remediation.\n\n### Main Features / Lab Areas\n\nLab AreaLearning Outcome\n\nSQL Injection\n\nUnderstand database query manipulation\n\nXSS\n\nUnderstand client-side script injection\n\nCSRF\n\nUnderstand unauthorised request execution\n\nBrute Force\n\nUnderstand weak login protection\n\nFile Upload\n\nUnderstand unsafe upload risks\n\nSecurity Levels\n\nCompare low, medium and high defences\n\nReporting\n\nWrite professional vulnerability reports\n\n### Documentation Angle\n\nThis should become a **cybersecurity lab report pack** with each vulnerability documented as: objective, setup, method, evidence, risk rating, mitigation and reflection.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/dvwa-ethical-hacking-labs.pdf",
+      "status": "Practical Labs",
+      "role": "Security Learner",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 10,
+      "project_date": null
+    },
+    {
+      "slug": "jarvis-ai-agent-workflow",
+      "title": "Jarvis AI Agent Workflow",
+      "summary": "A modular AI assistant workflow concept using n8n-style automation, local models and API actions.",
+      "category": "AI / Automation",
+      "tech": [
+        "AI Agents",
+        "n8n",
+        "Ollama",
+        "Automation",
+        "Prompting",
+        "APIs"
+      ],
+      "cover_url": "/img/projects/jarvis-ai-agent-workflow.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nJarvis AI Agent Workflow is a modular AI assistant concept designed to automate personal or business tasks using workflow orchestration. The system can combine triggers, actions, LLM reasoning, APIs, local models and user commands. n8n is relevant because it supports workflow automation and AI-agent style tool orchestration, while Ollama supports running local language models on a user machine.\n\n### Problem\n\nUsers often repeat the same tasks across emails, calendars, notes, web searches, reminders, project planning and file organisation. Doing everything manually wastes time and creates fragmented workflows.\n\n### Solution\n\nThe Jarvis workflow connects different tools into one automation layer. A user command can trigger a chain of actions such as reading data, summarising content, creating tasks, generating emails, updating spreadsheets or calling APIs.\n\n### Main Features\n\nFeatureDescription\n\nCommand Input\n\nUser sends task/request\n\nAgent Router\n\nDecides what workflow to trigger\n\nn8n Workflow\n\nAutomates actions between tools\n\nLocal AI Model\n\nRuns private local reasoning through Ollama\n\nAPI Integrations\n\nConnects email, calendar, docs, websites\n\nMemory Layer\n\nStores user preferences or project notes\n\nNotification System\n\nSends final result or alert\n\n### Documentation Angle\n\nWrite this as an **AI workflow automation architecture**. Include agent workflow diagram, tool-calling pipeline, privacy design, local vs cloud AI comparison and example use cases.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/jarvis-ai-agent-workflow.pdf",
+      "status": "Concept / Prototype",
+      "role": "Automation Designer",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 11,
+      "project_date": null
+    },
+    {
+      "slug": "full-stack-dating-app-prototype",
+      "title": "Full-Stack Dating App Prototype",
+      "summary": "A full-stack app prototype with authentication direction, profile flow, matching concept and database schema planning.",
+      "category": "Web Systems",
+      "tech": [
+        "React",
+        "Node",
+        "Prisma",
+        "PostgreSQL",
+        "Node.js"
+      ],
+      "cover_url": "/img/projects/full-stack-dating-app-prototype.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nThe Full-Stack Dating App Prototype is a modern dating platform concept with user registration, authentication, profile creation, matching logic, messaging flow and backend APIs. React is suitable for building interactive user interfaces, Node.js supports backend JavaScript runtime execution, Prisma provides modern ORM/database access, and PostgreSQL supports relational data modelling.\n\n### Problem\n\nDating apps require complex user flows: onboarding, verification, profile preferences, discovery, matching, chat, blocking/reporting and privacy controls. Without good architecture, these systems become risky and difficult to scale.\n\n### Solution\n\nThe prototype separates frontend, backend and database layers. Users can create profiles, define preferences, browse matches and interact through controlled communication flows. Admin moderation and safety features can be added.\n\n### Main Features\n\nFeatureDescription\n\nAuthentication\n\nRegister, login, JWT/session handling\n\nProfile System\n\nPhotos, bio, interests, preferences\n\nMatch Logic\n\nCompatibility/search filters\n\nMessaging\n\nChat after mutual interest\n\nPrivacy Controls\n\nHide, block, report\n\nAdmin Panel\n\nManage users/reports\n\nDatabase Schema\n\nUsers, profiles, likes, matches, messages\n\n### Documentation Angle\n\nDocument it as a **full-stack product architecture case study** with ERD, user journey, API map, authentication sequence, database schema and privacy/safety discussion.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/full-stack-dating-app-prototype.pdf",
+      "status": "Prototype",
+      "role": "Full-Stack Developer",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 12,
+      "project_date": null
+    },
+    {
+      "slug": "blender-animation-vfx-portfolio",
+      "title": "Blender Animation & VFX Portfolio",
+      "summary": "A creative portfolio area for 2D/3D animation, Blender assets, VFX, video editing and modular game/promo visuals.",
+      "category": "3D / VFX / Animation",
+      "tech": [
+        "Blender",
+        "VFX",
+        "Animation",
+        "Video Editing",
+        "After Effects",
+        "Premiere Pro",
+        "Unity assets"
+      ],
+      "cover_url": "/img/projects/blender-animation-vfx-portfolio.webp",
+      "gallery": [
+        "/img/projects/blender-animation.webp"
+      ],
+      "body": "### Project Description\n\nBlender Animation & VFX Portfolio is a creative showcase of 2D/3D animation, modelling, visual effects, cinematic editing and production design. Unlike software projects, this should be documented as a **production breakdown portfolio**, showing how assets are planned, modelled, textured, animated, rendered, composited and edited.\n\n### Problem\n\nCreative clients and companies need to see not only final visuals but also the process behind them. A strong VFX portfolio should prove technical skill, artistic decision-making, timing, lighting, camera use and post-production workflow.\n\n### Solution\n\nThe project should present finished visuals alongside breakdowns: wireframes, render passes, animation timelines, before/after shots, compositing layers and editing decisions.\n\n### Main Features / Sections\n\nSectionDescription\n\n3D Modelling\n\nAsset/blockout/final mesh process\n\nTexturing\n\nMaterials, UVs and surface detail\n\nAnimation\n\nCharacter/object/camera animation\n\nLighting\n\nScene mood, shadows, environment\n\nRendering\n\nEevee/Cycles settings\n\nVFX\n\nParticles, smoke, fire, energy effects\n\nEditing\n\nFinal cut, sound, transitions, colour grading\n\n### Documentation Angle\n\nThis should be written as a **creative production case study**, not a normal software report. Add screenshots, render passes, timeline images and before/after comparisons.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "https://youtu.be/QxvEu5VFSfU",
+      "document_url": "/docs/blender-animation-vfx-portfolio.pdf",
+      "status": "Creative Portfolio",
+      "role": "3D/VFX Artist",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 13,
+      "project_date": null
+    },
+    {
+      "slug": "family-haven-shopify-store",
+      "title": "Family Haven Shopify Store",
+      "summary": "A UK-focused Shopify pet supplies store with product research, CJ Dropshipping, SEO blogs and paid ad testing.",
+      "category": "E-commerce / Business",
+      "tech": [
+        "Shopify",
+        "CJ Dropshipping",
+        "Meta Ads",
+        "SEO",
+        "Pinterest",
+        "SEO blogs"
+      ],
+      "cover_url": "/img/projects/family-haven-shopify-store.webp",
+      "gallery": [],
+      "body": "### Project Description\n\nFamily Haven Shopify Store is a UK-focused pet accessories e-commerce store built around product sourcing, store design, product pages, blogs, advertising and fulfilment strategy. Shopify themes are designed for storefront customisation, layout design and customer shopping experiences, while CJdropshipping supports product sourcing, listing and fulfilment workflows.\n\n### Problem\n\nNew e-commerce stores need trustworthy branding, product-market fit, clear product pages, payment setup, delivery information, return policies and marketing content. Without these, users may visit but not buy.\n\n### Solution\n\nThe store presents pet products with UK-focused shipping, branded homepage sections, product descriptions, blog content, return policy, ad creatives and fulfilment planning through dropshipping suppliers.\n\n### Main Features\n\nFeatureDescription\n\nShopify Storefront\n\nPet accessory website\n\nProduct Pages\n\nImages, descriptions, pricing\n\nCollections\n\nOrganised product browsing\n\nBlog Content\n\nSEO and brand trust\n\nPolicies\n\nShipping, returns, privacy\n\nCJ Fulfilment\n\nProduct sourcing and order fulfilment\n\nAds Strategy\n\nMeta, Pinterest and TikTok testing\n\nConversion Optimisation\n\nTrust badges, offers, delivery info\n\n### Documentation Angle\n\nDocument it as an **e-commerce operations and digital marketing case study**. Include store structure, product research, supplier workflow, ads plan, customer journey and conversion analysis.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "document_url": "/docs/family-haven-shopify-store.pdf",
+      "status": "Business Project",
+      "role": "Store Builder & Marketer",
+      "year": "2026",
+      "featured": false,
+      "published": true,
+      "sort_order": 14,
+      "project_date": null
+    },
+    {
+      "slug": "vfx-and-video-editing",
+      "title": "Graphics, VFX and video editing",
+      "summary": "Motion graphics, VFX and edited video for clients, including the animated short \"Cars Evolution\".",
+      "category": "3D / VFX / Animation",
+      "tech": [
+        "After Effects",
+        "Premiere Pro",
+        "Photoshop",
+        "Illustrator",
+        "Maya"
+      ],
+      "cover_url": "/img/projects/vfx-video.webp",
+      "gallery": [
+        "/img/projects/graphic-design.webp"
+      ],
+      "body": "Animations, VFX, motion graphics and edited digital content produced for clients at Vision Giants and as freelance work, plus graphic design for social content and e-commerce visuals.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "featured": false,
+      "published": true,
+      "sort_order": 114,
+      "project_date": "2024-12-01",
+      "document_url": "",
+      "status": "",
+      "role": "",
+      "year": "2024"
+    },
+    {
+      "slug": "unity-lottery-game",
+      "title": "Unity lottery game prototype",
+      "summary": "A small Unity prototype with a login flow, in-game currency, betting and coin purchases.",
+      "category": "Game Development",
+      "tech": [
+        "Unity",
+        "C#"
+      ],
+      "cover_url": "/img/projects/lottery-game.webp",
+      "gallery": [],
+      "body": "A Unity prototype exploring a simple lottery game loop: user login, in-game currency, number picking and betting, and a coin purchase screen.",
+      "live_url": "",
+      "repo_url": "",
+      "video_url": "",
+      "featured": false,
+      "published": true,
+      "sort_order": 115,
+      "project_date": "2024-06-01",
+      "document_url": "",
+      "status": "",
+      "role": "",
+      "year": "2024"
+    }
+  ],
+  "posts": [
+    {
+      "slug": "technical-creative-portfolio",
+      "title": "Building a Portfolio That Shows Both Technical and Creative Skill",
+      "excerpt": "A short article about presenting AI, cybersecurity, web, game and creative work inside one professional brand.",
+      "cover_url": "/img/posts/technical-creative-portfolio.webp",
+      "tags": [
+        "Career"
+      ],
+      "body": "A strong portfolio is not just a gallery of finished work. It is a professional story about what you can build, how you think, and how your skills can solve real problems. For people working across more than one field, such as web development, AI, cybersecurity, game development, 3D animation, VFX and video editing, the challenge is not only showing the work. The real challenge is showing it in a way that feels organised, believable and useful to the person viewing it.\n\nMany portfolios fail because they look either too technical or too visual. A purely technical portfolio may include code, tools and project titles, but it may not show creativity, design quality or user experience thinking. A purely creative portfolio may show strong visuals but does not always explain the problem, process, technology or result behind the work. The best portfolio brings both sides together.\n\nFor a multidisciplinary professional, this balance is important. A recruiter, client or company should be able to understand your technical ability within seconds, but they should also feel that you have a strong eye for presentation, structure and professional detail. Your portfolio should make the viewer think, “This person can build systems, but they can also present them properly.”\n\n## Why a Portfolio Matters More Than a CV Alone\n\nA CV is still important, but a portfolio gives evidence. A CV can say that you know PHP, MySQL, AI, Unity, Blender, cybersecurity or web development. A portfolio proves it through real projects, screenshots, documentation, workflows and case studies.\n\nA portfolio helps you show things that a CV cannot fully explain. For example, if you built a restaurant ordering system, your portfolio can show the homepage, ordering flow, admin panel, booking system, checkout logic and project documentation. If you created a Q-learning project, your portfolio can show the grid-world environment, algorithm, reward graphs and final result. If you worked on Blender or VFX, it can show render passes, modelling workflow, lighting and final cinematic output.\n\nThis is why a professional portfolio should not only contain project cards. It should include detailed case studies, downloadable documentation, project categories, thumbnails, technology tags and clear navigation. The more organised the presentation is, the more professional your work appears.\n\n## Start With a Clear Personal Position\n\nBefore adding projects, your portfolio needs a clear personal direction. This does not mean limiting yourself to one skill. It means explaining your skill combination properly.\n\nFor example, instead of saying:\n\n“I do AI, web development, cybersecurity, game development and VFX.”\n\nA stronger version is:\n\n“I build intelligent, secure and visually strong digital systems across AI, web platforms, cybersecurity, game development and creative media.”\n\nThis type of statement connects your skills together. It tells the viewer that your abilities are not random. They belong to one professional identity: someone who can design, build, secure and present digital systems.\n\nYour homepage should introduce this identity immediately. A short hero section, a professional photo, clear buttons such as “View Projects” and “Download CV,” and a few strong stats can make the first impression much better. Keep the language confident but not exaggerated. Companies respect clarity more than overused buzzwords.\n\n## Organising Technical Projects Properly\n\nTechnical projects should be shown with structure. A simple project title and image is not enough. Each project should include:\n\n- Project name\n- Category\n- Short description\n- Technology stack\n- Problem solved\n- Main features\n- Screenshots or thumbnails\n- Case study button\n- Documentation download button\n- Live project or GitHub link if available\n\nFor example, a project like “The Miner’s Spice Restaurant Platform” should not only say “restaurant website.” It should explain that it includes online ordering, table booking, menu management, customer journey, admin workflow, payment readiness and business-focused design.\n\nSimilarly, a project like “AutoMarketPro Car Marketplace” should not only say “car website.” It should explain seller listings, vehicle image uploads, subscription packages, Stripe payment flow, search filters and admin moderation.\n\nWhen projects are described this way, they become evidence of your problem-solving ability.\n\n## Showing Creative Work Without Making It Look Random\n\nCreative work such as 3D animation, Blender assets, VFX, video editing and game visuals should be presented with process. Companies and clients want to see the final image, but they also respect the breakdown.\n\nA strong creative project page can include:\n\n- Final render\n- Wireframe view\n- Clay render\n- Lighting pass\n- Texture/material breakdown\n- Animation timeline\n- Compositing process\n- Final output\n\nThis turns your creative work into a professional production case study. It shows that you understand not only how to make something look good, but also how to plan and execute it.\n\nFor example, a Blender VFX project can show modelling, texturing, lighting, rendering and compositing. A Unity FPS project can show level layout, mission objectives, AI states, weapon system and gameplay UI. These details make creative work much more credible.\n\n## Use Categories to Help Recruiters Navigate\n\nA portfolio becomes stronger when it is easy to filter. Recruiters do not always want to look at everything. A web development company may want to see only web systems. A cybersecurity role may focus on DVWA labs, ontology modelling and ethical hacking. A game studio may care more about Unity, Blender and VFX.\n\nUseful categories include:\n\n- AI / Machine Learning\n- Web Systems\n- Cybersecurity\n- Game Development\n- 3D / VFX / Animation\n- Data / Cloud\n- E-commerce / Business\n- Academic Projects\n\nThese filters help the viewer reach the right projects quickly. They also make your portfolio feel like a real professional system rather than a simple personal webpage.\n\n## Write Project Descriptions Like Mini Case Studies\n\nA strong project description should answer four simple questions:\n\n### 1. What was the problem?\n\nExplain the reason behind the project. For example, restaurants need online ordering systems, students need better CV feedback, or data teams need cloud dashboards.\n\n### 2. What did you build?\n\nDescribe the platform, prototype, algorithm or workflow clearly.\n\n### 3. How did it work?\n\nMention the technologies, system architecture, database, APIs, AI model, security tools or creative pipeline.\n\n### 4. What was the outcome?\n\nExplain the value. Did it improve user experience? Did it automate a process? Did it demonstrate a research concept? Did it support business operations?\n\nThis structure makes even student and prototype projects look more professional.\n\n## Balance Design With Readability\n\nA portfolio can look modern without becoming confusing. Dark themes, cinematic graphics, animated sections and sharp futuristic panels can work very well, but only if the content remains readable. Avoid too much glow, too many colours or overly rounded AI-looking boxes.\n\nSharp edges, clean spacing, consistent typography, strong contrast and professional thumbnails create a better impression. Each section should feel intentional. Buttons should be clear. Cards should have equal dimensions. Text should not blend into backgrounds.\n\nGood design makes your work easier to trust.\n\n## External Authority Links to Add\n\nUseful external references to link from this article:\n\n- GitHub Pages documentation for portfolio hosting\n- Google Search Central for SEO basics\n- LinkedIn career advice for professional branding\n- W3C accessibility guidelines for readable web design\n\n## Conclusion\n\nA portfolio that shows both technical and creative skill is powerful because it gives a complete view of your ability. It shows that you can think like a developer, design like a creative professional, organise like a project manager and communicate like someone ready for real work.\n\nThe goal is not to show everything randomly. The goal is to present your skills with structure, proof and purpose. When technical projects, creative visuals, case studies, documentation and a clear personal brand come together, your portfolio becomes more than a website. It becomes a professional identity.",
+      "published": true,
+      "published_on": "2026-06-06"
+    },
+    {
+      "slug": "why-case-studies-matter",
+      "title": "Why Case Studies Make Projects Look More Professional",
+      "excerpt": "Why project detail pages should explain process, challenges and outcomes instead of only showing images.",
+      "cover_url": "/img/posts/why-case-studies-matter.webp",
+      "tags": [
+        "Portfolio"
+      ],
+      "body": "A project card can show what you made, but a case study explains why it matters. This difference is important. Many portfolios show screenshots, titles and short descriptions, but they do not explain the thinking behind the work. As a result, the viewer sees the final output but does not understand the process, the challenge, the decision-making or the value created.\n\nA case study changes that completely. It turns a project from “something I made” into “a problem I solved.” This is exactly what companies, clients and recruiters want to see. They are not only checking whether a project looks nice. They are checking how you approach real problems, how you structure your work and whether you can explain technical details clearly.\n\nFor a portfolio that includes AI, web systems, cybersecurity, game development, data analysis, e-commerce and VFX, case studies are even more important. Without case studies, a multidisciplinary portfolio can feel scattered. With case studies, it feels professional, structured and intentional.\n\n## What Is a Project Case Study?\n\nA project case study is a detailed explanation of a project from start to finish. It usually explains the problem, objective, tools, process, features, challenges, solution and outcome. It gives the viewer context.\n\nA normal project card may say:\n\n“The Miner’s Spice Restaurant Platform — restaurant website with ordering and booking.”\n\nA case study explains much more:\n\n“The Miner’s Spice Restaurant Platform was designed to support a restaurant’s digital operations by combining online ordering, table booking, menu presentation, customer contact, allergen communication and admin management into one business-ready web system.”\n\nThat second version sounds more professional because it explains purpose and value. It helps the reader understand that the project is not just a design, but a working business solution.\n\n## Why Recruiters Prefer Case Studies\n\nRecruiters and hiring managers often review many portfolios quickly. A screenshot may catch attention, but a case study builds trust. It shows that you can explain your work in a professional way.\n\nCase studies help recruiters understand:\n\n- What problem you solved\n- What your role was\n- What tools and technologies you used\n- How you made decisions\n- How you handled challenges\n- What the final outcome was\n- How the project connects to business or user needs\n\nThis matters because companies do not hire only for tool knowledge. They hire people who can solve problems. A case study gives proof of problem-solving ability.\n\nFor example, if you are applying for a web developer role, a case study about AutoMarketPro can show marketplace logic, seller dashboards, Stripe payments, image uploads, search filtering and admin moderation. If you are applying for an AI role, the Q-Learning Grid World Agent can show algorithmic thinking, reward systems, training evaluation and result analysis. If you are applying for cybersecurity, DVWA labs and PenTest-Ont can show structured security knowledge.\n\n## Case Studies Make Student Projects Look Industry-Ready\n\nA common issue for students is that projects may look academic or unfinished. However, a good case study can make an academic project look highly professional.\n\nFor example, a Q-learning assignment can become a strong AI case study by explaining:\n\n- Reinforcement learning background\n- Grid-world environment\n- Agent behaviour\n- Reward and penalty design\n- Epsilon-greedy exploration\n- Q-table update method\n- Results and graphs\n- Lessons learned\n\nThis turns a coursework task into a professional AI research portfolio item.\n\nThe same applies to a Coursera digital transformation assignment. Instead of presenting it only as university coursework, it can be framed as a digital strategy case study. It can explain digital maturity, AI personalisation, learner analytics, platform business models and future innovation. That makes the work useful for business technology, data strategy and digital transformation roles.\n\n## The Best Case Study Structure\n\nA strong case study does not need to be complicated. It should be easy to scan and easy to understand.\n\n### 1. Project Overview\n\nStart with a short summary. Explain what the project is, who it is for and what it does.\n\nExample:\n\n“SmartCV AI CV Analyzer is an AI-powered platform designed to help job seekers improve their CVs through ATS scoring, keyword analysis and personalised improvement suggestions.”\n\n### 2. Problem Statement\n\nExplain the problem clearly. The problem should sound real and practical.\n\nExample:\n\n“Many job seekers have relevant skills but fail to pass applicant tracking systems because their CVs lack role-specific keywords, clear structure or measurable achievements.”\n\n### 3. Project Objectives\n\nList what the project aimed to achieve. Objectives should be direct and measurable where possible.\n\nExample:\n\n- Analyse CV structure\n- Identify missing keywords\n- Generate ATS-friendly suggestions\n- Improve candidate presentation\n- Provide a clean user dashboard\n\n### 4. Tools and Technologies\n\nMention the stack. This helps technical viewers understand your ability quickly.\n\nExample:\n\nPHP, MySQL, Stripe, JavaScript, Supabase, Python, Unity, Blender, OWL, Protégé, SPARQL, React, Node.js or PostgreSQL.\n\n### 5. System Design or Workflow\n\nThis section makes the project more professional. Add diagrams if possible:\n\n- User flow diagram\n- Data flow diagram\n- System architecture\n- ERD\n- AI workflow\n- Admin panel workflow\n- Security workflow\n\nEven a simple diagram can make the project look more complete.\n\n### 6. Key Features\n\nExplain the main functionality in a table or bullet list. For example:\n\nFeature\n\nDescription\n\nUser Dashboard\n\nAllows users to manage personal data and project activity\n\nAdmin Panel\n\nSupports content, users and system updates\n\nPayment Flow\n\nHandles secure checkout using Stripe\n\nDocumentation Download\n\nAllows users to download project files\n\n### 7. Challenges and Solutions\n\nThis is one of the most important sections. It shows maturity. Do not hide challenges. Explain them professionally.\n\nExample:\n\n“During development, one challenge was organising multiple portfolio categories without breaking the existing static GitHub Pages structure. This was solved by using JSON-driven data and category filters.”\n\n### 8. Outcome\n\nExplain the final result and impact. Even if the project is a prototype, describe what it demonstrates.\n\nExample:\n\n“The final system demonstrates full-stack marketplace logic, payment readiness, seller-side listing management and admin moderation.”\n\n## How Case Studies Improve SEO\n\nCase studies also help Google understand your website better. A portfolio page with only images has limited searchable content. A case study page with headings, keywords, descriptions and internal links gives search engines more context.\n\nFor example, a page titled “AutoMarketPro Car Marketplace Case Study” can rank for terms like:\n\n- car marketplace project\n- PHP marketplace project\n- Stripe payment integration project\n- web development portfolio case study\n\nA page titled “Q-Learning Grid World Agent Case Study” can rank for:\n\n- Q-learning project\n- reinforcement learning portfolio\n- AI student project\n- grid world agent Python\n\nThis is why detailed case studies are valuable. They improve both human readability and search visibility.\n\n## External Authority Links to Add\n\nSuggested authority links:\n\n- Google Search Central for SEO content guidance\n- Nielsen Norman Group for UX case study and usability ideas\n- GitHub Docs for project hosting and repository structure\n- OWASP for security case study references\n- Stripe documentation for checkout/payment projects\n\n## Conclusion\n\nCase studies make projects look more professional because they explain the value behind the work. They show process, problem-solving, technical decisions and outcomes. A project card may attract attention, but a case study builds trust.\n\nFor a multidisciplinary portfolio, case studies are essential. They help connect different skills into one clear professional story. Whether the project is AI, cybersecurity, web development, game development, e-commerce or VFX, the case study format gives it structure and credibility.\n\nA strong portfolio should not only say, “Here is what I built.” It should say, “Here is the problem, here is how I solved it, and here is why it matters.”",
+      "published": true,
+      "published_on": "2026-06-06"
+    },
+    {
+      "slug": "ai-cybersecurity-game-dev-brand",
+      "title": "Combining AI, Cybersecurity and Game Development in One Brand",
+      "excerpt": "A focused way to connect multiple skills without making the website feel confusing.",
+      "cover_url": "/img/posts/ai-cybersecurity-game-dev-brand.webp",
+      "tags": [
+        "Personal Brand"
+      ],
+      "body": "Building a personal brand becomes more challenging when your skills cross multiple fields. Someone who only focuses on frontend development can build a simple frontend portfolio. Someone who only focuses on game development can present game projects. Someone who only works in cybersecurity can show labs, reports and certifications. But when your background includes AI, cybersecurity, web systems, game development, 3D animation, VFX and video editing, the question becomes: how do you connect everything into one professional identity?\n\nThe answer is not to hide your different skills. The answer is to organise them under one clear direction. A modern personal brand can be multidisciplinary if it has a strong message. The goal is to show that your skills are connected by the type of work you do: building intelligent, secure and visually strong digital systems.\n\nAI, cybersecurity and game development may seem different at first, but they actually connect very well. AI focuses on intelligence and automation. Cybersecurity focuses on protection, risk and trust. Game development focuses on interaction, simulation and immersive experience. Together, these skills create a powerful identity for someone who can build smart systems, secure them and present them with strong visual quality.\n\n## Why Multidisciplinary Skills Are Valuable\n\nModern technology projects are rarely one-dimensional. A web platform may need AI features, secure authentication, payment integration, admin dashboards and good UI design. A game project may need AI enemies, secure online systems, analytics and cinematic assets. A business website may need automation, cloud tools, SEO and visual storytelling.\n\nThis means companies increasingly value people who understand more than one area. A multidisciplinary developer can communicate across teams, understand different parts of a project and build more complete solutions.\n\nFor example:\n\n- AI skills help you build automation, recommendation systems and intelligent analysis tools.\n- Cybersecurity skills help you design safer systems, understand risks and apply secure development practices.\n- Game development skills help you understand interactivity, user experience, real-time systems and visual design.\n- VFX and animation skills help you present work in a cinematic and engaging way.\n- Web development skills connect everything into accessible platforms.\n\nWhen these skills are presented properly, they do not look confusing. They look like a strong professional combination.\n\n## The Risk of Looking Unfocused\n\nThe biggest danger of having multiple skills is that your portfolio can look random. If one section shows AI, another shows restaurant websites, another shows Unity games, another shows cybersecurity labs and another shows Blender renders, the viewer may ask, “What exactly does this person do?”\n\nThat is why branding matters. You need one sentence that connects everything.\n\nA weak brand statement would be:\n\n“I do AI, cybersecurity, game development, websites and animation.”\n\nA stronger brand statement would be:\n\n“I design and build intelligent, secure and visually engaging digital systems across AI, web platforms, cybersecurity, game development and creative media.”\n\nThis version sounds professional because it explains the connection. It does not list skills randomly. It gives them a purpose.\n\n## Creating a Clear Brand Framework\n\nA strong multidisciplinary brand can be built around three pillars:\n\n### 1. Intelligence\n\nThis includes AI, machine learning, automation, data analysis and intelligent agents. Projects such as SmartCV AI CV Analyzer, Q-Learning Grid World Agent, Coursera Digital Transformation Strategy, Jarvis AI Agent Workflow and ML-Based Anomaly Detection all fit under this pillar.\n\nThe message is simple: you can build systems that analyse, learn, automate and support decision-making.\n\n### 2. Security\n\nThis includes cybersecurity labs, ethical hacking, secure development, ontology modelling, vulnerability analysis and privacy-aware systems. Projects such as DVWA Ethical Hacking Labs and PenTest-Ont Cybersecurity Ontology fit naturally here.\n\nThe message is that you do not only build systems; you understand how to protect them.\n\n### 3. Experience\n\nThis includes game development, web design, UI/UX, 3D animation, VFX, video editing and cinematic presentation. Projects such as Unity FPS Sniper Contracts Prototype, Blender Animation & VFX Portfolio, The Miner’s Spice and Family Haven Shopify Store fit under this pillar.\n\nThe message is that you can make digital systems usable, visual and engaging.\n\nTogether, these three pillars create a strong identity:\n\n### Intelligent systems. Secure design. Creative experience.\n\n## How to Present This on a Portfolio Website\n\nThe homepage should make your brand clear immediately. The hero section should include your name, professional title and a short statement that connects all skills.\n\nExample:\n\n“Muhammad Haider Abbas is a multidisciplinary developer and creative technologist working across AI, cybersecurity, web systems, game development and VFX.”\n\nThe portfolio should then use categories to organise the projects:\n\n- AI / Machine Learning\n- Cybersecurity\n- Web Systems\n- Game Development\n- 3D / VFX / Animation\n- Data / Cloud\n- E-commerce / Business\n\nThis structure helps different viewers find what matters to them. A cybersecurity company can filter cybersecurity projects. A game studio can focus on Unity and Blender. A web agency can focus on restaurant, marketplace and Shopify projects.\n\n## Why AI and Cybersecurity Work Well Together\n\nAI and cybersecurity are becoming closely connected. AI can help detect anomalies, analyse logs, identify suspicious behaviour and automate reporting. Cybersecurity knowledge helps ensure that AI systems are used responsibly and safely.\n\nA project like ML-Based Anomaly Detection with Concept Drift is a strong example. It combines machine learning with security-style thinking because it focuses on detecting unusual behaviour in changing data. A project like PenTest-Ont also connects with AI because structured cybersecurity knowledge can support automated reasoning and intelligent security reports.\n\nThis combination is powerful because it shows that you are not only following trends. You are connecting technologies in practical ways.\n\n## Why Game Development Strengthens the Brand\n\nGame development adds an important layer: interaction. Building games teaches real-time logic, user feedback, physics, AI behaviour, level design and performance optimisation. These skills are useful beyond games.\n\nFor example, a Unity FPS prototype can show:\n\n- AI enemy behaviour\n- Mission systems\n- Player interaction\n- Weapon mechanics\n- Level design\n- UI feedback\n- Simulation thinking\n\nThese skills can also support training simulations, VR experiences, interactive dashboards and digital twins. Game development makes your portfolio more dynamic because it shows that you can build systems people interact with, not just static pages.\n\n## Why Creative Media Makes the Portfolio More Memorable\n\nA technically strong portfolio can still be forgettable if it looks plain. Creative media changes that. Blender, VFX and animation skills help you create thumbnails, cinematic banners, project breakdowns and visual storytelling.\n\nThis is especially useful for personal branding. High-quality visuals make your project pages feel premium. They help users remember your work. They also show that you care about presentation, which matters in both technical and creative industries.\n\nA strong thumbnail, a clean project detail page and a well-structured case study can make a project feel far more professional.\n\nSuggested external authority sources:\n\n- OWASP for cybersecurity standards and secure web application guidance\n- Unity documentation for game development workflows\n- Blender documentation for 3D and VFX production\n- Google Search Central for portfolio SEO\n- GitHub Docs for public project hosting\n- IBM or Google Cloud learning resources for AI and cloud concepts\n\n## Conclusion\n\nCombining AI, cybersecurity and game development in one brand is not a weakness. It can be a major strength if the portfolio is organised properly. The key is to stop presenting skills as separate random items and start presenting them as connected abilities.\n\nAI gives intelligence. Cybersecurity gives trust. Game development gives interaction. Web systems make the work accessible. Creative media makes it memorable.\n\nTogether, these skills create a powerful personal brand for someone who can build, secure and present modern digital systems. In a world where technology is becoming more intelligent, visual and security-focused, this combination can help you stand out strongly.",
+      "published": true,
+      "published_on": "2026-06-06"
+    }
+  ],
+  "certifications": [
+    {
+      "title": "SIA Door Supervisor License",
+      "issuer": "UK Security Training",
+      "issued_label": "",
+      "summary": "Door supervisor training covering first aid, access control, conflict management, venue safety and public-facing security readiness.",
+      "details": "### What I learnt\n\nThis licence-linked training builds practical public-facing security awareness: access control, safety checks, incident response, conflict management, emergency awareness and professional conduct. It also shows understanding of working safely in regulated UK security environments where communication and risk judgment matter.\n\n### Value to a company\n\nFor employers, this supports roles requiring trust, calm customer interaction, premises safety and clear incident reporting. It proves I can operate responsibly around the public, follow instructions, protect people and escalate risks without creating unnecessary conflict.\n\n### Practical use\n\nUseful in retail, hotels, events, corporate sites and any environment where people, assets and access points must be monitored professionally.",
+      "credential_url": "",
+      "image_url": "/img/certs/sia-door-supervisor-license.webp",
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "title": "Certified Ethical Hacker — CEH",
+      "issuer": "EC-Council",
+      "issued_label": "2023",
+      "summary": "Ethical hacking methodology, reconnaissance, vulnerability concepts, tools and defensive awareness.",
+      "details": "### What I learnt\n\nCEH strengthened my understanding of the ethical hacking lifecycle: reconnaissance, scanning, vulnerability discovery, system and web application attack concepts, wireless/cloud awareness, cryptography basics, documentation and defensive thinking. The learning is not only about tools; it is about understanding attacker behaviour so weaknesses can be found and fixed responsibly.\n\n### Value to a company\n\nCompanies benefit from this because it supports secure-development thinking, vulnerability awareness, better testing conversations and stronger risk reporting. It helps bridge the gap between developers, IT teams and security staff when building or reviewing systems.\n\n### Practical use\n\nUseful for web application security reviews, OWASP-style testing, vulnerability documentation, risk assessment, security lab work and defensive improvement planning.",
+      "credential_url": "",
+      "image_url": "/img/certs/certified-ethical-hacker-ceh.webp",
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "title": "CompTIA Security+ SY0-601",
+      "issuer": "CompTIA",
+      "issued_label": "",
+      "summary": "Risk management, threats, incident response, architecture, cryptography and security operations.",
+      "details": "### What I learnt\n\nSecurity+ develops broad cybersecurity fundamentals across threats, attacks, vulnerabilities, secure architecture, implementation, operations, incident response, governance, risk and compliance. It is a strong foundation for understanding how security controls protect networks, applications, devices and data.\n\n### Value to a company\n\nFor a company, this shows I understand practical security language and can support safer system design, access control, incident awareness, risk discussions and basic security operations. It is valuable in IT support, junior cybersecurity, cloud, web development and technical analyst roles.\n\n### Practical use\n\nUseful for secure configuration awareness, incident triage, risk registers, authentication/authorization planning, cloud security discussions and compliance-minded documentation.",
+      "credential_url": "",
+      "image_url": "/img/certs/comptia-security-sy0-601.webp",
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "title": "Cyber Security: Understand Threats and Prevent Attacks",
+      "issuer": "Online Certification",
+      "issued_label": "",
+      "summary": "Foundational security learning focused on common threats, prevention strategies and secure digital behaviour.",
+      "details": "### What I learnt\n\nThis certification focuses on recognizing common cyber threats, understanding how attackers exploit weak behaviour or weak systems, and applying prevention habits such as strong access control, awareness, updates, backups and safer digital workflows.\n\n### Value to a company\n\nIt supports company readiness by improving security awareness, reducing avoidable mistakes and helping teams understand why policies, training and basic controls matter.\n\n### Practical use\n\nUseful for staff awareness, secure daily operations, phishing-risk reduction, policy communication and entry-level cybersecurity support.",
+      "credential_url": "",
+      "image_url": "/img/certs/cyber-security-understand-threats-and-prevent-attacks.webp",
+      "sort_order": 4,
+      "published": true
+    },
+    {
+      "title": "Introduction to CISM",
+      "issuer": "Security Governance",
+      "issued_label": "",
+      "summary": "Security governance, risk, information security programs and incident management principles.",
+      "details": "### What I learnt\n\nThis learning introduced the management side of information security: governance, risk ownership, security program design and incident management. It connects technical controls with business needs, leadership priorities and measurable security improvement.\n\n### Value to a company\n\nCompanies need security decisions that align with business value, not only technical tools. This certificate supports communication with management, risk-based prioritisation, policy thinking and structured security program planning.\n\n### Practical use\n\nUseful for risk assessments, security reporting, policy review, compliance discussions, incident-management planning and translating technical issues for non-technical stakeholders.",
+      "credential_url": "",
+      "image_url": "/img/certs/introduction-to-cism.webp",
+      "sort_order": 5,
+      "published": true
+    },
+    {
+      "title": "Ulster MSc Coursework Portfolio",
+      "issuer": "Ulster University",
+      "issued_label": "2026",
+      "summary": "Academic evidence across AI, big data, cloud infrastructure, digital transformation and cybersecurity ontology research.",
+      "details": "### What I learnt\n\nThe MSc coursework portfolio brings together AI, big data, cloud infrastructure, digital transformation and cybersecurity research. It shows academic planning, technical investigation, written analysis, project design and evidence-based problem solving.\n\n### Value to a company\n\nFor employers, this demonstrates postgraduate-level learning, research discipline, documentation quality and the ability to connect modern technologies with practical business and security problems.\n\n### Practical use\n\nUseful for AI projects, cloud/data analysis, technical research, documentation-heavy roles, solution design and graduate-level software or cybersecurity pathways.",
+      "credential_url": "",
+      "image_url": "/img/certs/ulster-msc-coursework-portfolio.webp",
+      "sort_order": 6,
+      "published": true
+    }
+  ],
+  "timeline": [
+    {
+      "kind": "work",
+      "title": "Resource Recruiter",
+      "organisation": "Right Recruitment",
+      "period": "2025 – 2026",
+      "description": "Worked in a recruitment and warehouse resourcing role, supporting candidate handling, shift coordination, staff communication and operational workforce planning. The role strengthened my ability to manage people, organise fast-moving work requirements, communicate professionally with applicants and support business operations in a practical recruitment environment.\n\n### Key Skills\n\nRecruitment Support, Candidate Communication, Workforce Coordination, Admin Support, Team Management, Operations Handling",
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "kind": "work",
+      "title": "Instructor, 2D/3D animation & video editing",
+      "organisation": "PNY Institute, Multan",
+      "period": "2025 – present",
+      "description": "Delivered practical instruction in 2D/3D animation, video editing, visual effects and creative production workflows. Guided learners through tools, project planning, animation principles, editing techniques, scene composition and final output preparation. This role developed my communication, mentoring and creative leadership skills while strengthening my professional ability to explain technical and artistic concepts clearly.\n\n### Key Skills\n\n2D Animation, 3D Animation, Blender, Video Editing, VFX, Creative Direction, Teaching, Mentoring, Project-Based Learning",
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "kind": "work",
+      "title": "Cyber security & ethical hacking",
+      "organisation": "Projects and freelance",
+      "period": "2023 – present",
+      "description": "Completed practical cybersecurity and ethical hacking lab work focused on web application security, vulnerability testing and defensive awareness. Projects include DVWA-based testing, OWASP Top 10 concepts, Burp Suite practice, SQL injection analysis, XSS testing, authentication weaknesses and structured security reporting. This experience supports my understanding of secure development, penetration testing methodology and real-world cyber risk identification.\n\n### Key Skills\n\nEthical Hacking, OWASP Top 10, DVWA, Burp Suite, SQL Injection, XSS, Vulnerability Reporting, Secure Development",
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "kind": "work",
+      "title": "2D/3D Animator & Video Editor",
+      "organisation": "Vision Giants, Multan",
+      "period": "Sep – Dec 2024",
+      "description": "Produced animations and VFX and edited digital content for clients.",
+      "sort_order": 4,
+      "published": true
+    },
+    {
+      "kind": "work",
+      "title": "Game Developer, Unity & Unreal",
+      "organisation": "Freelance",
+      "period": "2022 – present",
+      "description": "Multiplayer and single-player 3D games including FPS and mission-based titles; secure login and authentication systems, environment building, AI and networking.",
+      "sort_order": 5,
+      "published": true
+    },
+    {
+      "kind": "work",
+      "title": "E-commerce & IT support",
+      "organisation": "Shopify, Amazon FBA, freelance",
+      "period": "2021 – present",
+      "description": "Built and secured Shopify stores and payment flows, ran Facebook and Google ad campaigns, SEO and email marketing, and tracked performance with analytics.",
+      "sort_order": 6,
+      "published": true
+    },
+    {
+      "kind": "education",
+      "title": "MSc Computer Science & Technology",
+      "organisation": "Ulster University, Birmingham",
+      "period": "2025 – 2026",
+      "description": "I am currently pursuing my MSc in Computer Science & Technology at Ulster University, Birmingham, building advanced skills across specialized and emerging areas in computing, defined below:\n\n- Advanced Scalable Software Solutions: Architecting high-performance, resilient software systems optimized for scalability and cloud-native environments.\n- Digital Transformations: Exploring how AI, IoT, cloud, and emerging technologies drive business innovation and digital maturity.\n- Big Data & Infrastructure: Mastering distributed data storage, real-time processing, and analytics using frameworks like Hadoop and Spark.\n- Deep Learning and Its Applications: Designing and applying deep neural networks for image, speech, and predictive analytics challenges.\n- Knowledge Engineering: Building intelligent systems through semantic web technologies, ontologies, and AI reasoning techniques.\n- Data Science & Machine Learning: Applying statistical modeling and both supervised and unsupervised learning with Python and R.\n- Final Project: Executing a research-driven capstone project integrating advanced software engineering and AI methodologies to address real-world challenges.",
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "kind": "education",
+      "title": "Bachelor of Information Technology",
+      "organisation": "Quaid-i-Azam University, Islamabad",
+      "period": "2021 – 2024",
+      "description": "I have done my Bachelor's in Information Technology from Quaid I Azam University, Islamabas in 2020 - 2024. And got skilled in field of Information Technology defined below:\n\n- Done Experience in Programming from basic to advanced like Computer Programming, C++/C#, Data Structures, Analysis of Algorithm and Object oriented programming.\n- Got expert in field of graphics and video editing and got more expert in adobe series like Photoshop, Illustrator, Premiere Pro and After Effects.\n- I have done experience in 2D 3D Game Development in softwares like Unity 3D and Unreal Engine, having knowledge in language C#, C++ and JavaScript.\n- Have done web development using Html & CSS, JavaScript, PHP and MySQL as backend and database.\n- I got expert in android development using Java & Flutter, Firebase as Database.\n- I have got experience in field of Machine learning and Deep learning, and have got expertise on data analysis using different models in AI, as wel as Python.",
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "kind": "education",
+      "title": "Intermediate (Pre-Engineering)",
+      "organisation": "Punjab Group of Colleges, Multan",
+      "period": "2019 – 2020",
+      "description": "",
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "kind": "education",
+      "title": "Matriculation (Computer Science)",
+      "organisation": "HN Science School, Multan",
+      "period": "2017 – 2018",
+      "description": "",
+      "sort_order": 4,
+      "published": true
+    }
+  ],
+  "skills": [
+    {
+      "group_name": "Design skills",
+      "name": "2D/3D Animation and Modeling",
+      "level": 95,
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "group_name": "Design skills",
+      "name": "Game Development",
+      "level": 85,
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "group_name": "Design skills",
+      "name": "Video Editing and Graphic Design",
+      "level": 75,
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "group_name": "Design skills",
+      "name": "E-commerce Virtual Assistance / Business Platforms",
+      "level": 90,
+      "sort_order": 4,
+      "published": true
+    },
+    {
+      "group_name": "Design skills",
+      "name": "Digital Marketing & SEO",
+      "level": 85,
+      "sort_order": 5,
+      "published": true
+    },
+    {
+      "group_name": "Coding skills",
+      "name": "C# / C++",
+      "level": 85,
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "group_name": "Coding skills",
+      "name": "PHP",
+      "level": 90,
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "group_name": "Coding skills",
+      "name": "JavaScript",
+      "level": 90,
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "group_name": "Coding skills",
+      "name": "HTML / CSS",
+      "level": 85,
+      "sort_order": 4,
+      "published": true
+    },
+    {
+      "group_name": "Coding skills",
+      "name": "Cyber Security",
+      "level": 90,
+      "sort_order": 5,
+      "published": true
+    },
+    {
+      "group_name": "Security tools",
+      "name": "Kali Linux",
+      "level": null,
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "group_name": "Security tools",
+      "name": "Burp Suite",
+      "level": null,
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "group_name": "Security tools",
+      "name": "Nmap",
+      "level": null,
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "group_name": "Security tools",
+      "name": "Metasploit",
+      "level": null,
+      "sort_order": 4,
+      "published": true
+    },
+    {
+      "group_name": "Security tools",
+      "name": "SQLMap",
+      "level": null,
+      "sort_order": 5,
+      "published": true
+    },
+    {
+      "group_name": "Security tools",
+      "name": "Hydra",
+      "level": null,
+      "sort_order": 6,
+      "published": true
+    },
+    {
+      "group_name": "Security tools",
+      "name": "DVWA",
+      "level": null,
+      "sort_order": 7,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "Unity",
+      "level": null,
+      "sort_order": 1,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "Unreal Engine",
+      "level": null,
+      "sort_order": 2,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "Blender",
+      "level": null,
+      "sort_order": 3,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "Maya",
+      "level": null,
+      "sort_order": 4,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "After Effects",
+      "level": null,
+      "sort_order": 5,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "Premiere Pro",
+      "level": null,
+      "sort_order": 6,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "Photoshop",
+      "level": null,
+      "sort_order": 7,
+      "published": true
+    },
+    {
+      "group_name": "Creative tools",
+      "name": "Illustrator",
+      "level": null,
+      "sort_order": 8,
+      "published": true
+    }
+  ],
+  "services": [
+    {
+      "title": "Game development",
+      "description": "Gameplay systems built in Unity or Unreal.",
+      "price_label": "500",
+      "price_note": "per project",
+      "features": [
+        "Unity / Unreal",
+        "Gameplay systems",
+        "AI & missions",
+        "Game UI"
+      ],
+      "highlighted": false,
+      "sort_order": 1,
+      "published": true,
+      "slug": "game-development",
+      "icon": "gamepad",
+      "tagline": "Playable Unity prototypes and gameplay systems, built so they can keep growing.",
+      "related_category": "Game Development",
+      "tools": [
+        "Unity",
+        "C#",
+        "Unreal Engine",
+        "Blender",
+        "NavMesh"
+      ],
+      "delivery_time": "2–6 weeks",
+      "body": "",
+      "process": []
+    },
+    {
+      "title": "3D / VFX / video",
+      "description": "Assets, animation and edits for games, products and social.",
+      "price_label": "100",
+      "price_note": "per project",
+      "features": [
+        "Blender assets",
+        "Animation",
+        "VFX & editing",
+        "Motion graphics"
+      ],
+      "highlighted": true,
+      "sort_order": 2,
+      "published": true,
+      "slug": "3d-vfx-video",
+      "icon": "cube",
+      "tagline": "Models, animation and edits that make a product, game or channel look finished.",
+      "related_category": "3D / VFX / Animation",
+      "tools": [
+        "Blender",
+        "Maya",
+        "After Effects",
+        "Premiere Pro"
+      ],
+      "delivery_time": "3–14 days",
+      "body": "",
+      "process": []
+    },
+    {
+      "title": "Web systems",
+      "description": "PHP/MySQL applications with dashboards and payments.",
+      "price_label": "750",
+      "price_note": "per project",
+      "features": [
+        "PHP / MySQL",
+        "Dashboards",
+        "Payments",
+        "Admin panels"
+      ],
+      "highlighted": false,
+      "sort_order": 3,
+      "published": true,
+      "slug": "web-systems",
+      "icon": "code",
+      "tagline": "PHP and MySQL platforms with admin panels, payments and real business logic.",
+      "related_category": "Web Systems",
+      "tools": [
+        "PHP",
+        "MySQL",
+        "JavaScript",
+        "Stripe"
+      ],
+      "delivery_time": "3–8 weeks",
+      "body": "",
+      "process": []
+    },
+    {
+      "title": "Cyber / e-commerce",
+      "description": "Security testing with a written report, and Shopify growth work.",
+      "price_label": "35%",
+      "price_note": "Total sales",
+      "features": [
+        "Security testing",
+        "Shopify setup",
+        "SEO",
+        "Ads strategy"
+      ],
+      "highlighted": false,
+      "sort_order": 4,
+      "published": true,
+      "slug": "security-and-ecommerce",
+      "icon": "shield",
+      "tagline": "Find the weak points in your site before someone else does, and grow your store.",
+      "related_category": "Cybersecurity",
+      "tools": [
+        "Burp Suite",
+        "Kali Linux",
+        "Nmap",
+        "Shopify"
+      ],
+      "delivery_time": "1–3 weeks",
+      "body": "",
+      "process": []
+    }
+  ],
+  "messages": [
+    {
+      "name": "Muhammad Abbas",
+      "email": "muhammad2004haider@gmail.com",
+      "subject": "Test",
+      "body": "Hello Test  Message",
+      "is_read": false
+    }
+  ],
+  "site_text": [
+    {
+      "key": "home.about_title",
+      "value": "A multidisciplinary creator shaping technology with design, security and real-world purpose."
+    }
+  ]
+}

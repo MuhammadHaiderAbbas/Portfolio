@@ -1,0 +1,88 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getContent, md, formatDate } from '../../lib/content';
+import { url } from '../../lib/paths';
+import type { Post } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const { posts } = await getContent();
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+const { post } = Astro.props as { post: Post };
+const { profile, posts, text: t } = await getContent();
+const minutes = Math.max(1, Math.round((post.body ?? '').split(/\s+/).length / 220));
+const more = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
+---
+
+<Base title={post.title} description={post.excerpt} image={post.cover_url || undefined} type="article">
+  <article>
+    <PageBand title={post.title} lead={post.excerpt} crumbs={[{ href: '/', label: t['nav.about'] }, { href: '/blog/', label: t['post.back'] }, ...(post.tags[0] ? [{ href: `/blog/?c=${encodeURIComponent(post.tags[0])}`, label: post.tags[0] }] : [])]}>
+      <p class="byline">{profile.short_name}, <time datetime={post.published_on}>{formatDate(post.published_on)}</time>, {minutes} min read</p>
+      <div class="band-space" aria-hidden="true"></div>
+    </PageBand>
+    {post.cover_url && (
+      <div class="wrap cover-wrap">
+        <img class="cover card" src={url(post.cover_url)} alt="" width="1600" height="900" fetchpriority="high" />
+      </div>
+    )}
+    <div class="wrap section">
+      <div class="prose post" set:html={md(post.body)} />
+      {post.tags.length > 0 && (
+        <ul class="tags post-tags" aria-label="Tags">
+          {post.tags.map((x) => <li><a href={url(`/blog/?c=${encodeURIComponent(x)}`)}>{x}</a></li>)}
+        </ul>
+      )}
+    </div>
+  </article>
+
+  {more.length > 0 && (
+    <section class="wrap section">
+      <div class="title">
+        <h2>{t['home.posts_title']}</h2>
+        <a href={url('/blog/')}>{t['home.posts_all']}</a>
+      </div>
+      <ul class="items">
+        {more.map((p) => (
+          <ItemCard href={`/blog/${p.slug}/`} image={p.cover_url} kicker={p.tags[0]} title={p.title} text={p.excerpt} meta={[formatDate(p.published_on)]} />
+        ))}
+      </ul>
+    </section>
+  )}
+</Base>
+
+<style>
+  .byline {
+    color: var(--band-muted);
+    font-size: 0.9rem;
+    margin: 1rem 0 0;
+  }
+  .band-space {
+    height: clamp(3rem, 8vw, 6rem);
+  }
+  .cover-wrap {
+    position: relative;
+    z-index: 2;
+    margin-top: clamp(-6rem, -8vw, -3rem);
+  }
+  .cover {
+    width: 100%;
+    max-height: 32rem;
+    object-fit: cover;
+    padding: 0;
+    transform: none;
+  }
+  .post {
+    margin-inline: auto;
+    font-size: 1.02rem;
+  }
+  .post-tags {
+    max-width: var(--measure);
+    margin: 2rem auto 0;
+  }
+  .post-tags a {
+    color: inherit;
+  }
+</style>

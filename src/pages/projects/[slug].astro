@@ -1,0 +1,219 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getContent, md, youtubeId } from '../../lib/content';
+import { url } from '../../lib/paths';
+import type { Project } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const { projects } = await getContent();
+  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+const { project: p } = Astro.props as { project: Project };
+const { projects, text: t } = await getContent();
+const yt = youtubeId(p.video_url);
+const related = projects.filter((x) => x.slug !== p.slug && x.category === p.category).slice(0, 3);
+const links = [
+  p.live_url && { href: p.live_url, label: t['project.live'] },
+  p.document_url && { href: url(p.document_url), label: t['project.document'], download: true },
+  p.repo_url && { href: p.repo_url, label: t['project.code'] },
+  p.video_url && !yt && { href: p.video_url, label: t['project.video'] },
+].filter(Boolean) as { href: string; label: string; download?: boolean }[];
+const facts = [
+  [t['project.role_label'], p.role],
+  [t['project.status_label'], p.status],
+  [t['project.year_label'], p.year],
+].filter(([, v]) => v);
+---
+
+<Base title={p.title} description={p.summary} image={p.cover_url || undefined} type="article">
+  <article>
+    <PageBand
+      title={p.title}
+      lead={p.summary}
+      crumbs={[{ href: '/', label: t['nav.about'] }, { href: '/projects/', label: t['project.back'] }, ...(p.category ? [{ href: `/projects/?c=${encodeURIComponent(p.category)}`, label: p.category }] : [])]}
+    >
+      {links.length > 0 && (
+        <div class="actions">
+          {links.slice(0, 2).map((l, i) => (
+            <a class={i === 0 ? 'btn' : 'btn btn-ghost'} href={l.href} rel="noopener" download={l.download ? '' : undefined}>{l.label}</a>
+          ))}
+        </div>
+      )}
+      <div class="band-space" aria-hidden="true"></div>
+    </PageBand>
+
+    {(yt || p.cover_url) && (
+      <div class="wrap cover-wrap">
+        {yt ? (
+          <a class="video card" href={p.video_url} rel="noopener" aria-label={`${t['project.video']}: ${p.title}`}>
+            <img src={p.cover_url ? url(p.cover_url) : `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`} alt="" width="1600" height="900" fetchpriority="high" />
+            <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+          </a>
+        ) : (
+          <img class="cover card" src={url(p.cover_url)} alt="" width="1600" height="900" fetchpriority="high" />
+        )}
+      </div>
+    )}
+
+    <div class="wrap section detail">
+      <div class="prose" set:html={md(p.body)} />
+      <aside>
+        <div class="card side">
+          {facts.length > 0 && (
+            <dl>
+              {facts.map(([k, v]) => (
+                <div>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          {p.tech.length > 0 && (
+            <ul class="tags" aria-label="Tools and technologies">
+              {p.tech.map((x) => <li>{x}</li>)}
+            </ul>
+          )}
+          {links.length > 0 && (
+            <div class="side-links">
+              {links.map((l, i) => (
+                <a class={i === 0 ? 'btn' : 'btn btn-ghost'} href={l.href} rel="noopener" download={l.download ? '' : undefined}>{l.label}</a>
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
+    </div>
+
+    {p.gallery.length > 0 && (
+      <section class="wrap section">
+        <div class="title"><h2>{t['project.gallery_title']}</h2></div>
+        <ul class="gallery">
+          {p.gallery.map((src) => (
+            <li>
+              <a href={url(src)} class="card">
+                <img src={url(src)} alt="" width="1400" height="700" loading="lazy" decoding="async" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+
+  {related.length > 0 && (
+    <section class="wrap section">
+      <div class="title"><h2>{t['project.related_title']}</h2></div>
+      <ul class="items">
+        {related.map((x) => (
+          <ItemCard href={`/projects/${x.slug}/`} image={x.cover_url} kicker={x.category} title={x.title} text={x.summary} meta={[x.role, x.year].filter(Boolean)} />
+        ))}
+      </ul>
+    </section>
+  )}
+</Base>
+
+<style>
+  .band-space {
+    height: clamp(3rem, 8vw, 6rem);
+  }
+  .cover-wrap {
+    position: relative;
+    z-index: 2;
+    margin-top: clamp(-6rem, -8vw, -3rem);
+  }
+  .cover,
+  .video img {
+    width: 100%;
+    max-height: 34rem;
+    object-fit: cover;
+    border-radius: var(--r-md);
+  }
+  .cover,
+  .video {
+    transform: none;
+    padding: 0;
+    overflow: hidden;
+  }
+  .video {
+    position: relative;
+    display: block;
+  }
+  .play {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+    inline-size: 4.75rem;
+    block-size: 4.75rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .play svg {
+    inline-size: 2rem;
+    block-size: 2rem;
+  }
+  .detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 20rem);
+    gap: 2.5rem 3.5rem;
+    align-items: start;
+  }
+  @media (max-width: 56rem) {
+    .detail {
+      grid-template-columns: 1fr;
+    }
+    .detail aside {
+      order: -1;
+    }
+  }
+  .side {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    padding: 1.4rem;
+    display: grid;
+    gap: 1.1rem;
+    transform: none;
+  }
+  .side dl {
+    margin: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .side dt {
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  .side dd {
+    margin: 0;
+    font-weight: 500;
+  }
+  .side-links {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .gallery {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: 1rem;
+  }
+  .gallery a {
+    display: block;
+    overflow: hidden;
+  }
+  .gallery img {
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    width: 100%;
+    border-radius: inherit;
+  }
+</style>

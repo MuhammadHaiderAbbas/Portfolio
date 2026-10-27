@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
+import Toolbar from '../../components/Toolbar.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getContent, formatDate, countBy } from '../../lib/content';
+
+const { posts, text: t } = await getContent();
+const filters = countBy(posts.flatMap((p) => p.tags));
+const minutes = (body: string) => Math.max(1, Math.round((body ?? '').split(/\s+/).length / 220));
+---
+
+<Base title={t['blog.title']} description={t['blog.intro']}>
+  <PageBand title={t['blog.title']} lead={t['blog.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['blog.title'] }]} />
+
+  <section class="wrap section" data-collection="blog" data-default-view="list">
+    {posts.length ? (
+      <>
+        <Toolbar filters={filters} />
+        <ul class="items list" data-items>
+          {posts.map((p, i) => (
+            <ItemCard
+              href={`/blog/${p.slug}/`}
+              image={p.cover_url}
+              icon="film"
+              kicker={p.tags.join(', ')}
+              title={p.title}
+              text={p.excerpt}
+              meta={[formatDate(p.published_on), `${minutes(p.body)} min read`]}
+              keys={p.tags}
+              eager={i < 2}
+            />
+          ))}
+        </ul>
+        <p class="muted" data-empty hidden>{t['list.empty']}</p>
+      </>
+    ) : (
+      <p class="muted">{t['blog.empty']}</p>
+    )}
+  </section>
+</Base>

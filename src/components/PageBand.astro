@@ -1,0 +1,35 @@
+---
+// The blue band with the 3D scene at the top of every inner page.
+import { getContent } from '../lib/content';
+import { url } from '../lib/paths';
+import { isOn } from '../lib/site-text';
+
+interface Props {
+  title: string;
+  lead?: string;
+  crumbs?: { href?: string; label: string }[];
+}
+const { title, lead, crumbs = [] } = Astro.props;
+const { text: t } = await getContent();
+const show3d = isOn(t, 'bg3d.enabled');
+---
+
+<header class="band page-band">
+  {show3d && <canvas class="scene" data-density="low" data-size="compact" aria-hidden="true"></canvas>}
+  <div class="wrap">
+    {
+      crumbs.length > 0 && (
+        <nav aria-label="Breadcrumb">
+          <ol class="crumbs">
+            {crumbs.map((c) => (
+              <li>{c.href ? <a href={url(c.href)}>{c.label}</a> : <span aria-current="page">{c.label}</span>}</li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+    <h1>{title}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    <slot />
+  </div>
+</header>

@@ -1,0 +1,51 @@
+---
+// Search box, filter buttons and grid/list switch for a listing. Hidden until the
+// script runs, so visitors without JavaScript simply see every item.
+import { getContent } from '../lib/content';
+
+interface Props {
+  filters?: { value: string; label: string; count: number }[];
+  search?: boolean;
+}
+const { filters = [], search = true } = Astro.props;
+const { text: t } = await getContent();
+---
+
+<div class="toolbar" hidden>
+  {
+    search && (
+      <label class="search">
+        <span class="visually-hidden">{t['list.search']}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input type="search" placeholder={t['list.search']} autocomplete="off" />
+      </label>
+    )
+  }
+  <div class="views" role="group" aria-label={t['list.view_label']}>
+    <button type="button" data-view="grid" aria-pressed="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"></rect></svg>
+      {t['list.grid']}
+    </button>
+    <button type="button" data-view="list" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"></path><circle cx="4.5" cy="6" r="1"></circle><circle cx="4.5" cy="12" r="1"></circle><circle cx="4.5" cy="18" r="1"></circle></svg>
+      {t['list.list']}
+    </button>
+  </div>
+  {
+    filters.length > 1 && (
+      <div class="filters" role="group" aria-label={t['list.filter_label']}>
+        <button type="button" data-filter="" aria-pressed="true">
+          {t['list.all']}
+          <span class="count">{filters.reduce((n, f) => n + f.count, 0) || ''}</span>
+        </button>
+        {filters.map((f) => (
+          <button type="button" data-filter={f.value} aria-pressed="false">
+            {f.label}
+            <span class="count">{f.count}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+</div>
+<p class="result-note" data-note data-template={t['list.showing']} hidden></p>

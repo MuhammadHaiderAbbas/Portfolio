@@ -1,0 +1,144 @@
+---
+import '../styles/global.css';
+import { getContent, fill } from '../lib/content';
+import { url } from '../lib/paths';
+import { isOn } from '../lib/site-text';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+}
+
+const { profile, posts, certifications, services, text: t } = await getContent();
+const { title, description = profile.seo_description || profile.intro, image = profile.photo_url, type = 'website' } =
+  Astro.props;
+
+const fullTitle = title ? `${title} | ${profile.short_name}` : `${profile.name} | Portfolio`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(url(image), Astro.site).href : undefined;
+
+const accent = /^#[0-9a-f]{6}$/i.test(t['theme.accent']) ? t['theme.accent'] : '#007ced';
+const defaultTheme = ['dark', 'light', 'system'].includes(t['theme.default']) ? t['theme.default'] : 'dark';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const here = Astro.url.pathname.slice(base.length).replace(/\/$/, '') || '/';
+const nav = [
+  { href: '/', label: t['nav.about'], show: true },
+  { href: '/resume/', label: t['nav.resume'], show: true },
+  { href: '/projects/', label: t['nav.projects'], show: true },
+  { href: '/services/', label: t['nav.services'], show: services.length > 0 },
+  { href: '/blog/', label: t['nav.blog'], show: posts.length > 0 && isOn(t, 'nav.show_blog') },
+  { href: '/certifications/', label: t['nav.certifications'], show: certifications.length > 0 && isOn(t, 'nav.show_certifications') },
+  { href: '/contact/', label: t['nav.contact'], show: true },
+].filter((n) => n.show);
+const isCurrent = (href: string) => {
+  const h = href.replace(/\/$/, '') || '/';
+  return h === '/' ? here === '/' : here === h || here.startsWith(h + '/');
+};
+const [first, ...rest] = profile.short_name.split(' ');
+const year = String(new Date().getFullYear());
+const fonts = [400, 500, 600, 700];
+---
+
+<!doctype html>
+<html lang="en-GB" style={`--accent:${accent}`} data-tilt={isOn(t, 'effects.tilt') ? 'on' : 'off'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#041633" />
+    <link rel="icon" href={url('/favicon.png')} type="image/png" />
+    <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} />
+    <link rel="preload" href={url('/fonts/poppins-400.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={url('/fonts/poppins-600.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="sitemap" href={url('/sitemap.xml')} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <style set:html={fonts.map((w) => `@font-face{font-family:'Poppins';font-style:normal;font-weight:${w};font-display:swap;src:url('${url(`/fonts/poppins-${w}.woff2`)}') format('woff2')}`).join('')} />
+    <script is:inline define:vars={{ defaultTheme }}>
+      try {
+        const saved = localStorage.getItem('theme');
+        const pick = saved === 'light' || saved === 'dark' ? saved : defaultTheme;
+        if (pick !== 'system') document.documentElement.dataset.theme = pick;
+      } catch {
+        if (defaultTheme !== 'system') document.documentElement.dataset.theme = defaultTheme;
+      }
+    </script>
+    <slot name="head" />
+  </head>
+  <body id="top">
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href={url('/')}>
+          <span class="brand-mark" aria-hidden="true">{(first || 'H')[0]}</span>
+          <span><b>{first}</b> {rest.join(' ')}</span>
+        </a>
+        <nav class="nav" id="site-nav" aria-label="Main">
+          {nav.map((n) => <a href={url(n.href)} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a>)}
+        </nav>
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark" title="Switch between light and dark">
+          <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path></svg>
+          <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+        <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href={url('/')} style="color:#fff">
+            <span class="brand-mark" aria-hidden="true">{(first || 'H')[0]}</span>
+            <span><b>{first}</b> {rest.join(' ')}</span>
+          </a>
+          <p>{t['footer.about']}</p>
+          {profile.availability && <p>{profile.availability}</p>}
+        </div>
+        <nav aria-label="Footer">
+          <h2>{t['footer.pages_title']}</h2>
+          <ul>{nav.map((n) => <li><a href={url(n.href)}>{n.label}</a></li>)}</ul>
+        </nav>
+        <div>
+          <h2>{t['footer.contact_title']}</h2>
+          <ul>
+            {profile.email && <li><a href={`mailto:${profile.email}`}>{profile.email}</a></li>}
+            {profile.phone && <li><a href={`tel:${profile.phone.replace(/\s/g, '')}`}>{profile.phone}</a></li>}
+            {profile.location && <li>{profile.location}</li>}
+            {profile.cv_url && <li><a href={url(profile.cv_url)}>{t['footer.cv_link']}</a></li>}
+          </ul>
+        </div>
+        {profile.socials.length > 0 && (
+          <div>
+            <h2>{t['footer.social_title']}</h2>
+            <ul>{profile.socials.map((s) => <li><a href={s.url} rel="me noopener">{s.label}</a></li>)}</ul>
+          </div>
+        )}
+      </div>
+      <div class="wrap footer-bottom">
+        <p>{fill(t['footer.copyright'], { year, name: profile.name })}</p>
+        <a href="#top">{t['footer.top']}</a>
+      </div>
+    </footer>
+
+    <script>
+      import '../scripts/effects.ts';
+      import '../scripts/collection.ts';
+      import '../scripts/bg3d.ts';
+    </script>
+  </body>
+</html>

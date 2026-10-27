@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
+import Toolbar from '../../components/Toolbar.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getContent, formatPrice } from '../../lib/content';
+import { url } from '../../lib/paths';
+
+const { services, text: t } = await getContent();
+---
+
+<Base title={t['services.title']} description={t['services.intro']}>
+  <PageBand title={t['services.title']} lead={t['services.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['services.title'] }]}>
+    <div class="actions">
+      <a class="btn" href={url('/contact/')}>{t['home.cta_button']}</a>
+    </div>
+  </PageBand>
+
+  <section class="wrap section" data-collection="services">
+    <Toolbar />
+    <ul class="items" data-items>
+      {services.map((s) => (
+        <ItemCard
+          href={s.slug ? `/services/${s.slug}/` : '/contact/'}
+          icon={s.icon || 'rocket'}
+          kicker={[formatPrice(s.price_label, t['services.currency']), s.price_note].filter(Boolean).join(' ')}
+          title={s.title}
+          text={s.tagline || s.description}
+          meta={[s.delivery_time && `${t['services.delivery_label']}: ${s.delivery_time}`, ...s.features.slice(0, 3)].filter(Boolean) as string[]}
+          extra={[s.description, ...s.features, ...s.tools].join(' ')}
+          compact
+        />
+      ))}
+    </ul>
+    <p class="muted" data-empty hidden>{t['list.empty']}</p>
+  </section>
+</Base>
