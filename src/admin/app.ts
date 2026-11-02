@@ -222,8 +222,18 @@ async function publish(btn: HTMLButtonElement, msg: HTMLElement) {
   const { data, error } = await sb.rpc('publish_site');
   if (error) {
     btn.disabled = false;
-    msg.textContent = `Publishing failed: ${error.message}`;
     publishBar.dataset.state = 'error';
+    const manual = cfg.repo
+      ? h('a', { href: `https://github.com/${cfg.repo}/actions/workflows/deploy.yml`, target: '_blank', rel: 'noopener' }, 'Run the deploy on GitHub instead')
+      : '';
+    if (/not set up/i.test(error.message)) {
+      msg.replaceChildren(
+        'The Publish button is not connected to GitHub yet: add your GitHub token to Supabase (README, step 5). ',
+        manual
+      );
+    } else {
+      msg.replaceChildren(`Publishing failed: ${error.message} `, manual);
+    }
     return;
   }
   const id = (data as any)?.request_id;
