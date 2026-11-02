@@ -8,6 +8,7 @@ import { h } from './dom';
 import { topbarWidgets, startLive, refreshCounts, counts, type Ctx } from './live';
 import { dashboardView } from './dashboard';
 import { opportunitiesView } from './opportunities';
+import { writerView } from './writer';
 
 type Row = Record<string, any>;
 
@@ -271,6 +272,7 @@ function shell(active: string, main: HTMLElement, session: Session) {
     link('#/dashboard', 'Dashboard', 'dashboard'),
     link('#/opportunities', 'Job opportunities', 'opportunities', badge('badge-opps-side', counts.opportunities)),
     link('#/messages', 'Messages', 'messages', badge('badge-messages-side', counts.messages)),
+    link('#/writer', 'AI writer', 'writer', badge('badge-drafts-side', counts.drafts)),
     h('span', { class: 'side-label' }, 'Content'),
     sections.map((s) => link(`#/${s.key}`, s.label, s.key)),
     link('#/text', 'Site text & settings', 'text')
@@ -1063,6 +1065,7 @@ async function route() {
     if (await databaseIsEmpty()) view = importView();
     else if (key === 'dashboard') view = await dashboardView(ctx);
     else if (key === 'opportunities') view = await opportunitiesView(ctx);
+    else if (key === 'writer') view = await writerView(ctx);
     else if (key === 'messages') view = await messagesView();
     else if (key === 'text') view = await siteTextView();
     else if (!section) view = await dashboardView(ctx);
@@ -1089,6 +1092,8 @@ window.addEventListener('hashchange', () => {
 window.addEventListener('beforeunload', (e) => {
   if (dirty) e.preventDefault();
 });
+
+window.addEventListener('admin:refresh-publish', () => refreshPublishState());
 
 sb.auth.onAuthStateChange((event) => {
   if (event === 'PASSWORD_RECOVERY') renderSetPassword();

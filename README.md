@@ -11,6 +11,7 @@ The source for Muhammad Haider Abbas's portfolio: fast pre-built pages over a li
   - **Top bar:** a Messages button and a notification bell (new messages, job opportunities, publishes, deploy results, content changes and site problems), updated live.
   - **Job opportunities** sent by companies from the public **Hire me** page, tracked through New → Reviewing → Interview → Offer → Declined/Closed with private notes.
   - **Messages** from the contact form.
+  - **AI writer:** collects what is trending in your fields every morning (Google Trends UK, Hacker News, dev.to, GitHub, CISA security advisories), scores each topic for relevance, and writes researched, search-friendly article drafts with Claude. Each draft gets a branded cover image. Drafts wait for your approval; one click approves and publishes.
 - **Publishing:** saving in the admin panel stores the change. **Publish site** rebuilds the pages, and the change is live in about a minute.
 
 ```
@@ -37,7 +38,7 @@ Then **Actions → Deploy site → Run workflow** (or push to `main`). The site 
 ### 2. Create the Supabase database
 
 1. Create a free project at [supabase.com](https://supabase.com) (region **London, eu-west-2**).
-2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**. Then do the same with [`supabase/dashboard.sql`](supabase/dashboard.sql) (visit statistics, notifications and job opportunities).
+2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**. Then do the same with [`supabase/dashboard.sql`](supabase/dashboard.sql) (visit statistics, notifications and job opportunities) and [`supabase/writer.sql`](supabase/writer.sql) (AI writer).
 3. **New query:** paste all of [`supabase/seed.sql`](supabase/seed.sql), then **Run**. This imports all the content: projects, profile, contact details, experience, education, skills, certifications, services, snapshot numbers and "What I do".
 
 ### 3. Create your admin login
@@ -82,7 +83,22 @@ This key is designed to be public; the security rules in `schema.sql` decide wha
    select vault.update_secret(id, 'github_pat_NEW_TOKEN') from vault.secrets where name = 'github_token';
    ```
 
-### 6. Use your own domain (when you're ready)
+### 6. Turn on the AI writer (optional)
+
+Admin → **AI writer** shows these steps with a ready-made token and copy buttons.
+
+1. Create a Claude API key at [console.anthropic.com](https://console.anthropic.com/settings/keys) and add some credit (an article costs a few pence).
+2. GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
+   - `ANTHROPIC_API_KEY`: the Claude key.
+   - `AGENT_TOKEN`: a long random value (the admin page makes one for you).
+3. Supabase → SQL Editor, store the same token: `select vault.create_secret('THE-SAME-VALUE', 'agent_token');`
+4. Admin → AI writer → **Find trending topics**.
+
+Optional: set a repository variable `AI_MODEL` to choose the Claude model (default `claude-sonnet-5-5`). Schedule, days, article length, fields, audience and tone are in Admin → Site text & settings → **AI writer**.
+
+How it stays safe: the writer never gets a Supabase secret key. It can only call the `agent_*` functions, which check the token, read public context and save **drafts**. Articles are told to rely only on the source material for news facts, never to invent figures or experiences, and to cover security topics defensively. Published AI-assisted posts show a short note saying they were reviewed by you (editable or removable in Site text).
+
+### 7. Use your own domain (when you're ready)
 
 GitHub lets only one repository use a domain at a time.
 
@@ -112,6 +128,8 @@ Old addresses such as `/resume.html`, `/portfolio.html`, the old project pages a
 | Handle a job offer | Admin → **Job opportunities**: change the stage, add notes, reply by email. |
 | Give recruiters a pre-filled form | Share `/hire/?company=Acme&role=Developer` (also `name`, `email`, `type`, `mode`, `location`, `salary`, `url`). |
 | Stop counting visits | Admin → Site text & settings → **Privacy and statistics**. |
+| Get a new AI article | Admin → AI writer → pick a topic → **Write now** (or add your own topic). |
+| Approve an AI draft | Admin → AI writer → **Read and edit**, then **Approve and publish**. |
 
 ## Developing locally
 
@@ -133,11 +151,15 @@ After editing `src/data/seed.json`, run `npm run seed-sql` to regenerate `supaba
 | `src/admin/app.ts` | The admin panel |
 | `src/admin/dashboard.ts`, `live.ts`, `opportunities.ts` | Dashboard, top-bar notifications and live updates, job opportunities |
 | `src/scripts/track.ts` | The cookie-free visit counter |
+| `scripts/writer.mjs`, `.github/workflows/writer.yml` | The AI writer and its schedule |
+| `scripts/covers.mjs` | Branded cover images for posts without one (runs before each build) |
+| `src/admin/writer.ts` | The AI writer page in the admin panel |
 | `scripts/gen-geo.mjs` | Rebuilds the dashboard's world map and time-zone table |
 | `src/scripts/bg3d.ts` | The 3D background |
 | `src/lib/content.ts` | Loads content from Supabase (or `seed.json`) at build time |
 | `supabase/schema.sql` | Tables, security rules, uploads and the publish function |
 | `supabase/dashboard.sql` | Visit statistics, notifications and job opportunities |
+| `supabase/writer.sql` | Trending topics, AI drafts, writer runs |
 | `.github/workflows/deploy.yml` | Builds and deploys on push, on Publish, on demand and nightly |
 
 ### Security

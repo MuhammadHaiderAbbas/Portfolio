@@ -2,10 +2,10 @@
 import '../../styles/global.css';
 import { supabaseConfig } from '../../lib/content';
 import { url } from '../../lib/paths';
+import { fontFaceCss } from '../../lib/fonts';
 
 const repo = import.meta.env.PUBLIC_GITHUB_REPO ?? '';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const fonts = [400, 500, 600, 700];
 ---
 
 <!doctype html>
@@ -16,7 +16,7 @@ const fonts = [400, 500, 600, 700];
     <meta name="robots" content="noindex, nofollow" />
     <title>Site admin</title>
     <link rel="icon" href={url('/favicon.png')} type="image/png" />
-    <style set:html={fonts.map((w) => `@font-face{font-family:'Poppins';font-style:normal;font-weight:${w};font-display:swap;src:url('${url(`/fonts/poppins-${w}.woff2`)}') format('woff2')}`).join('')} />
+    <style set:html={fontFaceCss()} />
     <script is:inline>
       try {
         const t = localStorage.getItem('theme');

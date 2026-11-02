@@ -1,0 +1,48 @@
+name: AI writer
+
+# Finds trending topics in your fields and writes article DRAFTS with Claude.
+# Drafts wait in Admin → AI writer until you approve them; nothing is published here.
+on:
+  # Daily: collect trends; writes on the days set in Admin → Site text & settings → AI writer
+  schedule:
+    - cron: '41 6 * * *'
+  # "Find topics" / "Write an article now" buttons in the admin panel
+  repository_dispatch:
+    types: [ai-writer]
+  # Manual run from the Actions tab
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'trends = find topics only, write = write the next article now, auto = daily routine'
+        type: choice
+        options: [write, trends, auto]
+        default: write
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-writer
+  cancel-in-progress: false
+
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run the writer
+        run: node scripts/writer.mjs "$WRITER_MODE"
+        env:
+          WRITER_MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'auto' }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AGENT_TOKEN: ${{ secrets.AGENT_TOKEN }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

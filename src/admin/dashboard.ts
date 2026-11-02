@@ -532,13 +532,73 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
     );
   }
 
+  // Welcome, to-do list and quick actions
+  const hello = h('h1', { tabindex: -1 }, 'Dashboard');
+  const todoSlot = h('div', { class: 'todo' });
+  const writerSlot = h('div', {}, h('p', { class: 'muted dash-empty' }, 'Loading…'));
+  async function loadWelcome() {
+    const [prof, drafts, msgs, opps, state, topics, run] = await Promise.all([
+      sb.from('profile').select('short_name,name').eq('id', 1).maybeSingle(),
+      sb.from('posts').select('id,title,created_at').eq('ai_generated', true).eq('published', false).order('created_at', { ascending: false }),
+      sb.from('messages').select('id', { count: 'exact', head: true }).eq('is_read', false),
+      sb.from('opportunities').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+      sb.from('site_state').select('*').eq('id', 1).maybeSingle(),
+      sb.from('trend_topics').select('keyword,relevance,source,status').in('status', ['new', 'queued']).order('relevance', { ascending: false }).limit(5),
+      sb.from('agent_runs').select('status,started_at,summary').order('started_at', { ascending: false }).limit(1),
+    ]);
+    if (!alive()) return;
+    const first = (prof.data?.short_name || prof.data?.name || '').split(' ')[0];
+    const hr = new Date().getHours();
+    const part = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
+    hello.textContent = first ? `${part}, ${first}` : 'Dashboard';
+    const st = state.data;
+    const unpublished = st && (!st.last_published_at || new Date(st.content_changed_at) > new Date(st.last_published_at));
+    const items: [number | boolean, string, string, string][] = [
+      [drafts.data?.length ?? 0, 'edit', `${drafts.data?.length} AI article draft${drafts.data?.length === 1 ? '' : 's'} to review`, '#/writer'],
+      [opps.count ?? 0, 'briefcase', `${opps.count} new job opportunit${opps.count === 1 ? 'y' : 'ies'}`, '#/opportunities'],
+      [msgs.count ?? 0, 'mail', `${msgs.count} unread message${msgs.count === 1 ? '' : 's'}`, '#/messages'],
+      [Boolean(unpublished), 'upload', 'Changes waiting to be published', '#/dashboard'],
+    ];
+    const open = items.filter(([n]) => n);
+    todoSlot.replaceChildren(
+      h('h2', { class: 'todo-title' }, open.length ? 'Needs you' : 'All caught up'),
+      open.length
+        ? h('ul', {}, open.map(([, ic, text, href]) => h('li', {}, h('a', { href }, icon(ic, 16), text, h('span', { 'aria-hidden': 'true' }, '→')))))
+        : h('p', { class: 'muted' }, 'No drafts, messages or job offers waiting. Nice work.'),
+      h(
+        'div',
+        { class: 'quick' },
+        h('a', { class: 'btn btn-sm', href: '#/projects/new' }, '+ New project'),
+        h('a', { class: 'btn btn-quiet btn-sm', href: '#/posts/new' }, '+ New blog post'),
+        h('a', { class: 'btn btn-quiet btn-sm', href: '#/writer' }, icon('edit', 14), ' AI writer'),
+        h('a', { class: 'btn btn-quiet btn-sm', href: '#/text' }, 'Site text & settings'),
+        h('a', { class: 'btn btn-quiet btn-sm', href: ctx.site('/'), target: '_blank', rel: 'noopener' }, 'View site')
+      )
+    );
+    const last = run.data?.[0];
+    writerSlot.replaceChildren(
+      h(
+        'p',
+        { class: 'small muted writer-line' },
+        last ? `Last run ${ago(last.started_at)}: ${last.status === 'ok' ? 'finished' : last.status}.` : 'Not set up yet: open the AI writer to connect it.'
+      ),
+      topics.error || !topics.data?.length
+        ? h('p', { class: 'muted dash-empty' }, 'No trending topics yet.')
+        : bars(
+            topics.data.map((x: Row) => ({ name: x.keyword, n: x.relevance, label: h('span', {}, x.status === 'queued' ? '★ ' : '', x.keyword), title: `${x.keyword}: relevance ${x.relevance}/100` }))
+          ),
+      h('a', { class: 'link-btn small', href: '#/writer' }, drafts.data?.length ? `Review ${drafts.data.length} draft${drafts.data.length === 1 ? '' : 's'}` : 'Open the AI writer')
+    );
+  }
+
   root.append(
     h(
       'div',
       { class: 'view-head' },
-      h('div', {}, h('h1', { tabindex: -1 }, 'Dashboard'), h('p', { class: 'muted dash-sub' }, updated)),
+      h('div', {}, hello, h('p', { class: 'muted dash-sub' }, new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }), ' · ', updated)),
       h('div', { class: 'seg', role: 'group', 'aria-label': 'Time period' }, rangeBtns)
     ),
+    todoSlot,
     kpis,
     h(
       'div',
@@ -556,17 +616,19 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
         )
       ),
       card('Latest visits', null, recentSlot),
+      card('Site health', h('button', { class: 'link-btn small', type: 'button', onclick: () => loadHealth() }, 'Check again'), healthSlot),
+      card('Inbox', h('a', { class: 'link-btn small', href: '#/opportunities' }, 'Opportunities'), inboxSlot),
+      card('AI writer: top topics', h('span', { class: 'muted small' }, 'Relevance /100'), writerSlot),
       h('div', { class: 'span-2' }, card('Top pages', null, pagesSlot)),
       card('Where they came from', null, sourcesSlot),
       card('Devices', null, devicesSlot),
       card('Browsers', null, browsersSlot),
       card('Systems and languages', null, systemsSlot, h('h3', {}, 'Languages'), languagesSlot),
-      card('Site health', h('button', { class: 'link-btn small', type: 'button', onclick: () => loadHealth() }, 'Check again'), healthSlot),
-      card('Inbox', h('a', { class: 'link-btn small', href: '#/opportunities' }, 'Opportunities'), inboxSlot),
       card('Content', h('span', { class: 'muted small' }, 'Published items'), contentSlot)
     )
   );
 
+  loadWelcome();
   loadStats();
   loadLive();
   loadHealth();
@@ -584,7 +646,10 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
         loadLive();
         loadStats();
       }, 1200);
-    } else if (table === 'messages' || table === 'opportunities') loadInbox();
+    } else if (table === 'messages' || table === 'opportunities') {
+      loadInbox();
+      loadWelcome();
+    } else if (table === 'agent_runs' || table === 'notifications') loadWelcome();
   };
   window.addEventListener('admin:change', onChange);
   let ticks = 0;

@@ -59,6 +59,12 @@ export interface Post {
   body: string;
   published: boolean;
   published_on: string;
+  updated_at?: string;
+  seo_title?: string;
+  meta_description?: string;
+  keywords?: string[];
+  sources?: { title: string; url: string }[];
+  ai_generated?: boolean;
 }
 
 export interface Certification {

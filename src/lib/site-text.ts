@@ -61,6 +61,15 @@ export const textDefs: TextDef[] = [
   { group: 'Menu', key: 'nav.show_certifications', label: 'Show Certifications in the menu', value: on, kind: 'bool' },
 
   // ---- Homepage
+  { group: 'Homepage', key: 'home.kicker', label: 'Small line above your name', value: 'Portfolio · Security · Web · Games · 3D' },
+  { group: 'Homepage', key: 'home.scroll', label: 'Scroll hint (for screen readers)', value: 'Scroll to the content' },
+  { group: 'Homepage', key: 'home.show_marquee', label: 'Show the moving strip of tools', value: on, kind: 'bool' },
+  { group: 'Homepage', key: 'home.marquee_title', label: 'Tools strip (for screen readers)', value: 'Tools I work with' },
+  { group: 'Homepage', key: 'home.disciplines_title', label: 'Disciplines heading', value: 'Explore by discipline' },
+  { group: 'Homepage', key: 'home.show_timeline', label: 'Show the experience timeline', value: on, kind: 'bool' },
+  { group: 'Homepage', key: 'home.timeline_title', label: 'Experience heading', value: 'Experience' },
+  { group: 'Homepage', key: 'home.timeline_link', label: 'Link to the resume', value: 'Full resume' },
+  { group: 'Homepage', key: 'home.services_popular', label: 'Highlighted service badge', value: 'Most popular' },
   { group: 'Homepage', key: 'home.cta_primary', label: 'Main button', value: 'View projects' },
   { group: 'Homepage', key: 'home.cta_cv', label: 'CV button', value: 'Download CV' },
   { group: 'Homepage', key: 'home.show_stats', label: 'Show the snapshot numbers', value: on, kind: 'bool' },
@@ -140,6 +149,41 @@ export const textDefs: TextDef[] = [
   { group: 'Blog pages', key: 'blog.intro', label: 'Introduction', value: 'Write-ups and case studies from my security labs and projects.', kind: 'textarea' },
   { group: 'Blog pages', key: 'blog.empty', label: 'When there are no posts', value: 'No posts yet. The first write-up is on its way.' },
   { group: 'Blog pages', key: 'post.back', label: 'Back link on a post', value: 'Blog' },
+  { group: 'Blog pages', key: 'post.toc', label: '"In this article" heading', value: 'In this article' },
+  { group: 'Blog pages', key: 'post.sources', label: '"Sources" heading', value: 'Sources and further reading' },
+  { group: 'Blog pages', key: 'post.ai_note', label: 'Note under AI-assisted articles', value: 'Drafted with AI assistance from current sources, then reviewed and approved by me.', kind: 'textarea', help: 'Leave empty to hide it.' },
+
+  // ---- AI writer
+  { group: 'AI writer', key: 'ai.enabled', label: 'Write drafts on a schedule', value: on, kind: 'bool', help: 'Trending topics are still collected daily. Drafts always wait for your approval.' },
+  { group: 'AI writer', key: 'ai.days', label: 'Writing days', value: 'mon,thu', help: 'Three-letter days, separated by commas: mon,tue,wed,thu,fri,sat,sun.' },
+  {
+    group: 'AI writer',
+    key: 'ai.per_run',
+    label: 'Articles per writing day',
+    value: '1',
+    kind: 'select',
+    options: [
+      { value: '1', label: '1' },
+      { value: '2', label: '2' },
+      { value: '3', label: '3' },
+    ],
+  },
+  {
+    group: 'AI writer',
+    key: 'ai.length',
+    label: 'Article length',
+    value: '1200',
+    kind: 'select',
+    options: [
+      { value: '800', label: 'Short (about 800 words)' },
+      { value: '1200', label: 'Standard (about 1,200 words)' },
+      { value: '1600', label: 'Long (about 1,600 words)' },
+    ],
+  },
+  { group: 'AI writer', key: 'ai.min_relevance', label: 'Minimum topic relevance (0–100)', value: '65', help: 'Only topics scored at least this high are written automatically. Topics you queue by hand are always written.' },
+  { group: 'AI writer', key: 'ai.focus', label: 'Your fields', value: 'Cybersecurity and ethical hacking; web development (PHP, MySQL, JavaScript); game development (Unity, Unreal); 3D, VFX and animation; AI and machine learning; e-commerce', kind: 'textarea' },
+  { group: 'AI writer', key: 'ai.audience', label: 'Who the articles are for', value: 'Recruiters, hiring managers, small businesses and fellow developers in the UK', kind: 'textarea' },
+  { group: 'AI writer', key: 'ai.tone', label: 'Writing style', value: 'Clear, practical and professional, in British English. Helpful rather than salesy.', kind: 'textarea' },
 
   // ---- Certifications
   { group: 'Certifications page', key: 'certs.title', label: 'Page heading', value: 'Certifications' },

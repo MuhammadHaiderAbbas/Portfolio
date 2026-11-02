@@ -6,7 +6,7 @@ import { url } from '../lib/paths';
 import { iconSvg } from '../lib/icons';
 import { isOn } from '../lib/site-text';
 
-const { profile, projects, services, posts, stats, focus, text: t } = await getContent();
+const { profile, projects, services, posts, stats, focus, skills, timeline, text: t } = await getContent();
 const featuredAll = projects.filter((p) => p.featured);
 const featured = (featuredAll.length ? featuredAll : projects).slice(0, 3);
 const categories = new Set(projects.map((p) => p.category));
@@ -14,6 +14,22 @@ const disciplines = profile.disciplines.filter((d) => !d.category || categories.
 const roles = (profile.roles ?? []).filter(Boolean);
 const rotate = isOn(t, 'effects.roles') && roles.length > 1;
 const show3d = isOn(t, 'bg3d.enabled');
+// Name with the last word set in italic, editorial style
+const nameWords = profile.name.trim().split(/\s+/);
+const nameLast = nameWords.length > 1 ? nameWords.pop() : '';
+const nameFirst = nameWords.join(' ');
+// Tools strip: every skill name once
+const tools = [...new Set(skills.map((s) => s.name).filter(Boolean))];
+// Snapshot numbers count up from zero when they come into view
+const countable = (v: string) => {
+  const m = String(v).match(/^(\D*)(\d+(?:\.\d+)?)(.*)$/);
+  return m ? { prefix: m[1], n: m[2], suffix: m[3] } : null;
+};
+const work = timeline.filter((x) => x.kind === 'work').slice(0, 3);
+const study = timeline.filter((x) => x.kind === 'education').slice(0, 1);
+const journey = [...study, ...work];
+const [lead, ...rest] = featured;
+const pad = (i: number) => String(i + 1).padStart(2, '0');
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
@@ -37,20 +53,24 @@ const jsonLd = {
         <div class="photo" data-tilt="10">
           <div class="ring" aria-hidden="true"></div>
           <img src={url(profile.photo_url)} alt={`Portrait of ${profile.name}`} width="720" height="720" fetchpriority="high" />
+          {profile.location && <span class="photo-tag" aria-hidden="true"><span class="dot"></span>{profile.location.split(',')[0]}</span>}
         </div>
       )}
       <div class="hero-text">
+        <p class="kicker">
+          <span class="rule" aria-hidden="true"></span>
+          {t['home.kicker']}
+        </p>
+        <h1 class="hero-name">
+          {nameFirst} {nameLast && <em>{nameLast}</em>}
+        </h1>
         {roles.length > 0 && (
           <p class="roles" data-roles={rotate ? '' : undefined} aria-label={roles.join(', ')}>
             {(rotate ? roles : roles.slice(0, 1)).map((r, i) => <span class={i === 0 ? 'on' : ''} aria-hidden="true">{r}</span>)}
           </p>
         )}
-        <h1>{profile.name}</h1>
         {profile.headline && <p class="headline">{profile.headline}</p>}
         <p class="intro">{profile.intro}</p>
-        {profile.availability && (
-          <p class="availability"><span class="dot" aria-hidden="true"></span>{profile.availability}</p>
-        )}
         <div class="actions">
           {profile.cv_url && (
             <a class="btn" href={url(profile.cv_url)} download>
@@ -60,40 +80,66 @@ const jsonLd = {
           )}
           <a class="btn btn-ghost" href={url('/projects/')}>{t['home.cta_primary']}</a>
         </div>
+        {profile.availability && (
+          <p class="availability"><span class="dot" aria-hidden="true"></span>{profile.availability}</p>
+        )}
       </div>
     </div>
+    <a class="scroll-cue" href="#next" aria-label={t['home.scroll']}><span aria-hidden="true"></span></a>
   </section>
 
+  <div id="next"></div>
   {isOn(t, 'home.show_stats') && stats.length > 0 && (
     <section class="wrap stats-wrap">
       <h2 class="visually-hidden">{t['home.stats_title']}</h2>
       <ul class="stats">
-        {stats.map((s) => (
-          <li class="card" data-tilt="10">
-            <span class="icon-tile" set:html={iconSvg(s.icon)} />
-            <span class="stat-value">{s.value}</span>
-            <span class="stat-label">{s.label}</span>
-          </li>
-        ))}
+        {stats.map((s, i) => {
+          const c = countable(s.value);
+          return (
+            <li class="card" data-tilt="10" data-reveal style={`--d:${i * 80}ms`}>
+              <span class="icon-tile" set:html={iconSvg(s.icon)} />
+              <span class="stat-value">
+                {c ? <>{c.prefix}<span data-count={c.n}>{c.n}</span>{c.suffix}</> : s.value}
+              </span>
+              <span class="stat-label">{s.label}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )}
+
+  {isOn(t, 'home.show_marquee') && tools.length > 4 && (
+    <section class="marquee" aria-label={t['home.marquee_title']}>
+      <ul class="marquee-track">
+        {[0, 1].map((copy) =>
+          tools.map((name) => <li aria-hidden={copy ? 'true' : undefined}>{name}</li>)
+        )}
       </ul>
     </section>
   )}
 
   {isOn(t, 'home.show_about') && profile.about && (
     <section class="wrap section">
-      <div class="title"><h2>{t['home.about_title']}</h2></div>
       <div class="about-grid">
-        <div class="prose" set:html={md(profile.about)} />
+        <div data-reveal>
+          <h2 class="eyebrow">{t['home.about_title']}</h2>
+          <div class="prose about-prose" set:html={md(profile.about)} />
+        </div>
         {disciplines.length > 0 && (
-          <div>
+          <aside class="about-side" data-reveal style="--d:120ms">
+            <p class="eyebrow">{t['home.disciplines_title']}</p>
             <ul class="disciplines" aria-label="Browse projects by discipline">
               {disciplines.map((d) => (
                 <li>
-                  <a href={url(d.category ? `/projects/?c=${encodeURIComponent(d.category)}` : '/projects/')}>{d.label}</a>
+                  <a href={url(d.category ? `/projects/?c=${encodeURIComponent(d.category)}` : '/projects/')}>
+                    {d.label}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg>
+                  </a>
                 </li>
               ))}
             </ul>
-          </div>
+          </aside>
         )}
       </div>
     </section>
@@ -103,32 +149,74 @@ const jsonLd = {
     <section class="section-alt">
       <div class="wrap">
         <div class="title"><h2>{t['home.focus_title']}</h2></div>
-        <ul class="focus">
-          {focus.map((f) => (
-            <li class="card" data-tilt="6">
-              <span class="icon-tile" set:html={iconSvg(f.icon)} />
+        <ol class="focus">
+          {focus.map((f, i) => (
+            <li data-reveal style={`--d:${(i % 2) * 90}ms`}>
+              <span class="focus-num" aria-hidden="true">{pad(i)}</span>
               <div>
-                <h3>{f.title}</h3>
+                <h3><span class="focus-ico" set:html={iconSvg(f.icon)} />{f.title}</h3>
                 <p>{f.description}</p>
               </div>
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
     </section>
   )}
 
-  {isOn(t, 'home.show_featured') && featured.length > 0 && (
+  {isOn(t, 'home.show_featured') && lead && (
     <section class="wrap section">
       <div class="title">
         <h2>{t['home.featured_title']}</h2>
         <a href={url('/projects/')}>{t['home.featured_all']}</a>
       </div>
-      <ul class="items">
-        {featured.map((p) => (
-          <ItemCard href={`/projects/${p.slug}/`} image={p.cover_url} kicker={p.category} title={p.title} text={p.summary} meta={[p.role, p.year].filter(Boolean)} />
-        ))}
-      </ul>
+      <div class="showcase">
+        <a class="show-lead card" href={url(`/projects/${lead.slug}/`)} data-reveal>
+          <div class="show-media">
+            {lead.cover_url && <img src={url(lead.cover_url)} alt="" width="1200" height="675" loading="lazy" decoding="async" />}
+          </div>
+          <div class="show-body">
+            <p class="kick">{lead.category}{lead.year && ` · ${lead.year}`}</p>
+            <h3>{lead.title}</h3>
+            <p>{lead.summary}</p>
+            <span class="more">View the case study →</span>
+          </div>
+        </a>
+        <div class="show-rest">
+          {rest.map((p, i) => (
+            <a class="show-item card" href={url(`/projects/${p.slug}/`)} data-reveal style={`--d:${(i + 1) * 100}ms`}>
+              <div class="show-media">
+                {p.cover_url && <img src={url(p.cover_url)} alt="" width="800" height="450" loading="lazy" decoding="async" />}
+              </div>
+              <div class="show-body">
+                <p class="kick">{p.category}{p.year && ` · ${p.year}`}</p>
+                <h3>{p.title}</h3>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {isOn(t, 'home.show_timeline') && journey.length > 0 && (
+    <section class="section-alt">
+      <div class="wrap">
+        <div class="title">
+          <h2>{t['home.timeline_title']}</h2>
+          <a href={url('/resume/')}>{t['home.timeline_link']}</a>
+        </div>
+        <ol class="journey">
+          {journey.map((j, i) => (
+            <li data-reveal style={`--d:${i * 90}ms`}>
+              <span class="j-dot" aria-hidden="true"></span>
+              <p class="j-period">{j.period}</p>
+              <h3>{j.title}</h3>
+              <p class="j-org">{j.organisation}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
     </section>
   )}
 
@@ -139,8 +227,9 @@ const jsonLd = {
         <a href={url('/services/')}>{t['services.view']}</a>
       </div>
       <ul class="pricing">
-        {services.map((s) => (
-          <li class:list={['card', 'package', { highlight: s.highlighted }]} data-tilt="8">
+        {services.map((s, i) => (
+          <li class:list={['card', 'package', { highlight: s.highlighted }]} data-tilt="8" data-reveal style={`--d:${i * 80}ms`}>
+            {s.highlighted && <span class="badge-top">{t['home.services_popular']}</span>}
             {s.icon && <span class="icon-tile" set:html={iconSvg(s.icon)} />}
             <h3>{s.title}</h3>
             {s.price_label && (
@@ -180,14 +269,14 @@ const jsonLd = {
 
   {isOn(t, 'home.show_cta') && (
     <section class="wrap section">
-      <div class="band cta">
+      <div class="band cta" data-reveal>
         <div>
           <h2>{t['home.cta_title']}</h2>
           <p class="muted">{t['home.cta_text']}</p>
         </div>
         <div class="actions">
           <a class="btn cta-btn" href={url('/contact/')}>{t['home.cta_button']}</a>
-          {profile.email && <a class="btn btn-ghost" href={`mailto:${profile.email}`}>{profile.email}</a>}
+          {isOn(t, 'hire.show') && <a class="btn btn-ghost" href={url('/hire/')}>{t['nav.hire']}</a>}
         </div>
       </div>
     </section>
@@ -268,11 +357,83 @@ const jsonLd = {
     transform: none;
   }
   .hero h1 {
-    font-size: var(--step-hero);
+    font-size: clamp(2.8rem, 1.4rem + 5.2vw, 5.4rem);
     font-weight: 700;
-    line-height: 1.06;
-    letter-spacing: -0.025em;
-    margin-bottom: 0.4em;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3em;
+  }
+  .hero h1 em {
+    display: inline-block;
+    font-style: italic;
+    font-weight: 400;
+    background: linear-gradient(100deg, #fff 10%, #9fd2ff 55%, #fff 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-right: 0.06em;
+  }
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--band-muted);
+  }
+  .kicker .rule {
+    inline-size: 2.5rem;
+    block-size: 1px;
+    background: currentColor;
+  }
+  .photo-tag {
+    position: absolute;
+    right: -0.5rem;
+    bottom: 12%;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(4, 22, 51, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 0.85rem;
+    transform: translateZ(60px);
+  }
+  .scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 4.6rem;
+    translate: -50% 0;
+    inline-size: 1.6rem;
+    block-size: 2.6rem;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 999px;
+    z-index: 1;
+  }
+  .scroll-cue span {
+    position: absolute;
+    left: 50%;
+    top: 0.45rem;
+    inline-size: 4px;
+    block-size: 0.55rem;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: #fff;
+    animation: cue 1.8s ease-in-out infinite;
+  }
+  @keyframes cue {
+    0% { transform: translateY(0); opacity: 1; }
+    70% { transform: translateY(0.9rem); opacity: 0; }
+    100% { opacity: 0; }
+  }
+  @media (max-width: 48rem), (max-height: 40rem) {
+    .scroll-cue { display: none; }
   }
   .headline {
     font-size: var(--step-1);
@@ -286,9 +447,10 @@ const jsonLd = {
     display: flex;
     align-items: baseline;
     gap: 0.6rem;
-    font-weight: 500;
-    font-size: 0.92rem;
-    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    font-style: italic;
+    margin: 1.4rem 0 0;
+    color: var(--band-muted);
   }
   .dot {
     flex: none;
@@ -311,8 +473,27 @@ const jsonLd = {
       margin-inline: auto;
     }
     .availability,
+    .kicker,
     .hero .actions {
       justify-content: center;
+    }
+    .photo-tag {
+      right: 0;
+    }
+    .kicker .rule {
+      display: none;
+    }
+    .stats-wrap .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .stats-wrap .stats li {
+      padding: 1rem 0.5rem;
+    }
+    .availability {
+      text-align: left;
+      max-width: 22rem;
+      margin-inline: auto;
     }
     .roles {
       height: 3.4em;
@@ -344,8 +525,8 @@ const jsonLd = {
     text-align: center;
   }
   .stat-value {
-    font-size: 2.3rem;
-    font-weight: 600;
+    font-size: 2.8rem;
+    font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.02em;
     margin-top: 0.4rem;
@@ -366,51 +547,282 @@ const jsonLd = {
       grid-template-columns: 1fr;
     }
   }
-  .disciplines {
+  /* Moving strip of tools */
+  .marquee {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-block: 1.1rem;
+    border-block: 1px solid var(--line);
+    overflow: hidden;
+    -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-track {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    width: max-content;
+    animation: marquee 60s linear infinite;
   }
-  .disciplines a {
-    display: inline-block;
-    padding: 0.45rem 1rem;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    color: var(--ink);
-    font-size: 0.88rem;
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
   }
-  .disciplines a:hover {
-    border-color: var(--accent);
+  .marquee li {
+    display: flex;
+    align-items: center;
+    gap: 2.25rem;
+    padding-right: 2.25rem;
+    font-size: clamp(1.2rem, 1rem + 1vw, 1.7rem);
+    font-style: italic;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .marquee li::after {
+    content: '✦';
+    font-style: normal;
+    font-size: 0.6em;
     color: var(--accent-text);
-    text-decoration: none;
+  }
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { -webkit-mask: none; mask: none; }
+    .marquee-track { animation: none; flex-wrap: wrap; width: auto; justify-content: center; padding-inline: var(--gutter); }
+    .marquee li { font-size: 1.1rem; }
+    .marquee li[aria-hidden='true'] { display: none; }
   }
 
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1.25rem;
+    font-weight: 400;
+    line-height: 1.4;
+    font-size: 0.8rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .eyebrow::before {
+    content: '';
+    inline-size: 2rem;
+    block-size: 1px;
+    background: currentColor;
+  }
+  .about-prose > :global(p:first-child) {
+    font-size: clamp(1.35rem, 1.1rem + 0.9vw, 1.75rem);
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .about-prose :global(blockquote) {
+    font-style: italic;
+  }
+  .about-side {
+    padding-top: 0.25rem;
+  }
+  .disciplines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .disciplines a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0.25rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 1.1rem;
+    transition: padding 0.25s ease, color 0.25s ease;
+  }
+  .disciplines a:hover {
+    color: var(--accent-text);
+    padding-left: 0.75rem;
+    text-decoration: none;
+  }
+  .disciplines svg {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+    flex: none;
+    transition: transform 0.25s ease;
+  }
+  .disciplines a:hover svg {
+    transform: translate(2px, -2px);
+  }
+
+  /* What I do: numbered, editorial */
   .focus {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+    gap: 0 3rem;
   }
   .focus li {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 4.2rem minmax(0, 1fr);
     gap: 1rem;
-    padding: 1.2rem 1.25rem;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .focus-num {
+    font-size: 2.6rem;
+    line-height: 1;
+    font-style: italic;
+    color: var(--accent-text);
+    opacity: 0.85;
   }
   .focus h3 {
-    margin-bottom: 0.3rem;
-    font-size: 1.02rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.4rem;
+    font-size: 1.3rem;
+  }
+  .focus-ico {
+    display: inline-flex;
+    color: var(--accent-text);
+  }
+  .focus-ico :global(svg) {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
   }
   .focus p {
     margin: 0;
     color: var(--muted);
-    font-size: 0.9rem;
+  }
+
+  /* Featured work */
+  .showcase {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+  @media (max-width: 52rem) {
+    .showcase { grid-template-columns: 1fr; }
+  }
+  .show-rest {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .showcase .card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: var(--ink);
+    transform: none;
+  }
+  .showcase .card:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+  }
+  .show-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, var(--band-1), var(--band-2));
+    overflow: hidden;
+  }
+  .show-lead .show-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .show-media img {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .showcase .card:hover img {
+    transform: scale(1.05);
+  }
+  .show-body {
+    padding: 1.1rem 1.25rem 1.25rem;
+  }
+  .show-body h3 {
+    margin: 0.15rem 0 0.35rem;
+    font-size: 1.3rem;
+  }
+  .show-lead .show-body h3 {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  }
+  .show-body p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .show-body .kick {
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .more {
+    display: inline-block;
+    margin-top: 0.8rem;
+    color: var(--accent-text);
+    font-style: italic;
+  }
+
+  /* Journey */
+  .journey {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 1.5rem;
+    position: relative;
+  }
+  .journey li {
+    position: relative;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+  .j-dot {
+    position: absolute;
+    top: -0.45rem;
+    left: 0;
+    inline-size: 0.9rem;
+    block-size: 0.9rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .j-period {
+    margin: 0 0 0.3rem;
+    font-style: italic;
+    color: var(--accent-text);
+  }
+  .journey h3 {
+    margin: 0 0 0.2rem;
+    font-size: 1.2rem;
+  }
+  .j-org {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .badge-top {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    translate: -50% 0;
+    padding: 0.2rem 0.8rem;
+    border-radius: 999px;
+    background: var(--accent-fill);
+    color: var(--accent-ink);
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .package {
+    position: relative;
   }
 
   .pricing {

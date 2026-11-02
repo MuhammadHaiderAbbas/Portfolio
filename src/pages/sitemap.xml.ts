@@ -16,11 +16,13 @@ export const GET: APIRoute = async ({ site }) => {
     ...services.filter((s) => s.slug).map((s) => `/services/${s.slug}/`),
     ...(posts.length ? ['/blog/'] : []),
     ...projects.map((p) => `/projects/${p.slug}/`),
-    ...posts.map((p) => `/blog/${p.slug}/`),
   ];
+  // Articles carry the date they last changed, so search engines recrawl updates.
+  const articles = posts.map((p) => ({ path: `/blog/${p.slug}/`, lastmod: (p.updated_at || p.published_on || '').slice(0, 10) }));
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${paths.map((p) => `  <url><loc>${new URL(url(p), site).href}</loc></url>`).join('\n')}
+${articles.map((a) => `  <url><loc>${new URL(url(a.path), site).href}</loc>${a.lastmod ? `<lastmod>${a.lastmod}</lastmod>` : ''}</url>`).join('\n')}
 </urlset>`;
   return new Response(body, { headers: { 'Content-Type': 'application/xml' } });
 };

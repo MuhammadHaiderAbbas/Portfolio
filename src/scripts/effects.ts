@@ -69,3 +69,40 @@ if (roles && !reduce) {
     }, 3200);
   }
 }
+
+// Reveal sections as they scroll into view, and count the snapshot numbers up.
+const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
+const counters = document.querySelectorAll<HTMLElement>('[data-count]');
+const countUp = (el: HTMLElement) => {
+  const target = Number(el.dataset.count);
+  if (!Number.isFinite(target) || reduce) return;
+  const decimals = (el.dataset.count!.split('.')[1] || '').length;
+  const start = performance.now();
+  const dur = 1400;
+  const step = (now: number) => {
+    const p = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = (target * eased).toFixed(decimals);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  el.textContent = (0).toFixed(decimals);
+  requestAnimationFrame(step);
+};
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const en of entries) {
+        if (!en.isIntersecting) continue;
+        const el = en.target as HTMLElement;
+        el.classList.add('in');
+        el.querySelectorAll<HTMLElement>('[data-count]').forEach(countUp);
+        io.unobserve(el);
+      }
+    },
+    { rootMargin: '0px 0px -8% 0px', threshold: 0.12 }
+  );
+  revealEls.forEach((el) => io.observe(el));
+} else {
+  revealEls.forEach((el) => el.classList.add('in'));
+}
+void counters;

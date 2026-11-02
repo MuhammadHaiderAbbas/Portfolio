@@ -92,7 +92,17 @@ function localiseMedia(content: SiteContent): SiteContent {
     const local = path.join(process.cwd(), 'public', 'media', decodeURIComponent(file));
     return existsSync(local) ? `/media/${file}` : whole;
   });
-  return JSON.parse(json);
+  return withCovers(JSON.parse(json));
+}
+
+// Posts without their own image use the branded cover made by scripts/covers.mjs.
+function withCovers(content: SiteContent): SiteContent {
+  for (const p of content.posts) {
+    if (!p.cover_url && existsSync(path.join(process.cwd(), 'public', 'media', 'covers', `${p.slug}.webp`))) {
+      p.cover_url = `/media/covers/${p.slug}.webp`;
+    }
+  }
+  return content;
 }
 
 let cached: Promise<SiteContent> | undefined;

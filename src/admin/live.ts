@@ -22,7 +22,7 @@ export const changed = (table: string, row?: Row) =>
 // ---------------------------------------------------------------------------
 // Badge counts
 // ---------------------------------------------------------------------------
-export const counts = { messages: 0, notifications: 0, opportunities: 0 };
+export const counts = { messages: 0, notifications: 0, opportunities: 0, drafts: 0 };
 
 function paintBadges() {
   for (const [id, n] of [
@@ -30,6 +30,7 @@ function paintBadges() {
     ['badge-messages-side', counts.messages],
     ['badge-bell', counts.notifications],
     ['badge-opps-side', counts.opportunities],
+    ['badge-drafts-side', counts.drafts],
   ] as const) {
     const el = document.getElementById(id);
     if (!el) continue;
@@ -44,14 +45,16 @@ function paintBadges() {
 }
 
 export async function refreshCounts(ctx: Ctx) {
-  const [m, n, o] = await Promise.all([
+  const [m, n, o, d] = await Promise.all([
     ctx.sb.from('messages').select('id', { count: 'exact', head: true }).eq('is_read', false),
     ctx.sb.from('notifications').select('id', { count: 'exact', head: true }).eq('is_read', false),
     ctx.sb.from('opportunities').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    ctx.sb.from('posts').select('id', { count: 'exact', head: true }).eq('ai_generated', true).eq('published', false),
   ]);
   counts.messages = m.count ?? 0;
   counts.notifications = n.count ?? 0;
   counts.opportunities = o.count ?? 0;
+  counts.drafts = d.error ? 0 : d.count ?? 0;
   paintBadges();
 }
 
@@ -234,6 +237,10 @@ export function startLive(ctx: Ctx) {
       changed('opportunities', p.new as Row);
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'page_views' }, (p) => changed('page_views', p.new as Row))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_runs' }, (p) => {
+      refreshCounts(ctx);
+      changed('agent_runs', p.new as Row);
+    })
     .subscribe();
 
   refreshCounts(ctx);

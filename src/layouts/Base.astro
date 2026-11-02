@@ -3,19 +3,43 @@ import '../styles/global.css';
 import { getContent, fill, supabaseConfig } from '../lib/content';
 import { url } from '../lib/paths';
 import { isOn } from '../lib/site-text';
+import { fontFaceCss } from '../lib/fonts';
 
 interface Props {
   title?: string;
+  /** Full <title> for search results, replacing "Title | Name" */
+  seoTitle?: string;
   description?: string;
   image?: string;
   type?: 'website' | 'article';
+  keywords?: string[];
+  published?: string;
+  modified?: string;
+  tags?: string[];
 }
 
 const { profile, posts, certifications, services, text: t } = await getContent();
-const { title, description = profile.seo_description || profile.intro, image = profile.photo_url, type = 'website' } =
-  Astro.props;
+const {
+  title,
+  seoTitle,
+  description = profile.seo_description || profile.intro,
+  image = profile.photo_url,
+  type = 'website',
+  keywords = [],
+  published,
+  modified,
+  tags = [],
+} = Astro.props;
 
-const fullTitle = title ? `${title} | ${profile.short_name}` : `${profile.name} | Portfolio`;
+const fullTitle = seoTitle || (title ? `${title} | ${profile.short_name}` : `${profile.name} | Portfolio`);
+const siteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: `${profile.name} | Portfolio`,
+  url: new URL(url('/'), Astro.site).href,
+  inLanguage: 'en-GB',
+  author: { '@type': 'Person', name: profile.name },
+};
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = image ? new URL(url(image), Astro.site).href : undefined;
 
@@ -39,7 +63,6 @@ const isCurrent = (href: string) => {
 };
 const [first, ...rest] = profile.short_name.split(' ');
 const year = String(new Date().getFullYear());
-const fonts = [400, 500, 600, 700];
 const hireOn = isOn(t, 'hire.show') && Boolean(supabaseConfig.url && supabaseConfig.key);
 const trackOn = !import.meta.env.DEV && isOn(t, 'analytics.enabled') && Boolean(supabaseConfig.url && supabaseConfig.key);
 ---
@@ -55,17 +78,30 @@ const trackOn = !import.meta.env.DEV && isOn(t, 'analytics.enabled') && Boolean(
     <meta name="theme-color" content="#041633" />
     <link rel="icon" href={url('/favicon.png')} type="image/png" />
     <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} />
-    <link rel="preload" href={url('/fonts/poppins-400.woff2')} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={url('/fonts/poppins-600.woff2')} as="font" type="font/woff2" crossorigin />
     <link rel="sitemap" href={url('/sitemap.xml')} />
+    <link rel="alternate" type="application/rss+xml" title={`${profile.name}: articles`} href={url('/rss.xml')} />
+    {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+    <meta name="author" content={profile.name} />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta property="og:site_name" content={`${profile.name} | Portfolio`} />
+    <meta property="og:locale" content="en_GB" />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     {ogImage && <meta property="og:image" content={ogImage} />}
+    {published && <meta property="article:published_time" content={published} />}
+    {modified && <meta property="article:modified_time" content={modified} />}
+    {type === 'article' && <meta property="article:author" content={profile.name} />}
+    {tags.map((x) => <meta property="article:tag" content={x} />)}
     <meta name="twitter:card" content="summary_large_image" />
-    <style set:html={fonts.map((w) => `@font-face{font-family:'Poppins';font-style:normal;font-weight:${w};font-display:swap;src:url('${url(`/fonts/poppins-${w}.woff2`)}') format('woff2')}`).join('')} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <script type="application/ld+json" set:html={JSON.stringify(siteLd)} />
+    <style set:html={fontFaceCss()} />
     <script is:inline define:vars={{ defaultTheme }}>
+      document.documentElement.classList.add('js');
       try {
         const saved = localStorage.getItem('theme');
         const pick = saved === 'light' || saved === 'dark' ? saved : defaultTheme;

@@ -13,11 +13,76 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props as { post: Post };
 const { profile, posts, text: t } = await getContent();
-const minutes = Math.max(1, Math.round((post.body ?? '').split(/\s+/).length / 220));
-const more = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
+const words = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / 220));
+
+// Related: most shared tags first, then newest
+const shared = (p: Post) => p.tags.filter((x) => post.tags.includes(x)).length;
+const more = posts
+  .filter((p) => p.slug !== post.slug)
+  .map((p, i) => ({ p, score: shared(p) * 10 - i }))
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((x) => x.p);
+
+// Headings get ids so the table of contents can link to them
+const used = new Set<string>();
+const toc: { id: string; text: string }[] = [];
+const html = md(post.body).replace(/<h([23])>([\s\S]*?)<\/h\1>/g, (_, level, inner) => {
+  const text = inner.replace(/<[^>]+>/g, '').trim();
+  let id = text.toLowerCase().replace(/&[a-z#0-9]+;/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'section';
+  while (used.has(id)) id += '-2';
+  used.add(id);
+  if (level === '2') toc.push({ id, text });
+  return `<h${level} id="${id}">${inner}</h${level}>`;
+});
+const sources = (post.sources ?? []).filter((x) => x && /^https?:\/\//.test(x.url));
+const description = post.meta_description || post.excerpt;
+const pageUrl = new URL(url(`/blog/${post.slug}/`), Astro.site).href;
+const modified = post.updated_at ? post.updated_at.slice(0, 10) : post.published_on;
+const imageUrl = post.cover_url ? new URL(url(post.cover_url), Astro.site).href : undefined;
+const ld = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description,
+    image: imageUrl ? [imageUrl] : undefined,
+    datePublished: post.published_on,
+    dateModified: modified,
+    wordCount: words,
+    keywords: (post.keywords?.length ? post.keywords : post.tags).join(', '),
+    articleSection: post.tags[0],
+    inLanguage: 'en-GB',
+    mainEntityOfPage: pageUrl,
+    author: { '@type': 'Person', name: profile.name, url: new URL(url('/'), Astro.site).href },
+    publisher: { '@type': 'Person', name: profile.name },
+    citation: sources.length ? sources.map((x) => x.url) : undefined,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t['nav.about'], item: new URL(url('/'), Astro.site).href },
+      { '@type': 'ListItem', position: 2, name: t['post.back'], item: new URL(url('/blog/'), Astro.site).href },
+      { '@type': 'ListItem', position: 3, name: post.title, item: pageUrl },
+    ],
+  },
+];
 ---
 
-<Base title={post.title} description={post.excerpt} image={post.cover_url || undefined} type="article">
+<Base
+  title={post.title}
+  seoTitle={post.seo_title || undefined}
+  description={description}
+  image={post.cover_url || undefined}
+  type="article"
+  keywords={post.keywords?.length ? post.keywords : post.tags}
+  published={post.published_on}
+  modified={modified}
+  tags={post.tags}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(ld)} />
   <article>
     <PageBand title={post.title} lead={post.excerpt} crumbs={[{ href: '/', label: t['nav.about'] }, { href: '/blog/', label: t['post.back'] }, ...(post.tags[0] ? [{ href: `/blog/?c=${encodeURIComponent(post.tags[0])}`, label: post.tags[0] }] : [])]}>
       <p class="byline">{profile.short_name}, <time datetime={post.published_on}>{formatDate(post.published_on)}</time>, {minutes} min read</p>
@@ -29,7 +94,20 @@ const more = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
       </div>
     )}
     <div class="wrap section">
-      <div class="prose post" set:html={md(post.body)} />
+      {toc.length >= 3 && (
+        <nav class="toc" aria-label={t['post.toc']}>
+          <p>{t['post.toc']}</p>
+          <ol>{toc.map((x) => <li><a href={`#${x.id}`}>{x.text}</a></li>)}</ol>
+        </nav>
+      )}
+      <div class="prose post" set:html={html} />
+      {sources.length > 0 && (
+        <aside class="sources" aria-label={t['post.sources']}>
+          <h2>{t['post.sources']}</h2>
+          <ol>{sources.map((x) => <li><a href={x.url} rel="noopener nofollow" target="_blank">{x.title || x.url}</a></li>)}</ol>
+        </aside>
+      )}
+      {post.ai_generated && t['post.ai_note'] && <p class="ai-note">{t['post.ai_note']}</p>}
       {post.tags.length > 0 && (
         <ul class="tags post-tags" aria-label="Tags">
           {post.tags.map((x) => <li><a href={url(`/blog/?c=${encodeURIComponent(x)}`)}>{x}</a></li>)}
@@ -69,14 +147,58 @@ const more = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
   }
   .cover {
     width: 100%;
-    max-height: 32rem;
-    object-fit: cover;
+    height: auto;
     padding: 0;
     transform: none;
   }
   .post {
     margin-inline: auto;
     font-size: 1.02rem;
+  }
+  .toc,
+  .sources,
+  .ai-note {
+    max-width: var(--measure);
+    margin-inline: auto;
+  }
+  .toc {
+    margin-bottom: 2rem;
+    padding: 1.1rem 1.4rem;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  }
+  .toc p {
+    margin: 0 0 0.4rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .toc ol {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+  .toc li {
+    margin: 0.2rem 0;
+  }
+  .sources {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.95rem;
+  }
+  .sources h2 {
+    font-size: var(--step-1);
+  }
+  .sources a {
+    overflow-wrap: anywhere;
+  }
+  .ai-note {
+    margin-top: 1.5rem;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.92rem;
   }
   .post-tags {
     max-width: var(--measure);
