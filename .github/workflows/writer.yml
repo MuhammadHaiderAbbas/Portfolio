@@ -1,11 +1,13 @@
 name: AI writer
 
-# Finds trending topics in your fields and writes article DRAFTS with Claude.
-# Drafts wait in Admin → AI writer until you approve them; nothing is published here.
+# Twice a day: finds trending topics in your fields and writes one article.
+# A separate editor pass checks safety and quality; articles that pass publish
+# themselves one hour after the email (you can hold them), the rest wait for you.
 on:
-  # Daily: collect trends; writes on the days set in Admin → Site text & settings → AI writer
+  # Morning (about 7:40 UK time in winter, 8:40 in summer) and evening (about 18:40 / 19:40)
   schedule:
-    - cron: '41 6 * * *'
+    - cron: '41 7 * * *'
+    - cron: '41 18 * * *'
   # "Find topics" / "Write an article now" buttons in the admin panel
   repository_dispatch:
     types: [ai-writer]
@@ -20,6 +22,8 @@ on:
 
 permissions:
   contents: read
+  # Free AI fallback: GitHub Models, using this workflow's own token
+  models: read
 
 concurrency:
   group: ai-writer
@@ -28,7 +32,7 @@ concurrency:
 jobs:
   write:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -42,6 +46,11 @@ jobs:
         env:
           WRITER_MODE: ${{ github.event.inputs.mode || github.event.client_payload.mode || 'auto' }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Optional free fallbacks (add any of these as repository secrets)
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           AGENT_TOKEN: ${{ secrets.AGENT_TOKEN }}
           AI_MODEL: ${{ vars.AI_MODEL }}
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}

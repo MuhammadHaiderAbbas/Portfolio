@@ -11,7 +11,8 @@ The source for Muhammad Haider Abbas's portfolio: fast pre-built pages over a li
   - **Top bar:** a Messages button and a notification bell (new messages, job opportunities, publishes, deploy results, content changes and site problems), updated live.
   - **Job opportunities** sent by companies from the public **Hire me** page, tracked through New → Reviewing → Interview → Offer → Declined/Closed with private notes.
   - **Messages** from the contact form.
-  - **AI writer:** collects what is trending in your fields every morning (Google Trends UK, Hacker News, dev.to, GitHub, CISA security advisories), scores each topic for relevance, and writes researched, search-friendly article drafts with Claude. Each draft gets a branded cover image. Drafts wait for your approval; one click approves and publishes.
+  - **AI writer (autopilot):** every morning and evening it collects what is trending in your fields (Google Trends UK, Hacker News, dev.to, GitHub, CISA security advisories), writes one researched, search-friendly article, and has a separate editor pass check it for safety and quality (with one rewrite if needed). Articles that pass are emailed to you and publish themselves after 1 hour unless you press **Hold**; anything flagged waits for you. Off-limits subjects (politics, religion, crime, health, celebrities, gambling, adult) are never written. If Claude has no credit it falls back to free AI models automatically. Each article gets a branded cover.
+  - **Email alerts:** new and published articles, job opportunities, messages and problems, sent through Resend (free).
 - **Publishing:** saving in the admin panel stores the change. **Publish site** rebuilds the pages, and the change is live in about a minute.
 
 ```
@@ -38,7 +39,7 @@ Then **Actions → Deploy site → Run workflow** (or push to `main`). The site 
 ### 2. Create the Supabase database
 
 1. Create a free project at [supabase.com](https://supabase.com) (region **London, eu-west-2**).
-2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**. Then do the same with [`supabase/dashboard.sql`](supabase/dashboard.sql) (visit statistics, notifications and job opportunities) and [`supabase/writer.sql`](supabase/writer.sql) (AI writer).
+2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**. Then do the same with [`supabase/dashboard.sql`](supabase/dashboard.sql) (visit statistics, notifications and job opportunities), [`supabase/writer.sql`](supabase/writer.sql) (AI writer) and [`supabase/autopilot.sql`](supabase/autopilot.sql) (auto-publish timer and email alerts).
 3. **New query:** paste all of [`supabase/seed.sql`](supabase/seed.sql), then **Run**. This imports all the content: projects, profile, contact details, experience, education, skills, certifications, services, snapshot numbers and "What I do".
 
 ### 3. Create your admin login
@@ -94,11 +95,19 @@ Admin → **AI writer** shows these steps with a ready-made token and copy butto
 3. Supabase → SQL Editor, store the same token: `select vault.create_secret('THE-SAME-VALUE', 'agent_token');`
 4. Admin → AI writer → **Find trending topics**.
 
-Optional: set a repository variable `AI_MODEL` to choose the Claude model (default `claude-sonnet-5-5`). Schedule, days, article length, fields, audience and tone are in Admin → Site text & settings → **AI writer**.
+Optional: set a repository variable `AI_MODEL` to choose the Claude model (default `claude-sonnet-5-5`). Schedule, days, auto-publish delay, article length, fields, audience and tone are in Admin → Site text & settings → **AI writer**.
+
+**Keeps running when credit runs out.** Providers are tried in order: Claude → GitHub Models (free, uses the workflow's own token, nothing to set up) → Google Gemini (`GEMINI_API_KEY`, free tier from [AI Studio](https://aistudio.google.com/apikey)) → Groq (`GROQ_API_KEY`, free tier) → OpenRouter (`OPENROUTER_API_KEY`, free models) → OpenAI (`OPENAI_API_KEY`). Add any of the optional keys as repository secrets for more headroom. If no trending topic qualifies, it writes an evergreen topic in your fields instead.
+
+**Auto-publish.** A database timer (pg_cron) checks every 5 minutes. Only articles the editor marked safe with quality 7/10 or more are scheduled; at most 3 publish automatically in 24 hours. The email has **Publish now** and **Hold** buttons that work without signing in (each link has its own secret token, valid 14 days).
+
+### 7. Email alerts
+
+Admin → **Email alerts**: create a free [Resend](https://resend.com) account with the address you want alerts at, create an API key, paste it in, and press **Send a test email**. Without verifying a domain, Resend only delivers to your own sign-up address; verify personalportfolio.website in Resend (DNS records in Namecheap) to send from your own domain to any address. GitHub also emails you when a deploy fails.
 
 How it stays safe: the writer never gets a Supabase secret key. It can only call the `agent_*` functions, which check the token, read public context and save **drafts**. Articles are told to rely only on the source material for news facts, never to invent figures or experiences, and to cover security topics defensively. Published AI-assisted posts show a short note saying they were reviewed by you (editable or removable in Site text).
 
-### 7. Use your own domain (when you're ready)
+### 8. Use your own domain (when you're ready)
 
 GitHub lets only one repository use a domain at a time.
 
@@ -160,6 +169,8 @@ After editing `src/data/seed.json`, run `npm run seed-sql` to regenerate `supaba
 | `supabase/schema.sql` | Tables, security rules, uploads and the publish function |
 | `supabase/dashboard.sql` | Visit statistics, notifications and job opportunities |
 | `supabase/writer.sql` | Trending topics, AI drafts, writer runs |
+| `supabase/autopilot.sql` | Auto-publish timer, draft reviews and email links, email alerts |
+| `src/pages/review.astro` | The page behind the Publish now / Hold email buttons |
 | `.github/workflows/deploy.yml` | Builds and deploys on push, on Publish, on demand and nightly |
 
 ### Security

@@ -35,10 +35,11 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
   const runsSlot = h('div', {});
 
   async function load() {
-    const [t, r, d] = await Promise.all([
+    const [t, r, d, rv] = await Promise.all([
       sb.from('trend_topics').select('*').order('relevance', { ascending: false }).order('created_at', { ascending: false }).limit(200),
       sb.from('agent_runs').select('*').order('started_at', { ascending: false }).limit(12),
       sb.from('posts').select('id,slug,title,excerpt,body,published_on,created_at,keywords,meta_description').eq('ai_generated', true).eq('published', false).order('created_at', { ascending: false }),
+      sb.from('draft_reviews').select('*'),
     ]);
     if (!alive()) return;
     if (t.error) {
@@ -47,7 +48,8 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
     }
     topics = t.data ?? [];
     runs = r.data ?? [];
-    drafts = d.data ?? [];
+    const reviews = new Map((rv.data ?? []).map((x: Row) => [x.post_id, x]));
+    drafts = (d.data ?? []).map((x: Row) => ({ ...x, review: reviews.get(x.id) }));
     drawStatus();
     drawDrafts();
     drawTabs();
@@ -144,10 +146,50 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
         h(
           'li',
           {},
-          'In Supabase open SQL Editor → New query, paste this and press Run (it stores the same value):',
-          h('div', { class: 'row' }, h('code', { class: 'token' }, sql), h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: copy(sql) }, 'Copy'))
+          'Then press this button to store the same value in your database:',
+          h(
+            'div',
+            { class: 'row' },
+            h(
+              'button',
+              {
+                class: 'btn btn-quiet btn-sm',
+                type: 'button',
+                onclick: async (e: Event) => {
+                  const b = e.currentTarget as HTMLButtonElement;
+                  b.disabled = true;
+                  const { error } = await sb.rpc('set_secret', { p_name: 'agent_token', p_value: token });
+                  b.disabled = false;
+                  if (error) return ctx.toast(`Could not save: ${error.message}`, 'error');
+                  b.textContent = 'Saved ✓';
+                  ctx.toast('Token saved in Supabase Vault');
+                },
+              },
+              'Save token in the database'
+            ),
+            h('span', { class: 'muted small' }, ' or run in the SQL editor: '),
+            h('code', { class: 'token' }, sql),
+            h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: copy(sql) }, 'Copy')
+          )
         ),
-        h('li', {}, 'Come back here and press ', h('strong', {}, 'Find trending topics'), '.')
+        h('li', {}, 'Come back here and press ', h('strong', {}, 'Find trending topics'), '.'),
+        h(
+          'li',
+          {},
+          'Optional, so it keeps writing when Claude credit runs out: GitHub’s free AI models are used automatically. For more headroom add free keys as secrets: ',
+          h('code', {}, 'GEMINI_API_KEY'),
+          ' (',
+          h('a', { href: 'https://aistudio.google.com/apikey', target: '_blank', rel: 'noopener' }, 'Google AI Studio'),
+          '), ',
+          h('code', {}, 'GROQ_API_KEY'),
+          ' (',
+          h('a', { href: 'https://console.groq.com/keys', target: '_blank', rel: 'noopener' }, 'Groq'),
+          ') or ',
+          h('code', {}, 'OPENROUTER_API_KEY'),
+          ' (',
+          h('a', { href: 'https://openrouter.ai/keys', target: '_blank', rel: 'noopener' }, 'OpenRouter'),
+          ').'
+        )
       ),
       h('p', { class: 'muted small' }, 'Changing the token later? Use the same value in both places; in Supabase run: ', h('code', {}, "select vault.update_secret(id, 'NEW-VALUE') from vault.secrets where name = 'agent_token';"))
     );
@@ -155,7 +197,7 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
 
   function drawDrafts() {
     if (!drafts.length) {
-      draftsSlot.replaceChildren(h('p', { class: 'muted dash-empty' }, 'No drafts waiting. New AI drafts appear here for you to read and approve.'));
+      draftsSlot.replaceChildren(h('p', { class: 'muted dash-empty' }, 'No drafts waiting. New articles appear here; those that pass the safety editor publish themselves after the time you set unless you hold them.'));
       return;
     }
     draftsSlot.replaceChildren(
@@ -164,22 +206,37 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
         { class: 'drafts' },
         drafts.map((d) => {
           const words = String(d.body || '').split(/\s+/).filter(Boolean).length;
-          const approve = h('button', { class: 'btn btn-sm', type: 'button' }, icon('check', 14), ' Approve and publish');
+          const rv: Row | undefined = d.review;
+          const approve = h('button', { class: 'btn btn-sm', type: 'button' }, icon('check', 14), ' Publish now');
           approve.addEventListener('click', async () => {
             approve.disabled = true;
-            const today = new Date().toISOString().slice(0, 10);
-            const { error } = await sb.from('posts').update({ published: true, published_on: today }).eq('id', d.id);
+            const { error } = await sb.rpc('decide_draft', { p_post_id: d.id, p_action: 'approve' });
             if (error) {
               approve.disabled = false;
-              return ctx.toast(`Could not approve: ${error.message}`, 'error');
+              return ctx.toast(`Could not publish: ${error.message}`, 'error');
             }
-            const pub = await sb.rpc('publish_site');
             window.dispatchEvent(new Event('admin:published'));
             window.dispatchEvent(new Event('admin:refresh-publish'));
-            ctx.toast(pub.error ? 'Approved. Press Publish site to put it live.' : 'Approved. The site is rebuilding; the article is live in about a minute.');
+            ctx.toast('Published. The site is rebuilding; the article is live in about a minute.');
             drafts = drafts.filter((x) => x !== d);
             drawDrafts();
           });
+          const hold = h('button', { class: 'btn btn-quiet btn-sm', type: 'button' }, 'Hold');
+          hold.addEventListener('click', async () => {
+            const { error } = await sb.rpc('decide_draft', { p_post_id: d.id, p_action: 'hold' });
+            if (error) return ctx.toast(`Could not hold: ${error.message}`, 'error');
+            if (d.review) Object.assign(d.review, { status: 'held', auto_publish_at: null });
+            ctx.toast('On hold. It will not publish by itself.');
+            drawDrafts();
+          });
+          const mins = rv?.auto_publish_at ? Math.max(0, Math.round((new Date(rv.auto_publish_at).getTime() - Date.now()) / 60000)) : null;
+          const state = !rv
+            ? h('span', { class: 'rv rv-held' }, 'Waiting for you')
+            : rv.status === 'pending'
+              ? h('span', { class: 'rv rv-pending' }, icon('clock', 13), mins ? ` Publishes automatically in ${mins} min` : ' Publishing now')
+              : rv.status === 'needs_review'
+                ? h('span', { class: 'rv rv-flag' }, icon('alert', 13), ' Flagged: needs your review')
+                : h('span', { class: 'rv rv-held' }, 'On hold');
           const reject = h('button', { class: 'btn btn-quiet btn-sm', type: 'button' }, 'Delete draft');
           let armed = false;
           reject.addEventListener('click', async () => {
@@ -202,8 +259,20 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
           return h(
             'li',
             {},
-            h('div', { class: 'draft-main' }, h('h3', {}, d.title), h('p', { class: 'muted' }, d.meta_description || d.excerpt), h('p', { class: 'small muted' }, `${words.toLocaleString('en-GB')} words · written ${ago(d.created_at)}${d.keywords?.length ? ' · keyword: ' + d.keywords[0] : ''}`)),
-            h('div', { class: 'row' }, h('a', { class: 'btn btn-quiet btn-sm', href: `#/posts/${d.id}` }, icon('edit', 14), ' Read and edit'), approve, reject)
+            h(
+              'div',
+              { class: 'draft-main' },
+              state,
+              h('h3', {}, d.title),
+              h('p', { class: 'muted' }, d.meta_description || d.excerpt),
+              rv?.notes ? h('p', { class: 'small rv-notes' }, `Editor: ${rv.notes}`) : '',
+              h(
+                'p',
+                { class: 'small muted' },
+                `${words.toLocaleString('en-GB')} words · written ${ago(d.created_at)}${rv?.quality ? ` · quality ${rv.quality}/10` : ''}${rv?.model ? ' · by ' + rv.model : ''}${d.keywords?.length ? ' · keyword: ' + d.keywords[0] : ''}`
+              )
+            ),
+            h('div', { class: 'row' }, h('a', { class: 'btn btn-quiet btn-sm', href: `#/posts/${d.id}` }, icon('edit', 14), ' Read and edit'), approve, rv?.status === 'pending' ? hold : '', reject)
           );
         })
       )
@@ -362,7 +431,7 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
         'div',
         {},
         h('h1', { tabindex: -1 }, 'AI writer'),
-        h('p', { class: 'muted' }, 'Finds what people are searching for in your fields, writes a researched, search-friendly article with Claude, and makes a cover. Every article waits here for your approval.')
+        h('p', { class: 'muted' }, 'Every morning and evening it finds what people are searching for in your fields, writes a researched, search-friendly article, has a separate editor check it for safety and quality, and makes a cover. Articles that pass publish themselves after the time you set (1 hour by default) unless you hold them; anything flagged waits for you.')
       ),
       h('a', { class: 'btn btn-quiet', href: '#/text' }, icon('layers', 16), ' Writer settings')
     ),
@@ -370,7 +439,7 @@ export async function writerView(ctx: Ctx): Promise<HTMLElement> {
     h(
       'div',
       { class: 'writer-grid' },
-      card('Drafts waiting for you', h('span', { class: 'muted small' }, 'Read, edit, then approve'), draftsSlot),
+      card('Articles waiting', h('span', { class: 'muted small' }, 'Publish now, hold, or let the timer publish'), draftsSlot),
       card('Trending topics', tabs, topicsSlot, h('h3', {}, 'Add your own topic'), addOwn),
       card('Run history', h('span', { class: 'muted small' }, 'Latest 12'), runsSlot)
     )

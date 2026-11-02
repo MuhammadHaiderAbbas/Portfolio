@@ -1,0 +1,103 @@
+---
+// Landing page for the Publish now / Hold links in draft emails.
+// The secret token in the link authorises the action; no sign-in needed.
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { supabaseConfig } from '../lib/content';
+import { url } from '../lib/paths';
+---
+
+<Base title="Article review" description="Approve or hold an article.">
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+  <PageBand title="Article review" lead="Publish or hold an article from your email." />
+  <section class="wrap section">
+    <div class="card review-card" id="review" data-url={supabaseConfig.url} data-key={supabaseConfig.key} data-base={url('/')}>
+      <p id="rv-status" role="status" aria-live="polite">Checking the article…</p>
+      <div class="actions" id="rv-actions" hidden>
+        <button class="btn" type="button" id="rv-publish">Publish now</button>
+        <button class="btn btn-ghost" type="button" id="rv-hold">Hold, do not publish</button>
+      </div>
+      <p class="muted small" id="rv-more" hidden>You can also manage it in the <a href={url('/admin/#/writer')}>admin panel</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  (() => {
+    const box = document.getElementById('review');
+    const status = document.getElementById('rv-status');
+    const actions = document.getElementById('rv-actions');
+    const more = document.getElementById('rv-more');
+    const q = new URL(location.href).searchParams;
+    const token = q.get('t') || '';
+    const wanted = q.get('a');
+    const base = box.dataset.base.replace(/\/$/, '');
+    const call = async (action) => {
+      const res = await fetch(box.dataset.url + '/rest/v1/rpc/review_draft', {
+        method: 'POST',
+        headers: { apikey: box.dataset.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_token: token, p_action: action }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      return res.json();
+    };
+    const show = (r) => {
+      more.hidden = false;
+      actions.hidden = true;
+      const title = r.title ? `“${r.title}”` : 'This article';
+      if (r.status === 'invalid') status.textContent = 'This link has expired or is not valid. Open the admin panel to manage the article.';
+      else if (r.status === 'published' || r.status === 'approved' || r.status === 'auto_published') {
+        status.replaceChildren(`${title} is published. It is live within about a minute: `, Object.assign(document.createElement('a'), { href: `${base}/blog/${r.slug}/`, textContent: 'open the article' }), '.');
+      } else if (r.status === 'held') {
+        status.textContent = `${title} is on hold and will not publish by itself.`;
+        actions.hidden = false;
+        document.getElementById('rv-hold').hidden = true;
+      } else {
+        const when = r.auto_publish_at ? ` It publishes automatically at ${new Date(r.auto_publish_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} unless you hold it.` : ' It waits for your approval.';
+        status.textContent = `${title} is ready.${when}`;
+        actions.hidden = false;
+      }
+    };
+    const run = async (action, btn) => {
+      if (btn) btn.disabled = true;
+      status.textContent = action === 'approve' ? 'Publishing…' : 'Putting it on hold…';
+      try {
+        show(await call(action));
+      } catch {
+        status.textContent = 'That did not work. Try again, or use the admin panel.';
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    };
+    document.getElementById('rv-publish').addEventListener('click', (e) => run('approve', e.currentTarget));
+    document.getElementById('rv-hold').addEventListener('click', (e) => run('hold', e.currentTarget));
+    if (!/^[0-9a-f-]{36}$/i.test(token)) {
+      status.textContent = 'This link is incomplete. Open the admin panel to manage the article.';
+      more.hidden = false;
+      return;
+    }
+    // Holding is safe to do straight away; publishing waits for a click.
+    if (wanted === 'hold') run('hold');
+    else
+      call('status')
+        .then((r) => {
+          show(r);
+          if (wanted === 'approve' && !actions.hidden) status.textContent += ' Press Publish now to confirm.';
+        })
+        .catch(() => (status.textContent = 'Could not load the article. Try again, or use the admin panel.'));
+  })();
+</script>
+
+<style>
+  .review-card {
+    max-width: 40rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    transform: none;
+  }
+  #rv-status {
+    font-size: var(--step-1);
+  }
+  .small {
+    font-size: var(--step--1);
+  }
+</style>

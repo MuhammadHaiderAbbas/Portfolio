@@ -1027,3 +1027,7 @@ a.item:hover h3 {
     block-size: 1.9rem;
   }
 }
+
+[hidden] {
+  display: none !important;
+}
