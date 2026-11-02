@@ -249,7 +249,6 @@ export const sections: Section[] = [
     titleField: 'title',
     subtitle: (r) => [r.highlighted ? 'Highlighted' : '', r.published ? '' : 'Hidden'].filter(Boolean).join(', '),
     order: [{ column: 'sort_order', ascending: true }],
-    publicPath: () => '/',
     hasSlug: true,
     publicPath: (r) => (r.published && r.slug ? `/services/${r.slug}/` : '/services/'),
     defaults: { published: true, sort_order: 100, features: [], tools: [], process: [], price_label: 'Custom', price_note: 'per project', highlighted: false, icon: 'code' },

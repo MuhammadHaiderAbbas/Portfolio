@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { getContent, md } from '../lib/content';
+
+const { text: t } = await getContent();
+---
+
+<Base title={t['privacy.title']} description="How this site counts visits without cookies, and what happens to messages you send.">
+  <PageBand title={t['privacy.title']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['privacy.title'] }]} />
+  <section class="wrap section">
+    <article class="prose" set:html={md(t['privacy.body'])} />
+  </section>
+</Base>

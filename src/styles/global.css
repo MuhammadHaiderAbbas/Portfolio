@@ -497,6 +497,25 @@ p {
 .band .btn {
   box-shadow: 0 12px 28px -14px rgba(0, 0, 0, 0.6);
 }
+.btn-sm {
+  padding: 0.45rem 1.05rem;
+  font-size: 0.85rem;
+}
+.hire-btn {
+  flex: none;
+}
+.hire-btn[aria-current='page'] {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+@media (max-width: 22rem) {
+  .hire-btn {
+    padding-inline: 0.75rem;
+  }
+}
+.footer-links {
+  display: inline-flex;
+  gap: 1.25rem;
+}
 .btn svg {
   inline-size: 1rem;
   block-size: 1rem;

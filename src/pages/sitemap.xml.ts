@@ -9,6 +9,8 @@ export const GET: APIRoute = async ({ site }) => {
     '/resume/',
     '/projects/',
     '/contact/',
+    '/hire/',
+    '/privacy/',
     ...(certifications.length ? ['/certifications/'] : []),
     ...(services.length ? ['/services/'] : []),
     ...services.filter((s) => s.slug).map((s) => `/services/${s.slug}/`),

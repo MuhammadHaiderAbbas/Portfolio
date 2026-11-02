@@ -4,6 +4,10 @@ import { sections, type Field, type Section } from './schema';
 import { textDefs } from '../lib/site-text';
 import starter from '../data/seed.json';
 import './admin.css';
+import { h } from './dom';
+import { topbarWidgets, startLive, refreshCounts, counts, type Ctx } from './live';
+import { dashboardView } from './dashboard';
+import { opportunitiesView } from './opportunities';
 
 type Row = Record<string, any>;
 
@@ -12,32 +16,6 @@ const cfg = app.dataset as { url?: string; key?: string; repo?: string; base?: s
 const BASE = (cfg.base ?? '').replace(/\/$/, '');
 /** Site paths such as "/img/x.webp" or "/projects/" need the base when the site lives in a sub-folder. */
 const site = (p: string) => (p && p.startsWith('/') && !p.startsWith('//') ? BASE + p : p);
-
-// ---------------------------------------------------------------------------
-// Tiny DOM helper: strings always become text nodes, never HTML.
-// ---------------------------------------------------------------------------
-type Child = Node | string | number | null | undefined | false | Child[];
-function h<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  attrs: Record<string, any> = {},
-  ...children: Child[]
-): HTMLElementTagNameMap[K] {
-  const el = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v === undefined || v === null || v === false) continue;
-    if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
-    else if (k === 'class') el.className = v;
-    else if (k in el && typeof v !== 'string') (el as any)[k] = v;
-    else el.setAttribute(k, v === true ? '' : String(v));
-  }
-  const add = (c: Child) => {
-    if (c === null || c === undefined || c === false) return;
-    if (Array.isArray(c)) c.forEach(add);
-    else el.append(c instanceof Node ? c : document.createTextNode(String(c)));
-  };
-  children.forEach(add);
-  return el;
-}
 
 const slugify = (s: string) =>
   s
@@ -82,6 +60,19 @@ function toast(message: string, kind: 'ok' | 'error' = 'ok') {
   setTimeout(() => t.remove(), kind === 'error' ? 8000 : 3500);
 }
 const errMessage = (e: any) => e?.message || String(e);
+
+const ctx: Ctx = {
+  sb,
+  toast,
+  site,
+  repo: cfg.repo ?? '',
+  route: (link: string) => {
+    if (link.startsWith('#/')) return link;
+    const name = link.replace(/^#/, '');
+    const s = sections.find((x) => x.table === name || x.key === name);
+    return `#/${s ? s.key : name}`;
+  },
+};
 
 // ---------------------------------------------------------------------------
 // Auth screens
@@ -197,7 +188,6 @@ async function signOut() {
 // Shell: navigation + publish bar
 // ---------------------------------------------------------------------------
 let adminChecked: { userId: string; ok: boolean } | null = null;
-let unreadCount = 0;
 let dirty = false;
 
 const publishBar = h('div', { class: 'publish-bar' });
@@ -243,6 +233,7 @@ async function publish(btn: HTMLButtonElement, msg: HTMLElement) {
     const s = st as any;
     if (s?.state === 'accepted') {
       publishBar.dataset.state = 'clean';
+      window.dispatchEvent(new Event('admin:published'));
       msg.replaceChildren(
         'Published. The site is rebuilding and your changes go live in about a minute.',
         cfg.repo ? h('a', { href: `https://github.com/${cfg.repo}/actions`, target: '_blank', rel: 'noopener' }, ' Watch progress') : ''
@@ -267,24 +258,21 @@ async function publish(btn: HTMLButtonElement, msg: HTMLElement) {
   btn.disabled = false;
 }
 
-async function refreshUnread() {
-  const { count } = await sb.from('messages').select('id', { count: 'exact', head: true }).eq('is_read', false);
-  unreadCount = count ?? 0;
-  const badge = document.getElementById('unread-badge');
-  if (badge) {
-    badge.textContent = unreadCount ? String(unreadCount) : '';
-    badge.hidden = !unreadCount;
-  }
-}
+const refreshUnread = () => refreshCounts(ctx);
 
 function shell(active: string, main: HTMLElement, session: Session) {
   const link = (href: string, label: string, key: string, extra?: Node) =>
     h('a', { href, 'aria-current': active === key ? 'page' : undefined }, label, extra);
+  const badge = (id: string, n: number) => h('span', { class: 'badge', id, hidden: !n }, n || '');
   const nav = h(
     'nav',
-    { class: 'side', 'aria-label': 'Content' },
+    { class: 'side', 'aria-label': 'Admin' },
+    h('span', { class: 'side-label' }, 'Overview'),
+    link('#/dashboard', 'Dashboard', 'dashboard'),
+    link('#/opportunities', 'Job opportunities', 'opportunities', badge('badge-opps-side', counts.opportunities)),
+    link('#/messages', 'Messages', 'messages', badge('badge-messages-side', counts.messages)),
+    h('span', { class: 'side-label' }, 'Content'),
     sections.map((s) => link(`#/${s.key}`, s.label, s.key)),
-    link('#/messages', 'Messages', 'messages', h('span', { class: 'badge', id: 'unread-badge', hidden: !unreadCount }, unreadCount || '')),
     link('#/text', 'Site text & settings', 'text')
   );
   app.replaceChildren(
@@ -294,14 +282,8 @@ function shell(active: string, main: HTMLElement, session: Session) {
       h(
         'header',
         { class: 'topbar' },
-        h('a', { class: 'brand', href: '#/projects' }, h('span', { class: 'brand-mark', 'aria-hidden': 'true' }, 'H'), 'Site admin'),
-        h(
-          'div',
-          { class: 'topbar-actions' },
-          h('a', { href: site('/'), target: '_blank', rel: 'noopener' }, 'View site'),
-          h('span', { class: 'muted who' }, session.user.email),
-          h('button', { class: 'btn btn-quiet btn-sm', onclick: signOut }, 'Sign out')
-        )
+        h('a', { class: 'brand', href: '#/dashboard' }, h('span', { class: 'brand-mark', 'aria-hidden': 'true' }, 'H'), 'Site admin'),
+        topbarWidgets(ctx, session.user.email ?? '', signOut)
       ),
       publishBar,
       h('div', { class: 'layout' }, nav, h('main', { class: 'content', id: 'main' }, main))
@@ -1066,12 +1048,12 @@ async function route() {
     adminChecked = { userId: session.user.id, ok: Boolean(ok) };
     if (ok) {
       refreshPublishState();
-      refreshUnread();
+      startLive(ctx);
     }
   }
   if (!adminChecked.ok) return renderNotAdmin(session);
 
-  const [, key = 'projects', id] = location.hash.replace(/^#/, '').split('/');
+  const [, key = 'dashboard', id] = location.hash.replace(/^#/, '').split('/');
   const section = sections.find((s) => s.key === key);
   const loading = h('p', { class: 'muted' }, 'Loading…');
   shell(key, loading, session);
@@ -1079,9 +1061,11 @@ async function route() {
   let view: HTMLElement;
   try {
     if (await databaseIsEmpty()) view = importView();
+    else if (key === 'dashboard') view = await dashboardView(ctx);
+    else if (key === 'opportunities') view = await opportunitiesView(ctx);
     else if (key === 'messages') view = await messagesView();
     else if (key === 'text') view = await siteTextView();
-    else if (!section) view = await listView(sections[1]);
+    else if (!section) view = await dashboardView(ctx);
     else if (section.singleton || id) view = await formView(section, id ?? 'new');
     else view = await listView(section);
   } catch (e) {

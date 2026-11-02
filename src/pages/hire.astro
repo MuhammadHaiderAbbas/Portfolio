@@ -1,0 +1,262 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { getContent, supabaseConfig } from '../lib/content';
+import { url } from '../lib/paths';
+import { iconSvg } from '../lib/icons';
+
+const { profile, text: t } = await getContent();
+const formEnabled = Boolean(supabaseConfig.url && supabaseConfig.key);
+const points = t['hire.points'].split('\n').map((s) => s.trim()).filter(Boolean);
+const jobTypes = [
+  ['full-time', 'Full-time'],
+  ['part-time', 'Part-time'],
+  ['contract', 'Contract'],
+  ['freelance', 'Freelance'],
+  ['internship', 'Internship / graduate'],
+  ['other', 'Other'],
+];
+const modes = [
+  ['remote', 'Remote'],
+  ['hybrid', 'Hybrid'],
+  ['on-site', 'On-site'],
+];
+---
+
+<Base title={t['hire.title']} description={t['hire.intro']}>
+  <PageBand title={t['hire.title']} lead={t['hire.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['hire.title'] }]}>
+    <div class="actions">
+      {profile.cv_url && <a class="btn" href={url(profile.cv_url)}>{t['resume.cv_button']}</a>}
+      <a class="btn btn-ghost" href={url('/projects/')}>{t['nav.projects']}</a>
+    </div>
+  </PageBand>
+
+  <section class="wrap section hire">
+    <aside class="why">
+      {profile.photo_url && <img class="avatar" src={url(profile.photo_url)} alt="" width="88" height="88" />}
+      <h2>{profile.name}</h2>
+      {profile.headline && <p class="muted">{profile.headline}</p>}
+      <ul class="points">
+        {points.map((p) => <li><span class="tick" set:html={iconSvg('shield')} />{p}</li>)}
+      </ul>
+      {profile.availability && <p class="avail"><span class="dot" aria-hidden="true"></span>{profile.availability}</p>}
+      {profile.email && <p class="muted small">Prefer email? <a href={`mailto:${profile.email}`}>{profile.email}</a></p>}
+    </aside>
+
+    <div class="form-card card">
+      <h2>{t['hire.form_title']}</h2>
+      {formEnabled ? (
+        <form id="hire-form" novalidate data-url={supabaseConfig.url} data-key={supabaseConfig.key} data-sent={t['hire.sent']} data-failed={t['hire.failed']}>
+          <div class="row2">
+            <div class="field">
+              <label for="hf-company">Company *</label>
+              <input id="hf-company" name="company" required maxlength="120" autocomplete="organization" />
+            </div>
+            <div class="field">
+              <label for="hf-role">Role title *</label>
+              <input id="hf-role" name="role_title" required maxlength="150" placeholder="e.g. Junior Security Analyst" />
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label for="hf-name">Your name *</label>
+              <input id="hf-name" name="contact_name" required maxlength="120" autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="hf-email">Work email *</label>
+              <input id="hf-email" name="email" type="email" required maxlength="200" autocomplete="email" />
+            </div>
+          </div>
+          <div class="row3">
+            <div class="field">
+              <label for="hf-type">Job type</label>
+              <select id="hf-type" name="job_type">
+                {jobTypes.map(([v, l]) => <option value={v}>{l}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for="hf-mode">Work mode</label>
+              <select id="hf-mode" name="work_mode">
+                {modes.map(([v, l]) => <option value={v} selected={v === 'hybrid'}>{l}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for="hf-location">Location</label>
+              <input id="hf-location" name="location" maxlength="120" placeholder="e.g. Birmingham" />
+            </div>
+          </div>
+          <div class="row3">
+            <div class="field">
+              <label for="hf-salary">Salary or rate</label>
+              <input id="hf-salary" name="salary" maxlength="80" placeholder="e.g. £32k–£38k" />
+            </div>
+            <div class="field">
+              <label for="hf-phone">Phone</label>
+              <input id="hf-phone" name="phone" type="tel" maxlength="40" autocomplete="tel" />
+            </div>
+            <div class="field">
+              <label for="hf-url">Job advert link</label>
+              <input id="hf-url" name="job_url" type="url" maxlength="500" placeholder="https://" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="hf-message">About the role</label>
+            <textarea id="hf-message" name="message" maxlength="5000" placeholder="Team, responsibilities, start date, interview process…"></textarea>
+          </div>
+          <div class="hp" aria-hidden="true">
+            <label for="hf-website">Leave this empty</label>
+            <input id="hf-website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <button class="btn" type="submit">{t['hire.send']}</button>
+          <p class="form-status" id="hf-status" role="status" aria-live="polite"></p>
+          {t['hire.link_help'] && <p class="muted small">{t['hire.link_help']}</p>}
+          <p class="muted small">What you send is stored only so I can reply. See <a href={url('/privacy/')}>{t['footer.privacy'].toLowerCase()}</a>.</p>
+        </form>
+      ) : (
+        profile.email && <a class="btn" href={`mailto:${profile.email}`}>{t['hire.send']}</a>
+      )}
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  (() => {
+    const form = document.getElementById('hire-form');
+    if (!form) return;
+    // Quick apply: recruiters can pre-fill the form from a link.
+    const q = new URL(location.href).searchParams;
+    const prefill = { company: 'company', role: 'role_title', name: 'contact_name', email: 'email', type: 'job_type', mode: 'work_mode', location: 'location', salary: 'salary', url: 'job_url', phone: 'phone', message: 'message' };
+    for (const [param, field] of Object.entries(prefill)) {
+      const v = q.get(param);
+      const el = form.elements.namedItem(field);
+      if (!v || !el) continue;
+      if (el.tagName === 'SELECT') {
+        if ([...el.options].some((o) => o.value === v)) el.value = v;
+      } else el.value = v.slice(0, Number(el.maxLength) > 0 ? el.maxLength : 500);
+    }
+    const status = document.getElementById('hf-status');
+    const btn = form.querySelector('button[type=submit]');
+    const say = (msg, state) => {
+      status.textContent = msg;
+      status.dataset.state = state;
+    };
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const d = Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, String(v).trim()]));
+      if (d.website) return say(form.dataset.sent, 'ok');
+      if (!d.company || !d.role_title || !d.contact_name) return say('Add the company, the role and your name, then send again.', 'error');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) return say('Enter a valid email address so I can reply.', 'error');
+      if (d.job_url && !/^https?:\/\//i.test(d.job_url)) return say('The job advert link should start with https://', 'error');
+      delete d.website;
+      btn.disabled = true;
+      say('Sending…', '');
+      try {
+        const res = await fetch(form.dataset.url + '/rest/v1/opportunities', {
+          method: 'POST',
+          headers: { apikey: form.dataset.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify(d),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        say(form.dataset.sent, 'ok');
+      } catch {
+        say(form.dataset.failed, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .hire {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 1.5rem 2.5rem;
+    align-items: start;
+  }
+  @media (max-width: 56rem) {
+    .hire {
+      grid-template-columns: 1fr;
+    }
+  }
+  .why {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+  }
+  @media (max-width: 56rem) {
+    .why {
+      position: static;
+    }
+  }
+  .avatar {
+    inline-size: 88px;
+    block-size: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent);
+  }
+  .why h2 {
+    font-size: var(--step-2);
+    margin: 0.75rem 0 0.25rem;
+  }
+  .points {
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .points li {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+  }
+  .tick {
+    flex: none;
+    color: var(--accent-text);
+    margin-top: 0.15rem;
+  }
+  .tick :global(svg) {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+  }
+  .avail {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 500;
+  }
+  .dot {
+    inline-size: 0.6rem;
+    block-size: 0.6rem;
+    border-radius: 50%;
+    background: #1fbf6a;
+    box-shadow: 0 0 0 4px color-mix(in srgb, #1fbf6a 25%, transparent);
+  }
+  .small {
+    font-size: var(--step--1);
+  }
+  .form-card {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    transform: none;
+  }
+  .form-card h2 {
+    font-size: var(--step-2);
+  }
+  .row2,
+  .row3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1rem;
+  }
+  .row3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  @media (max-width: 40rem) {
+    .row2,
+    .row3 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

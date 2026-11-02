@@ -164,6 +164,46 @@ export const textDefs: TextDef[] = [
   { group: 'Contact page', key: 'contact.sent', label: 'After sending', value: 'Message sent. Thanks, I will reply soon.' },
   { group: 'Contact page', key: 'contact.failed', label: 'If sending fails', value: 'The message did not send. Try again, or email me directly.' },
 
+  // ---- Hire me (recruiters)
+  { group: 'Hire me page', key: 'hire.show', label: 'Show the Hire me page and button', value: on, kind: 'bool' },
+  { group: 'Hire me page', key: 'nav.hire', label: 'Header button', value: 'Hire me' },
+  { group: 'Hire me page', key: 'hire.title', label: 'Page heading', value: 'Hire me' },
+  { group: 'Hire me page', key: 'hire.intro', label: 'Introduction', value: 'Recruiting for a role? Send the details here and they go straight to my dashboard. I reply to every company, usually within a day.', kind: 'textarea' },
+  { group: 'Hire me page', key: 'hire.points', label: 'Why hire me (one per line)', value: 'Security testing, web systems and games, built end to end\nClear documentation and reports for every project\nBased in Birmingham, open to remote, hybrid and on-site roles\nAvailable for full-time, contract and freelance work', kind: 'textarea' },
+  { group: 'Hire me page', key: 'hire.form_title', label: 'Form heading', value: 'Tell me about the role' },
+  { group: 'Hire me page', key: 'hire.send', label: 'Send button', value: 'Send the opportunity' },
+  { group: 'Hire me page', key: 'hire.sent', label: 'After sending', value: 'Thank you. Your opportunity has reached me and I will reply soon.' },
+  { group: 'Hire me page', key: 'hire.failed', label: 'If sending fails', value: 'That did not send. Try again, or email me directly.' },
+  { group: 'Hire me page', key: 'hire.link_help', label: 'Quick-apply help', value: 'Recruiters can pre-fill this form with a link like /hire/?company=Acme&role=Developer.', kind: 'textarea', help: 'Shown in small print under the form. Leave empty to hide it.' },
+
+  // ---- Privacy and visit statistics
+  { group: 'Privacy and statistics', key: 'analytics.enabled', label: 'Count visits for the dashboard', value: on, kind: 'bool', help: 'Cookie-free. Turn off to stop recording visits.' },
+  { group: 'Privacy and statistics', key: 'footer.privacy', label: 'Footer privacy link', value: 'Privacy' },
+  { group: 'Privacy and statistics', key: 'privacy.title', label: 'Privacy page heading', value: 'Privacy' },
+  {
+    group: 'Privacy and statistics',
+    key: 'privacy.body',
+    label: 'Privacy page text (Markdown)',
+    kind: 'textarea',
+    value: `## Visit statistics
+
+This site counts visits so I can see which pages are useful. It does this without cookies and without storing your IP address.
+
+For each page you open it records: the page address and title, the website you came from (only its name, such as google.com), your device type, browser and operating system, your language, your screen size, your device's **time zone** and how long the page stayed open. The time zone is used to show an approximate area (for example "London time zone, United Kingdom"); your exact location is never collected.
+
+A random number kept only for the current browser tab links the pages you view in one visit. It disappears when you close the tab and cannot identify you.
+
+Nothing is recorded if your browser sends **Do Not Track** or **Global Privacy Control**. Statistics are kept for up to 13 months and are never shared or sold.
+
+## Messages and job opportunities
+
+If you use the contact form or the Hire me form, what you type is stored so I can reply. Ask me at any time to see or delete it.
+
+## Who looks after this data
+
+The site is hosted on GitHub Pages and the data is stored with Supabase in London, UK. Contact me through the contact page with any privacy question.`,
+  },
+
   // ---- Footer and other
   { group: 'Footer and other', key: 'footer.copyright', label: 'Copyright line', value: '© {year} {name}', help: '{year} and {name} are filled in automatically.' },
   { group: 'Footer and other', key: 'footer.about', label: 'Footer introduction', value: 'Security, web systems, games, 3D and AI: practical work, built and documented properly.', kind: 'textarea' },

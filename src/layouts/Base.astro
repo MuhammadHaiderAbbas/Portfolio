@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { getContent, fill } from '../lib/content';
+import { getContent, fill, supabaseConfig } from '../lib/content';
 import { url } from '../lib/paths';
 import { isOn } from '../lib/site-text';
 
@@ -40,6 +40,8 @@ const isCurrent = (href: string) => {
 const [first, ...rest] = profile.short_name.split(' ');
 const year = String(new Date().getFullYear());
 const fonts = [400, 500, 600, 700];
+const hireOn = isOn(t, 'hire.show') && Boolean(supabaseConfig.url && supabaseConfig.key);
+const trackOn = !import.meta.env.DEV && isOn(t, 'analytics.enabled') && Boolean(supabaseConfig.url && supabaseConfig.key);
 ---
 
 <!doctype html>
@@ -74,7 +76,7 @@ const fonts = [400, 500, 600, 700];
     </script>
     <slot name="head" />
   </head>
-  <body id="top">
+  <body id="top" data-sb-url={supabaseConfig.url || undefined} data-sb-key={supabaseConfig.key || undefined} data-track={trackOn ? 'on' : 'off'} data-base={base}>
     <a class="skip" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="wrap">
@@ -85,6 +87,7 @@ const fonts = [400, 500, 600, 700];
         <nav class="nav" id="site-nav" aria-label="Main">
           {nav.map((n) => <a href={url(n.href)} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a>)}
         </nav>
+        {hireOn && <a class="btn btn-sm hire-btn" href={url('/hire/')} aria-current={isCurrent('/hire/') ? 'page' : undefined}>{t['nav.hire']}</a>}
         <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark" title="Switch between light and dark">
           <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path></svg>
           <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
@@ -131,7 +134,7 @@ const fonts = [400, 500, 600, 700];
       </div>
       <div class="wrap footer-bottom">
         <p>{fill(t['footer.copyright'], { year, name: profile.name })}</p>
-        <a href="#top">{t['footer.top']}</a>
+        <span class="footer-links"><a href={url('/privacy/')}>{t['footer.privacy']}</a><a href="#top">{t['footer.top']}</a></span>
       </div>
     </footer>
 
@@ -139,6 +142,7 @@ const fonts = [400, 500, 600, 700];
       import '../scripts/effects.ts';
       import '../scripts/collection.ts';
       import '../scripts/bg3d.ts';
+      import '../scripts/track.ts';
     </script>
   </body>
 </html>

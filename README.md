@@ -7,6 +7,9 @@ The source for Muhammad Haider Abbas's portfolio: fast pre-built pages over a li
   - **Content:** profile (photo, CV, roles, intro, about, contact details, social links), projects, blog posts, certifications, experience and education, skills (with % bars), services (prices and what's included), snapshot numbers and "What I do".
   - **Site text & settings:** every heading, button, menu label, form label and footer line; accent colour, default theme, 3D background on/off and detail, card tilt, and showing or hiding each homepage section.
   - **Uploads:** images are resized and converted to WebP in the browser before upload.
+  - **Dashboard** (opens first): live "watching now" count, visitors, page views, time on page, a visits chart, a world map of approximate visitor areas, top pages, sources, devices, browsers, languages, a live visit feed, site health checks and the latest inbox.
+  - **Top bar:** a Messages button and a notification bell (new messages, job opportunities, publishes, deploy results, content changes and site problems), updated live.
+  - **Job opportunities** sent by companies from the public **Hire me** page, tracked through New → Reviewing → Interview → Offer → Declined/Closed with private notes.
   - **Messages** from the contact form.
 - **Publishing:** saving in the admin panel stores the change. **Publish site** rebuilds the pages, and the change is live in about a minute.
 
@@ -34,7 +37,7 @@ Then **Actions → Deploy site → Run workflow** (or push to `main`). The site 
 ### 2. Create the Supabase database
 
 1. Create a free project at [supabase.com](https://supabase.com) (region **London, eu-west-2**).
-2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**.
+2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**. Then do the same with [`supabase/dashboard.sql`](supabase/dashboard.sql) (visit statistics, notifications and job opportunities).
 3. **New query:** paste all of [`supabase/seed.sql`](supabase/seed.sql), then **Run**. This imports all the content: projects, profile, contact details, experience, education, skills, certifications, services, snapshot numbers and "What I do".
 
 ### 3. Create your admin login
@@ -104,7 +107,11 @@ Old addresses such as `/resume.html`, `/portfolio.html`, the old project pages a
 | Change the order of anything | Set **Position** (lower first). |
 | Feature a project on the homepage | Tick **Feature on the homepage** (up to 3 are shown). |
 | Update your CV or photo | Admin → Profile → **Upload**, save, publish. |
-| Read messages | Admin → Messages. |
+| Read messages | Admin → Messages, or the envelope in the top bar. |
+| See who is on the site | Admin → **Dashboard**. Pick 24 hours, 7, 30 or 90 days. |
+| Handle a job offer | Admin → **Job opportunities**: change the stage, add notes, reply by email. |
+| Give recruiters a pre-filled form | Share `/hire/?company=Acme&role=Developer` (also `name`, `email`, `type`, `mode`, `location`, `salary`, `url`). |
+| Stop counting visits | Admin → Site text & settings → **Privacy and statistics**. |
 
 ## Developing locally
 
@@ -124,15 +131,20 @@ After editing `src/data/seed.json`, run `npm run seed-sql` to regenerate `supaba
 | `src/lib/site-text.ts` | Every editable label and setting, with its default |
 | `src/admin/schema.ts` | Every editable content field |
 | `src/admin/app.ts` | The admin panel |
+| `src/admin/dashboard.ts`, `live.ts`, `opportunities.ts` | Dashboard, top-bar notifications and live updates, job opportunities |
+| `src/scripts/track.ts` | The cookie-free visit counter |
+| `scripts/gen-geo.mjs` | Rebuilds the dashboard's world map and time-zone table |
 | `src/scripts/bg3d.ts` | The 3D background |
 | `src/lib/content.ts` | Loads content from Supabase (or `seed.json`) at build time |
 | `supabase/schema.sql` | Tables, security rules, uploads and the publish function |
+| `supabase/dashboard.sql` | Visit statistics, notifications and job opportunities |
 | `.github/workflows/deploy.yml` | Builds and deploys on push, on Publish, on demand and nightly |
 
 ### Security
 
 - Visitors can read published content and send contact messages, nothing else. Drafts, messages, uploads and all changes are limited to accounts in the `admins` table.
-- The contact form refuses new messages after 30 in an hour.
+- The contact form refuses new messages after 30 in an hour; the Hire me form after 20 in an hour.
+- **Visit statistics are privacy-friendly:** no cookies, no IP addresses, no exact location and no third parties. Location is approximate, taken from the visitor's device time zone. Nothing is recorded for Do Not Track / Global Privacy Control, bots, or your own browser once you have signed in to the admin. Visitors can only add views; only admins can read them. Views are kept for 13 months. The public `/privacy/` page explains this.
 - The GitHub token is stored encrypted in Supabase Vault and is only used by `publish_site()`, which checks that the caller is an admin.
 
 ### Free-plan notes
