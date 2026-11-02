@@ -203,6 +203,19 @@ function copying(article, source) {
 // ---------------------------------------------------------------------------
 // AI providers, tried in order
 // ---------------------------------------------------------------------------
+/** Finds and parses the first JSON object in a model's text reply. */
+function parseJson(text) {
+  const t = String(text || '').replace(/```(?:json)?/g, '');
+  const start = t.indexOf('{');
+  const end = t.lastIndexOf('}');
+  if (start < 0 || end <= start) return null;
+  try {
+    return JSON.parse(t.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+}
+
 const openAiStyle = (name, endpoint, keyEnv, models, maxSource) => ({
   name,
   key: process.env[keyEnv] || '',
@@ -230,11 +243,28 @@ const openAiStyle = (name, endpoint, keyEnv, models, maxSource) => ({
     const msg = j.choices?.[0]?.message;
     const args = msg?.tool_calls?.[0]?.function?.arguments;
     if (args) return typeof args === 'string' ? JSON.parse(args) : args;
-    // Some free models answer in plain text: accept a JSON object in the reply
-    const text = String(msg?.content || '').replace(/^```(?:json)?|```$/gm, '');
-    const start = text.indexOf('{');
-    if (start >= 0) return JSON.parse(text.slice(start, text.lastIndexOf('}') + 1));
-    throw new Error('no structured answer');
+    const direct = parseJson(msg?.content);
+    if (direct) return direct;
+    // Some free models ignore tools: ask again for plain JSON matching the schema
+    const res2 = await fetch(endpoint, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${this.key}`, 'Content-Type': 'application/json', 'HTTP-Referer': SITE, 'X-Title': 'Portfolio AI writer' },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: `${system}\n\nReply with ONLY one JSON object (no prose, no code fences) that matches this JSON Schema:\n${JSON.stringify(tool.input_schema)}` },
+          { role: 'user', content: prompt },
+        ],
+        response_format: { type: 'json_object' },
+        max_tokens: maxTokens,
+        temperature: 0.6,
+      }),
+    });
+    const j2 = await res2.json().catch(() => ({}));
+    if (!res2.ok) throw new Error(`${res2.status} ${j2?.error?.message || JSON.stringify(j2).slice(0, 160)}`);
+    const out = parseJson(j2.choices?.[0]?.message?.content);
+    if (out) return out;
+    throw new Error(`no structured answer (finish: ${j2.choices?.[0]?.finish_reason || j.choices?.[0]?.finish_reason || '?'}; reply: ${String(j2.choices?.[0]?.message?.content || msg?.content || '').slice(0, 80)})`);
   },
 });
 
@@ -328,11 +358,11 @@ const scoreTool = {
 
 async function scoreTopics(candidates, ctx, settings) {
   const safe = candidates.filter((c) => !isBanned(`${c.keyword} ${c.title} ${c.context}`)).slice(0, 110);
-  const list = safe.map((c, i) => `${i}. [${c.source}] ${c.title}${c.context ? ' — ' + c.context.slice(0, 200) : ''}`).join('\n');
+  const list = (max) => safe.map((c, i) => `${i}. [${c.source}] ${c.title}${c.context && max > 5000 ? ' — ' + c.context.slice(0, 200) : ''}`).join('\n').slice(0, max > 5000 ? 20000 : 9000);
   const { out } = await ai({
     system:
       'You are the editor of a professional portfolio blog. You pick topics that are trending now and genuinely relevant to the author. Never pick politics, religion, crime, deaths, wars, health, celebrities, sport, gambling, finance tips or anything about a named private person.',
-    prompt: `Author: ${ctx.profile?.name}. ${ctx.profile?.headline || ''}\nFields: ${settings['ai.focus']}\nAudience: ${settings['ai.audience']}\n\nAlready written: ${(ctx.posts || []).map((p) => p.title).join('; ') || 'nothing yet'}\nAlready considered recently: ${(ctx.recent_keywords || []).slice(0, 80).join('; ') || 'none'}\n\nTrending now:\n${list}\n\nChoose up to 12 candidates that would make a useful, timely article for this author and audience. Skip anything off-topic, risky or already covered. Rate relevance honestly (most general news is below 40).`,
+    prompt: (max) => `Author: ${ctx.profile?.name}. ${ctx.profile?.headline || ''}\nFields: ${settings['ai.focus']}\nAudience: ${settings['ai.audience']}\n\nAlready written: ${(ctx.posts || []).map((p) => p.title).join('; ').slice(0, 1500) || 'nothing yet'}\nAlready considered recently: ${(ctx.recent_keywords || []).slice(0, 40).join('; ') || 'none'}\n\nTrending now:\n${list(max)}\n\nChoose up to 12 candidates that would make a useful, timely article for this author and audience. Skip anything off-topic, risky or already covered. Rate relevance honestly (most general news is below 40).`,
     tool: scoreTool,
     maxTokens: 3000,
   });
@@ -622,9 +652,13 @@ try {
   if (shouldWrite) {
     ctx = await rpc('agent_context', {});
     const today = Number(ctx.today_ai || 0);
-    const room = mode === 'write' ? 1 : Math.max(0, MAX_PER_DAY - today);
+    // Scheduled runs are a backup for the Claude scheduled task: skip this slot if an
+    // article was already written in the last 5 hours.
+    const recent = ctx.last_ai_at && Date.now() - new Date(ctx.last_ai_at).getTime() < 5 * 3600e3;
+    const room = mode === 'write' ? 1 : recent ? 0 : Math.max(0, MAX_PER_DAY - today);
+    if (mode === 'auto' && recent) notes.push('An article was already written for this slot.');
     const perRun = Math.min(room, Math.max(1, Math.min(2, Number(settings['ai.per_run']) || 1)));
-    if (!perRun) notes.push(`Already ${today} articles today; the daily limit is ${MAX_PER_DAY}.`);
+    if (!perRun && !recent) notes.push(`Already ${today} articles today; the daily limit is ${MAX_PER_DAY}.`);
     const min = Number(settings['ai.min_relevance']) || 60;
     const picks = [...(ctx.queued || []), ...(ctx.candidates || []).filter((c) => c.relevance >= min && !isBanned(c.keyword))].slice(0, perRun);
     // Nothing trending qualifies: keep the blog going with an evergreen topic

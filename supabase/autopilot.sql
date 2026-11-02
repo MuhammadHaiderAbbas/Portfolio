@@ -456,7 +456,8 @@ begin
          where status = 'new' and created_at > now() - interval '10 days'
          order by relevance desc, score desc limit 20) t),
     'recent_keywords', (select coalesce(json_agg(keyword), '[]') from public.trend_topics where created_at > now() - interval '45 days'),
-    'today_ai', (select count(*) from public.posts where ai_generated and created_at >= date_trunc('day', now() at time zone 'Europe/London') at time zone 'Europe/London')
+    'today_ai', (select count(*) from public.posts where ai_generated and created_at >= date_trunc('day', now() at time zone 'Europe/London') at time zone 'Europe/London'),
+    'last_ai_at', (select max(created_at) from public.posts where ai_generated)
   );
 end $$;
 revoke all on function public.agent_context(text) from public;
