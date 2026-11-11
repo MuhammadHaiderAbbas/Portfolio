@@ -10,6 +10,7 @@ The source for Muhammad Haider Abbas's portfolio: fast pre-built pages over a li
   - **Dashboard** (opens first): live "watching now" count, visitors, page views, time on page, a visits chart, a world map of approximate visitor areas, top pages, sources, devices, browsers, languages, a live visit feed, site health checks and the latest inbox.
   - **Top bar:** a Messages button and a notification bell (new messages, job opportunities, publishes, deploy results, content changes and site problems), updated live.
   - **Job opportunities** sent by companies from the public **Hire me** page, tracked through New → Reviewing → Interview → Offer → Declined/Closed with private notes.
+  - **Adaptive IDS enquiries** from the adaptiveids.com request form, tracked through New → Contacted → Call booked → In evaluation → Won/Declined/Closed with private notes.
   - **Messages** from the contact form.
   - **AI writer (autopilot):** every morning and evening it collects what is trending in your fields (Google Trends UK, Hacker News, dev.to, GitHub, CISA security advisories), writes one researched, search-friendly article, and has a separate editor pass check it for safety and quality (with one rewrite if needed). Articles that pass are emailed to you and publish themselves after 1 hour unless you press **Hold**; anything flagged waits for you. Off-limits subjects (politics, religion, crime, health, celebrities, gambling, adult) are never written. If Claude has no credit it falls back to free AI models automatically. Each article gets a branded cover.
   - **Email alerts:** new and published articles, job opportunities, messages and problems, sent through Resend (free).
@@ -39,7 +40,7 @@ Then **Actions → Deploy site → Run workflow** (or push to `main`). The site 
 ### 2. Create the Supabase database
 
 1. Create a free project at [supabase.com](https://supabase.com) (region **London, eu-west-2**).
-2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**. Then do the same with [`supabase/dashboard.sql`](supabase/dashboard.sql) (visit statistics, notifications and job opportunities), [`supabase/writer.sql`](supabase/writer.sql) (AI writer) and [`supabase/autopilot.sql`](supabase/autopilot.sql) (auto-publish timer and email alerts).
+2. **SQL Editor → New query:** paste all of [`supabase/schema.sql`](supabase/schema.sql), then **Run**. Then do the same with [`supabase/dashboard.sql`](supabase/dashboard.sql) (visit statistics, notifications and job opportunities), [`supabase/writer.sql`](supabase/writer.sql) (AI writer) and [`supabase/autopilot.sql`](supabase/autopilot.sql) (auto-publish timer and email alerts), and finally [`supabase/adaptive-ids.sql`](supabase/adaptive-ids.sql) (Adaptive IDS enquiries; needs the adaptiveids.com requests table).
 3. **New query:** paste all of [`supabase/seed.sql`](supabase/seed.sql), then **Run**. This imports all the content: projects, profile, contact details, experience, education, skills, certifications, services, snapshot numbers and "What I do".
 
 ### 3. Create your admin login
@@ -135,6 +136,7 @@ Old addresses such as `/resume.html`, `/portfolio.html`, the old project pages a
 | Read messages | Admin → Messages, or the envelope in the top bar. |
 | See who is on the site | Admin → **Dashboard**. Pick 24 hours, 7, 30 or 90 days. |
 | Handle a job offer | Admin → **Job opportunities**: change the stage, add notes, reply by email. |
+| Handle an Adaptive IDS enquiry | Admin → **Adaptive IDS enquiries**: requests from the adaptiveids.com form. Reply by email, move it through the stages, keep private notes. |
 | Give recruiters a pre-filled form | Share `/hire/?company=Acme&role=Developer` (also `name`, `email`, `type`, `mode`, `location`, `salary`, `url`). |
 | Stop counting visits | Admin → Site text & settings → **Privacy and statistics**. |
 | Get a new AI article | Admin → AI writer → pick a topic → **Write now** (or add your own topic). |
@@ -159,6 +161,7 @@ After editing `src/data/seed.json`, run `npm run seed-sql` to regenerate `supaba
 | `src/admin/schema.ts` | Every editable content field |
 | `src/admin/app.ts` | The admin panel |
 | `src/admin/dashboard.ts`, `live.ts`, `opportunities.ts` | Dashboard, top-bar notifications and live updates, job opportunities |
+| `src/admin/evaluations.ts`, `supabase/adaptive-ids.sql` | Adaptive IDS enquiries from adaptiveids.com |
 | `src/scripts/track.ts` | The cookie-free visit counter |
 | `scripts/writer.mjs`, `.github/workflows/writer.yml` | The AI writer and its schedule |
 | `scripts/covers.mjs` | Branded cover images for posts without one (runs before each build) |
