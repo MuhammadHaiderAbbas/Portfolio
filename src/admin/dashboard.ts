@@ -467,12 +467,23 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
   }
 
   async function loadInbox() {
-    const [m, o] = await Promise.all([
+    const [m, o, e] = await Promise.all([
       sb.from('messages').select('id,name,subject,body,is_read,created_at').order('created_at', { ascending: false }).limit(4),
       sb.from('opportunities').select('id,company,role_title,job_type,work_mode,status,created_at').order('created_at', { ascending: false }).limit(4),
+      sb.from('adaptive_ids_evaluation_requests').select('id,organisation,name,interest,status,created_at').order('created_at', { ascending: false }).limit(4),
     ]);
     if (!alive()) return;
     const items = [
+      ...(e.error ? [] : e.data ?? []).map((r: Row) => ({
+        at: r.created_at,
+        node: h(
+          'li',
+          { class: r.status === 'new' ? 'unread' : '' },
+          h('span', { class: 'feed-ico opp' }, icon('shield', 16)),
+          h('a', { class: 'feed-main', href: '#/evaluations' }, h('strong', {}, `${r.organisation}: Adaptive IDS`), h('span', { class: 'muted' }, `${r.name} · ${String(r.interest).replace('_', ' ')} · ${r.status}`)),
+          h('time', { class: 'feed-time', datetime: r.created_at }, ago(r.created_at))
+        ),
+      })),
       ...(o.data ?? []).map((r: Row) => ({
         at: r.created_at,
         node: h(
@@ -494,7 +505,7 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
         ),
       })),
     ].sort((a, b) => (a.at < b.at ? 1 : -1));
-    inboxSlot.replaceChildren(items.length ? h('ul', { class: 'feed' }, items.slice(0, 6).map((i) => i.node)) : h('p', { class: 'muted dash-empty' }, 'No messages or job opportunities yet.'));
+    inboxSlot.replaceChildren(items.length ? h('ul', { class: 'feed' }, items.slice(0, 6).map((i) => i.node)) : h('p', { class: 'muted dash-empty' }, 'No messages, job opportunities or enquiries yet.'));
   }
 
   async function loadContent() {
@@ -537,7 +548,7 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
   const todoSlot = h('div', { class: 'todo' });
   const writerSlot = h('div', {}, h('p', { class: 'muted dash-empty' }, 'Loading…'));
   async function loadWelcome() {
-    const [prof, drafts, msgs, opps, state, topics, run] = await Promise.all([
+    const [prof, drafts, msgs, opps, state, topics, run, evals] = await Promise.all([
       sb.from('profile').select('short_name,name').eq('id', 1).maybeSingle(),
       sb.from('posts').select('id,title,created_at').eq('ai_generated', true).eq('published', false).order('created_at', { ascending: false }),
       sb.from('messages').select('id', { count: 'exact', head: true }).eq('is_read', false),
@@ -545,6 +556,7 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
       sb.from('site_state').select('*').eq('id', 1).maybeSingle(),
       sb.from('trend_topics').select('keyword,relevance,source,status').in('status', ['new', 'queued']).order('relevance', { ascending: false }).limit(5),
       sb.from('agent_runs').select('status,started_at,summary').order('started_at', { ascending: false }).limit(1),
+      sb.from('adaptive_ids_evaluation_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     ]);
     if (!alive()) return;
     const first = (prof.data?.short_name || prof.data?.name || '').split(' ')[0];
@@ -555,6 +567,7 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
     const unpublished = st && (!st.last_published_at || new Date(st.content_changed_at) > new Date(st.last_published_at));
     const items: [number | boolean, string, string, string][] = [
       [drafts.data?.length ?? 0, 'edit', `${drafts.data?.length} AI article draft${drafts.data?.length === 1 ? '' : 's'} to review`, '#/writer'],
+      [evals.count ?? 0, 'shield', `${evals.count} new Adaptive IDS enquir${evals.count === 1 ? 'y' : 'ies'}`, '#/evaluations'],
       [opps.count ?? 0, 'briefcase', `${opps.count} new job opportunit${opps.count === 1 ? 'y' : 'ies'}`, '#/opportunities'],
       [msgs.count ?? 0, 'mail', `${msgs.count} unread message${msgs.count === 1 ? '' : 's'}`, '#/messages'],
       [Boolean(unpublished), 'upload', 'Changes waiting to be published', '#/dashboard'],
@@ -646,7 +659,7 @@ export async function dashboardView(ctx: Ctx): Promise<HTMLElement> {
         loadLive();
         loadStats();
       }, 1200);
-    } else if (table === 'messages' || table === 'opportunities') {
+    } else if (table === 'messages' || table === 'opportunities' || table === 'adaptive_ids_evaluation_requests') {
       loadInbox();
       loadWelcome();
     } else if (table === 'agent_runs' || table === 'notifications') loadWelcome();

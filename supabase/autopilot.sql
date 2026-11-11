@@ -20,9 +20,11 @@ create table if not exists public.alert_settings (
   on_opportunities boolean not null default true,
   on_messages      boolean not null default true,
   on_problems      boolean not null default true,
+  on_evaluations   boolean not null default true,
   site_url         text not null default 'https://personalportfolio.website',
   updated_at       timestamptz not null default now()
 );
+alter table public.alert_settings add column if not exists on_evaluations boolean not null default true;
 insert into public.alert_settings (id) values (1) on conflict do nothing;
 alter table public.alert_settings enable row level security;
 drop policy if exists "admins manage alerts" on public.alert_settings;
@@ -189,6 +191,7 @@ begin
   v_send := case
     when new.kind = 'message' then s.on_messages
     when new.kind = 'opportunity' then s.on_opportunities
+    when new.kind = 'evaluation' then s.on_evaluations
     when new.kind = 'content' and coalesce(new.dedupe_key, '') like 'published:%' then s.on_articles
     when new.kind in ('health', 'deploy') and new.level = 'error' then s.on_problems
     else false end;
@@ -201,6 +204,7 @@ begin
   if new.kind = 'content' then v_label := 'Read the article'; end if;
   if new.kind = 'opportunity' then v_label := 'See the opportunity'; end if;
   if new.kind = 'message' then v_label := 'Read the message'; end if;
+  if new.kind = 'evaluation' then v_label := 'See the enquiry'; end if;
   perform public.send_email(new.title, public.email_html(new.title, new.body, jsonb_build_array(jsonb_build_object('label', v_label, 'url', v_url))));
   return null;
 end $$;

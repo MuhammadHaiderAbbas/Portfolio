@@ -22,6 +22,42 @@ where id = 1 and name = '';
 
 insert into public.projects (slug, title, summary, category, tech, cover_url, gallery, body, live_url, repo_url, video_url, document_url, status, role, year, featured, published, sort_order, project_date)
 select * from (values
+  ('adaptive-ids', 'Adaptive IDS: Explainable, Governed Intrusion Detection', 'A local-first network intrusion detection product that explains every alert and only changes its model after validation and an explicit human approval.', 'Cybersecurity', array['Python', 'FastAPI', 'React', 'SQLAlchemy', 'PostgreSQL', 'SHAP', 'Drift detection', 'Supabase', 'GitHub Actions']::text[], '/img/projects/adaptive-ids.webp', '{}'::text[], '### What it is
+
+Adaptive IDS turns my MSc research on [machine-learning anomaly detection with concept drift](/projects/ml-anomaly-detection-concept-drift/) into a working product. It analyses exported network flow files on the customer''s own hardware, scores each event, explains why, watches for drift, and governs every model change. No network data leaves the organisation.
+
+### The problem
+
+Machine-learning detectors go stale as networks and attacks change. Retraining them automatically can quietly make things worse, and analysts can''t act on alerts they can''t explain or justify to an auditor.
+
+### How it works
+
+- **Explained alerts:** every score comes with exact SHAP feature contributions from the same model artifact, shown only after the prediction is reproduced and the parts add up to the score.
+- **Drift monitoring:** feature and error drift are measured and shown, so the team can see when the model is falling behind.
+- **Governed updates:** a retrained candidate must pass a non-inferiority evaluation gate and get an explicit approval before it is promoted. A drift alarm alone never changes the model.
+- **Audit trail:** imports, evaluations, approvals and sign-ins are recorded, with role-based access.
+
+### Evidence (public research data)
+
+All figures were measured by the product on NSL-KDD and CSE-CIC-IDS2018. It has not yet run on a customer network.
+
+- The approval gate blocked a retrained model that would have added **7.7 points** to the false-positive rate (CSE-CIC-IDS2018, chronological test).
+- The explanations traced **22 %** of false positives to a single feature learned from incomplete training data (NSL-KDD official test set).
+- When a known attack type returned and the governed model was updated, attack recall went from **0.2 % to 56 %** with no rise in false positives (CSE-CIC-IDS2018, web attacks).
+
+### Honest limits
+
+- No model in the tests caught new attack types on the day they first appeared; Adaptive IDS shows when that is happening rather than hiding it.
+- On attack types not seen in training, NSL-KDD recall is about 60 % at a 2–4 % false-positive rate.
+- It analyses exported flow files in batch; live capture is on the roadmap.
+
+### Built with
+
+A Python 3.10 FastAPI service with SQLAlchemy and Alembic (SQLite or PostgreSQL), a React and Vite dashboard, scikit-learn tree models with SHAP TreeExplainer, and CI on Ubuntu and Windows with security scanning. The public site, [adaptiveids.com](https://adaptiveids.com/), runs on GitHub Pages with a Supabase-backed evaluation-request form.
+
+### Free evaluation
+
+I''m offering a free six-week, read-only evaluation on one network segment, judged against success criteria agreed before any results exist. [Request one on adaptiveids.com](https://adaptiveids.com/#evaluation).', 'https://adaptiveids.com/', 'https://github.com/MuhammadHaiderAbbas/Ml-Detection-Project', 'https://www.youtube.com/watch?v=rT84lsI9S14', '', 'Product · Evaluations open', 'Founder & Developer', '2026', true, true, 0, null),
   ('ml-anomaly-detection-concept-drift', 'ML-Based Anomaly Detection with Concept Drift', 'A streaming machine learning research project focused on detecting anomalies when behaviour changes over time.', 'AI / Machine Learning', array['Python', 'Scikit-learn', 'River', 'Streaming ML', 'Pandas', 'Matplotlib']::text[], '/img/projects/ml-anomaly-detection-concept-drift.webp', '{}'::text[], '### Project Description
 
 This project focuses on detecting anomalies in streaming or changing data environments where normal behaviour changes over time. This change is called concept drift. Traditional models trained on old data may fail when user behaviour, network traffic, sensor behaviour or transaction patterns evolve. River is especially relevant because it is designed for online machine learning on data streams, while scikit-learn provides baseline anomaly detection methods.

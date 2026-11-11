@@ -22,7 +22,7 @@ export const changed = (table: string, row?: Row) =>
 // ---------------------------------------------------------------------------
 // Badge counts
 // ---------------------------------------------------------------------------
-export const counts = { messages: 0, notifications: 0, opportunities: 0, drafts: 0 };
+export const counts = { messages: 0, notifications: 0, opportunities: 0, evaluations: 0, drafts: 0 };
 
 function paintBadges() {
   for (const [id, n] of [
@@ -30,6 +30,7 @@ function paintBadges() {
     ['badge-messages-side', counts.messages],
     ['badge-bell', counts.notifications],
     ['badge-opps-side', counts.opportunities],
+    ['badge-evals-side', counts.evaluations],
     ['badge-drafts-side', counts.drafts],
   ] as const) {
     const el = document.getElementById(id);
@@ -45,16 +46,18 @@ function paintBadges() {
 }
 
 export async function refreshCounts(ctx: Ctx) {
-  const [m, n, o, d] = await Promise.all([
+  const [m, n, o, d, e] = await Promise.all([
     ctx.sb.from('messages').select('id', { count: 'exact', head: true }).eq('is_read', false),
     ctx.sb.from('notifications').select('id', { count: 'exact', head: true }).eq('is_read', false),
     ctx.sb.from('opportunities').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     ctx.sb.from('posts').select('id', { count: 'exact', head: true }).eq('ai_generated', true).eq('published', false),
+    ctx.sb.from('adaptive_ids_evaluation_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
   ]);
   counts.messages = m.count ?? 0;
   counts.notifications = n.count ?? 0;
   counts.opportunities = o.count ?? 0;
   counts.drafts = d.error ? 0 : d.count ?? 0;
+  counts.evaluations = e.error ? 0 : e.count ?? 0;
   paintBadges();
 }
 
@@ -64,6 +67,7 @@ export async function refreshCounts(ctx: Ctx) {
 const kindIcon: Record<string, string> = {
   message: 'mail',
   opportunity: 'briefcase',
+  evaluation: 'shield',
   publish: 'upload',
   deploy: 'rocket',
   content: 'edit',
@@ -112,7 +116,7 @@ export function topbarWidgets(ctx: Ctx, email: string, onSignOut: () => void): H
     list.replaceChildren(h('li', { class: 'notif-empty' }, 'Loading…'));
     const { data, error } = await ctx.sb.from('notifications').select('*').order('created_at', { ascending: false }).limit(30);
     if (error) return list.replaceChildren(h('li', { class: 'notif-empty error' }, error.message));
-    if (!data?.length) return list.replaceChildren(h('li', { class: 'notif-empty' }, 'Nothing yet. New messages, job offers, publishes and site problems appear here.'));
+    if (!data?.length) return list.replaceChildren(h('li', { class: 'notif-empty' }, 'Nothing yet. New messages, job offers, Adaptive IDS enquiries, publishes and site problems appear here.'));
     list.replaceChildren(
       ...data.map((n: Row) => {
         const external = /^https?:\/\//.test(n.link);
@@ -235,6 +239,10 @@ export function startLive(ctx: Ctx) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'opportunities' }, (p) => {
       refreshCounts(ctx);
       changed('opportunities', p.new as Row);
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'adaptive_ids_evaluation_requests' }, (p) => {
+      refreshCounts(ctx);
+      changed('adaptive_ids_evaluation_requests', p.new as Row);
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'page_views' }, (p) => changed('page_views', p.new as Row))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_runs' }, (p) => {
@@ -365,7 +373,7 @@ export async function healthChecks(ctx: Ctx, notify = false): Promise<Check[]> {
 
   // 2. Database
   const t1 = performance.now();
-  const [state, profile, projects, services, posts, msgs, opps, views] = await Promise.all([
+  const [state, profile, projects, services, posts, msgs, opps, views, evals] = await Promise.all([
     sb.from('site_state').select('*').eq('id', 1).maybeSingle(),
     sb.from('profile').select('photo_url,cv_url,email,intro').eq('id', 1).maybeSingle(),
     sb.from('projects').select('slug,title,cover_url,summary,published'),
@@ -374,6 +382,7 @@ export async function healthChecks(ctx: Ctx, notify = false): Promise<Check[]> {
     sb.from('messages').select('created_at').eq('is_read', false).order('created_at').limit(1),
     sb.from('opportunities').select('created_at').eq('status', 'new').order('created_at').limit(1),
     sb.from('page_views').select('created_at').order('created_at', { ascending: false }).limit(1),
+    sb.from('adaptive_ids_evaluation_requests').select('created_at').eq('status', 'new').order('created_at').limit(1),
   ]);
   const dbMs = Math.round(performance.now() - t1);
   add(
@@ -435,6 +444,9 @@ export async function healthChecks(ctx: Ctx, notify = false): Promise<Check[]> {
   const oldOpp = opps.data?.[0];
   if (oldOpp && Date.now() - new Date(oldOpp.created_at).getTime() > 2 * 86400_000)
     add({ id: 'opportunities', level: 'warning', title: 'A job opportunity is not reviewed yet', detail: `It arrived ${ago(oldOpp.created_at)}.`, link: '#/opportunities' });
+  const oldEval = evals.data?.[0];
+  if (oldEval && Date.now() - new Date(oldEval.created_at).getTime() > 2 * 86400_000)
+    add({ id: 'evaluations', level: 'warning', title: 'An Adaptive IDS enquiry has waited over 2 days', detail: `It arrived ${ago(oldEval.created_at)}; adaptiveids.com promises a reply within two working days.`, link: '#/evaluations' });
 
   // 7. Visit counting
   const lastView = views.data?.[0];

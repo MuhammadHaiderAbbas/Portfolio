@@ -15,7 +15,7 @@ create table if not exists public.notifications (
   id         bigint generated always as identity primary key,
   created_at timestamptz not null default now(),
   kind       text not null default 'info'
-             check (kind in ('message','opportunity','publish','deploy','content','health','info')),
+             check (kind in ('message','opportunity','evaluation','publish','deploy','content','health','info')),
   level      text not null default 'info' check (level in ('info','success','warning','error')),
   title      text not null check (char_length(title) between 1 and 200),
   body       text not null default '' check (char_length(body) <= 1000),

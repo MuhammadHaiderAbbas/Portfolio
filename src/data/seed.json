@@ -155,6 +155,37 @@
   ],
   "projects": [
     {
+      "slug": "adaptive-ids",
+      "title": "Adaptive IDS: Explainable, Governed Intrusion Detection",
+      "summary": "A local-first network intrusion detection product that explains every alert and only changes its model after validation and an explicit human approval.",
+      "category": "Cybersecurity",
+      "tech": [
+        "Python",
+        "FastAPI",
+        "React",
+        "SQLAlchemy",
+        "PostgreSQL",
+        "SHAP",
+        "Drift detection",
+        "Supabase",
+        "GitHub Actions"
+      ],
+      "cover_url": "/img/projects/adaptive-ids.webp",
+      "gallery": [],
+      "body": "### What it is\n\nAdaptive IDS turns my MSc research on [machine-learning anomaly detection with concept drift](/projects/ml-anomaly-detection-concept-drift/) into a working product. It analyses exported network flow files on the customer's own hardware, scores each event, explains why, watches for drift, and governs every model change. No network data leaves the organisation.\n\n### The problem\n\nMachine-learning detectors go stale as networks and attacks change. Retraining them automatically can quietly make things worse, and analysts can't act on alerts they can't explain or justify to an auditor.\n\n### How it works\n\n- **Explained alerts:** every score comes with exact SHAP feature contributions from the same model artifact, shown only after the prediction is reproduced and the parts add up to the score.\n- **Drift monitoring:** feature and error drift are measured and shown, so the team can see when the model is falling behind.\n- **Governed updates:** a retrained candidate must pass a non-inferiority evaluation gate and get an explicit approval before it is promoted. A drift alarm alone never changes the model.\n- **Audit trail:** imports, evaluations, approvals and sign-ins are recorded, with role-based access.\n\n### Evidence (public research data)\n\nAll figures were measured by the product on NSL-KDD and CSE-CIC-IDS2018. It has not yet run on a customer network.\n\n- The approval gate blocked a retrained model that would have added **7.7 points** to the false-positive rate (CSE-CIC-IDS2018, chronological test).\n- The explanations traced **22 %** of false positives to a single feature learned from incomplete training data (NSL-KDD official test set).\n- When a known attack type returned and the governed model was updated, attack recall went from **0.2 % to 56 %** with no rise in false positives (CSE-CIC-IDS2018, web attacks).\n\n### Honest limits\n\n- No model in the tests caught new attack types on the day they first appeared; Adaptive IDS shows when that is happening rather than hiding it.\n- On attack types not seen in training, NSL-KDD recall is about 60 % at a 2–4 % false-positive rate.\n- It analyses exported flow files in batch; live capture is on the roadmap.\n\n### Built with\n\nA Python 3.10 FastAPI service with SQLAlchemy and Alembic (SQLite or PostgreSQL), a React and Vite dashboard, scikit-learn tree models with SHAP TreeExplainer, and CI on Ubuntu and Windows with security scanning. The public site, [adaptiveids.com](https://adaptiveids.com/), runs on GitHub Pages with a Supabase-backed evaluation-request form.\n\n### Free evaluation\n\nI'm offering a free six-week, read-only evaluation on one network segment, judged against success criteria agreed before any results exist. [Request one on adaptiveids.com](https://adaptiveids.com/#evaluation).",
+      "live_url": "https://adaptiveids.com/",
+      "repo_url": "https://github.com/MuhammadHaiderAbbas/Ml-Detection-Project",
+      "video_url": "https://www.youtube.com/watch?v=rT84lsI9S14",
+      "document_url": "",
+      "status": "Product · Evaluations open",
+      "role": "Founder & Developer",
+      "year": "2026",
+      "featured": true,
+      "published": true,
+      "sort_order": 0,
+      "project_date": null
+    },
+    {
       "slug": "ml-anomaly-detection-concept-drift",
       "title": "ML-Based Anomaly Detection with Concept Drift",
       "summary": "A streaming machine learning research project focused on detecting anomalies when behaviour changes over time.",

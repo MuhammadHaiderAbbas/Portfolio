@@ -26,6 +26,7 @@ export async function alertsView(ctx: Ctx): Promise<HTMLElement> {
     toggle('enabled', 'Send email alerts', 'Master switch for every email below.'),
     toggle('on_articles', 'Articles', 'A new article is ready (with Publish now / Hold buttons) and when one goes live.'),
     toggle('on_opportunities', 'Job opportunities', 'A company sends a role through the Hire me page.'),
+    toggle('on_evaluations', 'Adaptive IDS enquiries', 'Someone requests an evaluation, call or partnership on adaptiveids.com.'),
     toggle('on_messages', 'Messages', 'Someone uses the contact form.'),
     toggle('on_problems', 'Problems', 'The AI writer fails, a deploy fails, or a site check finds an error.'),
   ];
