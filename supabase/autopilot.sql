@@ -372,7 +372,8 @@ returns void language plpgsql security definer set search_path = '' as $$
 declare v_id uuid;
 begin
   if not public.is_admin() then raise exception 'Only admins can save secrets'; end if;
-  if p_name not in ('resend_api_key', 'alert_from', 'agent_token') then raise exception 'Unknown secret'; end if;
+  if p_name not in ('resend_api_key', 'alert_from', 'agent_token', 'github_token') then raise exception 'Unknown secret'; end if;
+  if p_name = 'github_token' and coalesce(p_value, '') !~ '^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$' then raise exception 'That is not a GitHub token'; end if;
   if p_name = 'agent_token' and char_length(coalesce(p_value, '')) < 32 then raise exception 'The token must be at least 32 characters'; end if;
   select id into v_id from vault.secrets where name = p_name;
   if v_id is null then

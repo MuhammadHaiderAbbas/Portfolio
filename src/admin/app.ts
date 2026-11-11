@@ -209,6 +209,50 @@ async function refreshPublishState() {
   publishBar.replaceChildren(msg, btn);
 }
 
+/** Inline form to replace the GitHub token the Publish button uses (stored encrypted in Supabase Vault). */
+function tokenForm(): HTMLElement {
+  const input = h('input', {
+    type: 'password',
+    autocomplete: 'off',
+    spellcheck: false,
+    placeholder: 'github_pat_…',
+    'aria-label': 'New GitHub token',
+    class: 'token-input',
+  });
+  const note = h('span', { class: 'publish-msg', role: 'status' });
+  const how = h(
+    'a',
+    {
+      href: 'https://github.com/settings/personal-access-tokens/new',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    },
+    'Create a token'
+  );
+  return h(
+    'form',
+    {
+      class: 'token-form',
+      onsubmit: async (e: Event) => {
+        e.preventDefault();
+        const value = input.value.trim();
+        if (!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(value)) {
+          note.textContent = 'That doesn’t look like a GitHub token (it starts with github_pat_).';
+          return;
+        }
+        const { error } = await sb.rpc('set_secret', { p_name: 'github_token', p_value: value });
+        input.value = '';
+        note.textContent = error ? `Could not save: ${error.message}` : 'Token saved. Press Publish site again.';
+        if (!error) toast('GitHub token saved');
+      },
+    },
+    h('span', {}, 'Paste a new token (', how, ': only the ', cfg.repo || 'Portfolio', ' repository, Contents: Read and write):'),
+    input,
+    h('button', { class: 'btn btn-sm', type: 'submit' }, 'Save token'),
+    note
+  );
+}
+
 async function publish(btn: HTMLButtonElement, msg: HTMLElement) {
   btn.disabled = true;
   msg.textContent = 'Asking GitHub to rebuild the site…';
@@ -220,10 +264,7 @@ async function publish(btn: HTMLButtonElement, msg: HTMLElement) {
       ? h('a', { href: `https://github.com/${cfg.repo}/actions/workflows/deploy.yml`, target: '_blank', rel: 'noopener' }, 'Run the deploy on GitHub instead')
       : '';
     if (/not set up/i.test(error.message)) {
-      msg.replaceChildren(
-        'The Publish button is not connected to GitHub yet: add your GitHub token to Supabase (README, step 5). ',
-        manual
-      );
+      msg.replaceChildren('The Publish button is not connected to GitHub yet. ', manual, tokenForm());
     } else {
       msg.replaceChildren(`Publishing failed: ${error.message} `, manual);
     }
@@ -247,11 +288,11 @@ async function publish(btn: HTMLButtonElement, msg: HTMLElement) {
     if (s?.state === 'failed') {
       const hint =
         s.status_code === 401
-          ? 'GitHub rejected the token. Create a new token and update the github_token secret.'
+          ? 'GitHub rejected the token: it has expired or was deleted.'
           : s.status_code === 404 || s.status_code === 403
             ? 'GitHub could not find the repository with this token. Check the github_repo secret and the token’s repository access.'
             : s.error || '';
-      msg.textContent = `Publishing failed (GitHub answered ${s.status_code ?? 'with an error'}). ${hint}`;
+      msg.replaceChildren(`Publishing failed (GitHub answered ${s.status_code ?? 'with an error'}). ${hint}`, s.status_code === 401 || s.status_code === 403 ? tokenForm() : '');
       publishBar.dataset.state = 'error';
       btn.disabled = false;
       return;
