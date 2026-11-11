@@ -1433,7 +1433,10 @@ a.feed-main:hover strong {
   border-left-color: var(--accent);
 }
 .opp.status-interview,
-.opp.status-offer {
+.opp.status-offer,
+.opp.status-call,
+.opp.status-evaluation,
+.opp.status-won {
   border-left-color: var(--st-ok);
 }
 .opp-head {

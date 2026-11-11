@@ -8,6 +8,7 @@ import { h } from './dom';
 import { topbarWidgets, startLive, refreshCounts, counts, type Ctx } from './live';
 import { dashboardView } from './dashboard';
 import { opportunitiesView } from './opportunities';
+import { evaluationsView } from './evaluations';
 import { writerView } from './writer';
 import { alertsView } from './alerts';
 
@@ -272,6 +273,7 @@ function shell(active: string, main: HTMLElement, session: Session) {
     h('span', { class: 'side-label' }, 'Overview'),
     link('#/dashboard', 'Dashboard', 'dashboard'),
     link('#/opportunities', 'Job opportunities', 'opportunities', badge('badge-opps-side', counts.opportunities)),
+    link('#/evaluations', 'Adaptive IDS enquiries', 'evaluations', badge('badge-evals-side', counts.evaluations)),
     link('#/messages', 'Messages', 'messages', badge('badge-messages-side', counts.messages)),
     link('#/writer', 'AI writer', 'writer', badge('badge-drafts-side', counts.drafts)),
     link('#/alerts', 'Email alerts', 'alerts'),
@@ -1067,6 +1069,7 @@ async function route() {
     if (await databaseIsEmpty()) view = importView();
     else if (key === 'dashboard') view = await dashboardView(ctx);
     else if (key === 'opportunities') view = await opportunitiesView(ctx);
+    else if (key === 'evaluations') view = await evaluationsView(ctx);
     else if (key === 'writer') view = await writerView(ctx);
     else if (key === 'alerts') view = await alertsView(ctx);
     else if (key === 'messages') view = await messagesView();
