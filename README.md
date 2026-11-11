@@ -79,7 +79,7 @@ This key is designed to be public; the security rules in `schema.sql` decide wha
    select vault.create_secret('MuhammadHaiderAbbas/Portfolio', 'github_repo');
    ```
 
-   To replace an expired token later:
+   To replace an expired token later, press **Publish site**: when GitHub rejects the old token, a box appears in the publish bar to paste a new one (it is stored encrypted in Supabase Vault). Or, in the SQL Editor:
 
    ```sql
    select vault.update_secret(id, 'github_pat_NEW_TOKEN') from vault.secrets where name = 'github_token';
