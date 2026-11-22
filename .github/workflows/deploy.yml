@@ -45,7 +45,7 @@ jobs:
 
       # Last good content snapshot, downloaded media, covers and small images from
       # earlier builds: faster builds, and the site still builds if Supabase is down.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             .cache
