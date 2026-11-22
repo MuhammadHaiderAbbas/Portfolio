@@ -2,15 +2,17 @@
 import Base from '../layouts/Base.astro';
 import PageBand from '../components/PageBand.astro';
 import Toolbar from '../components/Toolbar.astro';
+import ViewInit from '../components/ViewInit.astro';
 import ItemCard from '../components/ItemCard.astro';
 import { getContent, md, countBy } from '../lib/content';
 import { url } from '../lib/paths';
+import { credentialsLd } from '../lib/schema';
 
 const { certifications, text: t } = await getContent();
 const filters = countBy(certifications.map((c) => c.issuer));
 ---
 
-<Base title={t['certs.title']} description={t['certs.intro']}>
+<Base title={t['certs.title']} description={t['certs.intro']} schema={[credentialsLd(certifications, Astro.site!)]}>
   <PageBand title={t['certs.title']} lead={t['certs.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['certs.title'] }]} />
 
   <section class="wrap section" data-collection="certifications">
@@ -20,6 +22,7 @@ const filters = countBy(certifications.map((c) => c.issuer));
         <ul class="items" data-items>
           {certifications.map((c) => (
             <ItemCard
+              level={2}
               image={c.image_url}
               icon="award"
               kicker={[c.issuer, c.issued_label].filter(Boolean).join(', ')}
@@ -39,6 +42,7 @@ const filters = countBy(certifications.map((c) => c.issuer));
             </ItemCard>
           ))}
         </ul>
+        <ViewInit name="certifications" />
         <p class="muted" data-empty hidden>{t['list.empty']}</p>
       </>
     ) : (

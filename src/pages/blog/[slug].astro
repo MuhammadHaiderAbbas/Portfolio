@@ -5,6 +5,9 @@ import ItemCard from '../../components/ItemCard.astro';
 import { getContent, md, formatDate } from '../../lib/content';
 import { url } from '../../lib/paths';
 import type { Post } from '../../lib/types';
+import { personId } from '../../lib/schema';
+import ShareBar from '../../components/ShareBar.astro';
+import AuthorBox from '../../components/AuthorBox.astro';
 
 export async function getStaticPaths() {
   const { posts } = await getContent();
@@ -55,19 +58,10 @@ const ld = [
     articleSection: post.tags[0],
     inLanguage: 'en-GB',
     mainEntityOfPage: pageUrl,
-    author: { '@type': 'Person', name: profile.name, url: new URL(url('/'), Astro.site).href },
-    publisher: { '@type': 'Person', name: profile.name },
+    author: { '@type': 'Person', '@id': personId(Astro.site!), name: profile.name, url: new URL(url('/'), Astro.site).href },
+    publisher: { '@type': 'Person', '@id': personId(Astro.site!), name: profile.name },
     citation: sources.length ? sources.map((x) => x.url) : undefined,
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: t['nav.about'], item: new URL(url('/'), Astro.site).href },
-      { '@type': 'ListItem', position: 2, name: t['post.back'], item: new URL(url('/blog/'), Astro.site).href },
-      { '@type': 'ListItem', position: 3, name: post.title, item: pageUrl },
-    ],
-  },
+  }
 ];
 ---
 
@@ -113,6 +107,10 @@ const ld = [
           {post.tags.map((x) => <li><a href={url(`/blog/?c=${encodeURIComponent(x)}`)}>{x}</a></li>)}
         </ul>
       )}
+      <div class="post-foot">
+        <ShareBar title={post.title} url={pageUrl} label="Share this article" />
+        <AuthorBox />
+      </div>
     </div>
   </article>
 
@@ -157,6 +155,10 @@ const ld = [
   }
   .toc,
   .sources,
+  .post-foot {
+    max-width: var(--measure);
+    margin-inline: auto;
+  }
   .ai-note {
     max-width: var(--measure);
     margin-inline: auto;

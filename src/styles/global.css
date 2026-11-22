@@ -879,12 +879,12 @@ a.item:hover .media img {
   color: var(--accent-text);
   font-weight: 500;
 }
-.item h3 {
+.item :is(h2, h3) {
   margin: 0;
   color: var(--ink);
   font-size: 1.05rem;
 }
-a.item:hover h3 {
+a.item:hover :is(h2, h3) {
   color: var(--accent-text);
 }
 .item p {
@@ -922,7 +922,7 @@ a.item:hover h3 {
 .items.list .item .body {
   padding: 1rem 1.25rem;
 }
-.items.list .item h3 {
+.items.list .item :is(h2, h3) {
   font-size: 1.1rem;
 }
 @media (max-width: 34rem) {
@@ -1029,5 +1029,10 @@ a.item:hover h3 {
 }
 
 [hidden] {
+  display: none !important;
+}
+
+/* Controls that only work with JavaScript: shown from the first paint when it is on */
+html:not(.js) .needs-js {
   display: none !important;
 }

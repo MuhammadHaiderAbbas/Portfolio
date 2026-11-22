@@ -2,6 +2,7 @@
 // One card in a listing. Works in both grid and list view.
 import { url } from '../lib/paths';
 import { iconSvg } from '../lib/icons';
+import { srcsetFor } from '../lib/thumbs';
 
 interface Props {
   href?: string;
@@ -17,8 +18,12 @@ interface Props {
   tilt?: boolean;
   /** Without an image: show a small icon beside the text instead of a large placeholder. */
   compact?: boolean;
+  /** Heading level of the card title: h2 on listing pages, h3 inside a titled section. */
+  level?: 2 | 3;
 }
-const { href, image, icon = 'rocket', kicker, title, text, meta = [], keys = [], extra = '', eager = false, tilt = true, compact = false } = Astro.props;
+const { href, image, icon = 'rocket', kicker, title, text, meta = [], keys = [], extra = '', eager = false, tilt = true, compact = false, level = 3 } = Astro.props;
+const H = level === 2 ? 'h2' : 'h3';
+const srcset = srcsetFor(image, url);
 const Tag = href ? 'a' : 'div';
 const searchText = [title, kicker, text, ...meta, ...keys, extra].filter(Boolean).join(' ');
 ---
@@ -28,7 +33,7 @@ const searchText = [title, kicker, text, ...meta, ...keys, extra].filter(Boolean
     {
       image ? (
         <div class="media">
-          <img src={url(image)} alt="" width="800" height="450" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+          <img src={url(image)} srcset={srcset} sizes={srcset ? '(max-width: 40rem) 92vw, (max-width: 72rem) 46vw, 380px' : undefined} alt="" width="800" height="450" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
         </div>
       ) : compact ? null : (
         <div class="media">
@@ -39,7 +44,7 @@ const searchText = [title, kicker, text, ...meta, ...keys, extra].filter(Boolean
     <div class="body">
       {!image && compact && <span class="icon-tile" set:html={iconSvg(icon)} />}
       {kicker && <span class="kicker">{kicker}</span>}
-      <h3>{title}</h3>
+      <H>{title}</H>
       {text && <p>{text}</p>}
       <slot />
       {meta.length > 0 && (

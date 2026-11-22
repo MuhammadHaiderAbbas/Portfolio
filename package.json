@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/fetch-media.mjs && node scripts/covers.mjs && astro build",
+    "build": "node scripts/fetch-media.mjs && node scripts/covers.mjs && node scripts/thumbs.mjs && astro build && node scripts/csp.mjs",
     "preview": "astro preview",
     "seed-sql": "node scripts/gen-seed-sql.mjs",
     "optimize-images": "node scripts/optimize-images.mjs"

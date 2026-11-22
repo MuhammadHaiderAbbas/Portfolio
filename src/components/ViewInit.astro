@@ -1,0 +1,16 @@
+---
+// Applies the visitor's saved grid/list choice before the list is painted,
+// so the page does not jump when it loads. Place straight after the <ul>.
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+---
+
+<script is:inline define:vars={{ name }}>
+  try {
+    var v = localStorage.getItem('view:' + name);
+    var ul = document.currentScript && document.currentScript.previousElementSibling;
+    if (v && ul) ul.classList.toggle('list', v === 'list');
+  } catch (e) {}
+</script>

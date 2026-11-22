@@ -5,3 +5,4 @@ dist/
 .env.*
 public/media/
 .DS_Store
+.cache/

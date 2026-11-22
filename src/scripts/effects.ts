@@ -106,3 +106,25 @@ if ('IntersectionObserver' in window) {
   revealEls.forEach((el) => el.classList.add('in'));
 }
 void counters;
+
+// Share buttons: the phone's share sheet when available, and "Copy link".
+for (const bar of document.querySelectorAll<HTMLElement>('[data-share-url]')) {
+  const shareUrl = bar.dataset.shareUrl!;
+  const native = bar.querySelector<HTMLElement>('[data-share-native]');
+  if (native && typeof navigator.share === 'function') {
+    native.hidden = false;
+    native.querySelector('button')?.addEventListener('click', () => {
+      navigator.share({ title: bar.dataset.shareTitle, url: shareUrl }).catch(() => {});
+    });
+  }
+  const copy = bar.querySelector<HTMLButtonElement>('[data-copy-link]');
+  copy?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      copy.textContent = 'Link copied';
+    } catch {
+      copy.textContent = shareUrl;
+    }
+    setTimeout(() => (copy.textContent = 'Copy link'), 2500);
+  });
+}

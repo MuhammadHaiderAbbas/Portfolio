@@ -5,6 +5,8 @@ import ItemCard from '../../components/ItemCard.astro';
 import { getContent, md, youtubeId } from '../../lib/content';
 import { url } from '../../lib/paths';
 import type { Project } from '../../lib/types';
+import { projectLd } from '../../lib/schema';
+import ShareBar from '../../components/ShareBar.astro';
 
 export async function getStaticPaths() {
   const { projects } = await getContent();
@@ -28,7 +30,7 @@ const facts = [
 ].filter(([, v]) => v);
 ---
 
-<Base title={p.title} description={p.summary} image={p.cover_url || undefined} type="article">
+<Base title={p.title} description={p.summary} image={p.cover_url || undefined} type="article" schema={[projectLd(p, Astro.site!, (x) => new URL(url(x), Astro.site).href)]}>
   <article>
     <PageBand
       title={p.title}
@@ -60,6 +62,7 @@ const facts = [
 
     <div class="wrap section detail">
       <div class="prose" set:html={md(p.body)} />
+      <ShareBar title={p.title} url={new URL(url(`/projects/${p.slug}/`), Astro.site).href} label="Share this project" />
       <aside>
         <div class="card side">
           {facts.length > 0 && (

@@ -26,6 +26,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.changed.outputs.urls }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,6 +43,16 @@ jobs:
 
       - run: npm ci
 
+      # Last good content snapshot, downloaded media, covers and small images from
+      # earlier builds: faster builds, and the site still builds if Supabase is down.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache
+            public/media
+          key: site-data-${{ github.run_id }}
+          restore-keys: site-data-
+
       - name: Build
         run: npm run build
         env:
@@ -49,6 +61,15 @@ jobs:
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
           PUBLIC_GITHUB_REPO: ${{ github.repository }}
+
+      # Pages that are new or changed since the live version, for search engines
+      - id: changed
+        run: |
+          {
+            echo 'urls<<EOF'
+            node scripts/indexnow.mjs prepare dist || true
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -63,3 +84,24 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Tells Bing, Yandex and other IndexNow search engines which pages changed
+  notify-search-engines:
+    needs: [build, deploy]
+    if: needs.build.outputs.changed != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/indexnow.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Send changed pages to IndexNow
+        env:
+          CHANGED: ${{ needs.build.outputs.changed }}
+        run: |
+          sleep 30
+          printf '%s\n' "$CHANGED" | node scripts/indexnow.mjs send || echo "IndexNow did not answer; search engines will still find changes via the sitemap."
+

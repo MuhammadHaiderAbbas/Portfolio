@@ -1870,3 +1870,10 @@ code.token {
 .content:has(.alerts) {
   max-width: 64rem;
 }
+.qr {
+  display: block;
+  margin: 0.5rem 0 0.75rem;
+  border-radius: var(--r-sm);
+  background: #fff;
+  padding: 8px;
+}

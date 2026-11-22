@@ -1,0 +1,78 @@
+---
+// "About the author" under articles: who wrote it and where to find more.
+import { getContent } from '../lib/content';
+import { url } from '../lib/paths';
+
+const { profile, text: t } = await getContent();
+const socials = (profile.socials ?? []).filter((s) => /^https?:\/\//.test(s.url));
+---
+
+<aside class="author" aria-label="About the author">
+  {profile.photo_url && <img src={url(profile.photo_url)} alt="" width="96" height="96" loading="lazy" decoding="async" />}
+  <div>
+    <p class="author-kicker">Written by</p>
+    <p class="author-name"><a href={url('/')}>{profile.name}</a></p>
+    {profile.headline && <p class="author-line">{profile.headline}</p>}
+    <p class="author-links">
+      <a href={url('/projects/')}>{t['nav.projects']}</a>
+      <a href={url('/resume/')}>{t['nav.resume']}</a>
+      {socials.slice(0, 3).map((s) => <a href={s.url} rel="me noopener" target="_blank">{s.label}</a>)}
+      <a href={url('/hire/')}>{t['nav.hire']}</a>
+    </p>
+  </div>
+</aside>
+
+<style>
+  .author {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: center;
+    margin: 2.5rem 0 1rem;
+    padding: 1.25rem 1.4rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    background: var(--surface);
+  }
+  .author img {
+    inline-size: 96px;
+    block-size: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent);
+  }
+  .author p {
+    margin: 0;
+  }
+  .author-kicker {
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .author-name {
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+  .author-name a {
+    color: var(--ink);
+  }
+  .author-line {
+    color: var(--muted);
+  }
+  .author-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin-top: 0.5rem !important;
+  }
+  .author-links a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  @media (max-width: 30rem) {
+    .author {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

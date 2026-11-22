@@ -1,0 +1,79 @@
+name: Uptime check
+
+# Every hour: checks the live site, its feeds, HTTPS and the database. If something
+# is down it opens a GitHub issue (GitHub emails you); when it recovers the issue
+# is closed with a note. Independent of Supabase, so it works when that is down.
+on:
+  schedule:
+    - cron: '7 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: uptime
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: supabase.config.json
+          sparse-checkout-cone-mode: false
+
+      - name: Check the site
+        id: check
+        env:
+          SITE: https://personalportfolio.website
+        run: |
+          set +e
+          problems=""
+          probe() { # url, text that must appear
+            for i in 1 2 3; do
+              body=$(curl -fsSL --max-time 25 "$1") && { [ -z "$2" ] || echo "$body" | grep -q "$2"; } && return 0
+              sleep 20
+            done
+            return 1
+          }
+          probe "$SITE/" "</html>"            || problems="$problems\n- The homepage is not loading ($SITE/)"
+          probe "$SITE/blog/" "</html>"       || problems="$problems\n- The blog is not loading"
+          probe "$SITE/sitemap.xml" "<urlset" || problems="$problems\n- The sitemap is missing"
+          probe "$SITE/rss.xml" "<rss"        || problems="$problems\n- The RSS feed is missing"
+          days=$(echo | openssl s_client -servername personalportfolio.website -connect personalportfolio.website:443 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+          if [ -n "$days" ]; then
+            left=$(( ($(date -d "$days" +%s) - $(date +%s)) / 86400 ))
+            [ "$left" -lt 10 ] && problems="$problems\n- The HTTPS certificate expires in $left days"
+          else
+            problems="$problems\n- Could not read the HTTPS certificate"
+          fi
+          url=$(jq -r .url supabase.config.json); key=$(jq -r .anonKey supabase.config.json)
+          curl -fsS --max-time 25 -H "apikey: $key" "$url/rest/v1/profile?select=id&limit=1" >/dev/null \
+            || problems="$problems\n- The database (Supabase) is not answering: the admin panel, forms and visit counting are affected"
+          printf "problems<<EOF\n%b\nEOF\n" "$problems" >> "$GITHUB_OUTPUT"
+          [ -z "$problems" ] && echo "All checks passed" || printf "Problems:%b\n" "$problems"
+          exit 0
+
+      - name: Open or close the alert issue
+        uses: actions/github-script@v7
+        env:
+          PROBLEMS: ${{ steps.check.outputs.problems }}
+        with:
+          script: |
+            const title = 'Site problem detected';
+            const problems = (process.env.PROBLEMS || '').trim();
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, state: 'open', labels: 'uptime' });
+            const issue = open.find((i) => i.title === title);
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            if (problems) {
+              const body = `The hourly check found:\n\n${problems}\n\nChecked ${new Date().toUTCString()} ([run](${run})).`;
+              if (issue) await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body });
+              else await github.rest.issues.create({ ...context.repo, title, body, labels: ['uptime'] });
+            } else if (issue) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: `Everything is working again (${new Date().toUTCString()}).` });
+              await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: 'closed' });
+            }

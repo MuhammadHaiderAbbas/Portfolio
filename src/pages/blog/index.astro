@@ -2,15 +2,22 @@
 import Base from '../../layouts/Base.astro';
 import PageBand from '../../components/PageBand.astro';
 import Toolbar from '../../components/Toolbar.astro';
+import ViewInit from '../../components/ViewInit.astro';
 import ItemCard from '../../components/ItemCard.astro';
 import { getContent, formatDate, countBy } from '../../lib/content';
+import { collectionLd } from '../../lib/schema';
+import { url as toUrl } from '../../lib/paths';
 
 const { posts, text: t } = await getContent();
 const filters = countBy(posts.flatMap((p) => p.tags));
 const minutes = (body: string) => Math.max(1, Math.round((body ?? '').split(/\s+/).length / 220));
 ---
 
-<Base title={t['blog.title']} description={t['blog.intro']}>
+<Base
+  title={t['blog.title']}
+  description={t['blog.intro']}
+  schema={[collectionLd(t['blog.title'], t['blog.intro'], new URL(toUrl('/blog/'), Astro.site).href, posts.slice(0, 50).map((p) => ({ name: p.title, url: new URL(toUrl(`/blog/${p.slug}/`), Astro.site).href })))]}
+>
   <PageBand title={t['blog.title']} lead={t['blog.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['blog.title'] }]} />
 
   <section class="wrap section" data-collection="blog" data-default-view="list">
@@ -20,6 +27,7 @@ const minutes = (body: string) => Math.max(1, Math.round((body ?? '').split(/\s+
         <ul class="items list" data-items>
           {posts.map((p, i) => (
             <ItemCard
+              level={2}
               href={`/blog/${p.slug}/`}
               image={p.cover_url}
               icon="film"
@@ -32,6 +40,7 @@ const minutes = (body: string) => Math.max(1, Math.round((body ?? '').split(/\s+
             />
           ))}
         </ul>
+        <ViewInit name="blog" />
         <p class="muted" data-empty hidden>{t['list.empty']}</p>
       </>
     ) : (

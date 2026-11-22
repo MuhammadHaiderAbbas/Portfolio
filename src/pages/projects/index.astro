@@ -2,8 +2,11 @@
 import Base from '../../layouts/Base.astro';
 import PageBand from '../../components/PageBand.astro';
 import Toolbar from '../../components/Toolbar.astro';
+import ViewInit from '../../components/ViewInit.astro';
 import ItemCard from '../../components/ItemCard.astro';
 import { getContent, countBy } from '../../lib/content';
+import { collectionLd } from '../../lib/schema';
+import { url as toUrl } from '../../lib/paths';
 
 const { projects, text: t } = await getContent();
 const filters = countBy(projects.map((p) => p.category));
@@ -20,7 +23,11 @@ const icons: Record<string, string> = {
 };
 ---
 
-<Base title={t['projects.title']} description={t['projects.intro']}>
+<Base
+  title={t['projects.title']}
+  description={t['projects.intro']}
+  schema={[collectionLd(t['projects.title'], t['projects.intro'], new URL(toUrl('/projects/'), Astro.site).href, projects.map((p) => ({ name: p.title, url: new URL(toUrl(`/projects/${p.slug}/`), Astro.site).href })))]}
+>
   <PageBand title={t['projects.title']} lead={t['projects.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['projects.title'] }]} />
 
   <section class="wrap section" data-collection="projects">
@@ -28,6 +35,7 @@ const icons: Record<string, string> = {
     <ul class="items" data-items>
       {projects.map((p, i) => (
         <ItemCard
+              level={2}
           href={`/projects/${p.slug}/`}
           image={p.cover_url}
           icon={icons[p.category] ?? 'rocket'}
@@ -41,6 +49,7 @@ const icons: Record<string, string> = {
         />
       ))}
     </ul>
+        <ViewInit name="projects" />
     <p class="muted" data-empty hidden>{t['list.empty']}</p>
   </section>
 </Base>

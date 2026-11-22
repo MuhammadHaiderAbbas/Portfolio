@@ -108,6 +108,29 @@ Admin → **Email alerts**: create a free [Resend](https://resend.com) account w
 
 How it stays safe: the writer never gets a Supabase secret key. It can only call the `agent_*` functions, which check the token, read public context and save **drafts**. Articles are told to rely only on the source material for news facts, never to invent figures or experiences, and to cover security topics defensively. Published AI-assisted posts show a short note saying they were reviewed by you (editable or removable in Site text).
 
+## Security, durability and reach
+
+**Security**
+- Every page carries a Content Security Policy (added after the build by `scripts/csp.mjs`): only the site's own scripts, and the exact inline scripts each page needs (by hash), can run. Injected code is blocked.
+- Admin → **Security**: two-step sign-in with an authenticator app. Once on, the database itself refuses admin actions from a session without the code (`supabase/security.sql`). Automatic sign-out after inactivity; "sign out on every device".
+- `/.well-known/security.txt` tells researchers how to report a problem.
+- GitHub checks every push: CodeQL code scanning and `npm audit` (`.github/workflows/security.yml`); Dependabot opens weekly update pull requests.
+- For HTTP security headers (HSTS, clickjacking protection) and a firewall, put the free Cloudflare plan in front of the domain (see the steps in the project notes).
+
+**Durability**
+- Every successful build saves a snapshot of the content. If Supabase is down during a build, the site is built from that snapshot instead of failing or going stale (`.cache/`, kept by GitHub Actions).
+- Hourly uptime check (`.github/workflows/uptime.yml`): homepage, blog, sitemap, RSS, HTTPS certificate and database. Problems open a GitHub issue (GitHub emails you) and it closes itself when things recover.
+- Weekly encrypted backup of all portfolio data (`.github/workflows/backup.yml`). Add a repository secret `BACKUP_PASSPHRASE` (a long password you keep safe). Download from the workflow run's Artifacts, then decrypt with:
+  `openssl enc -d -aes-256-cbc -pbkdf2 -iter 300000 -in portfolio-backup-DATE.json.gz.enc -out backup.json.gz -pass pass:YOUR-PASSPHRASE && gunzip backup.json.gz`
+
+**Reach**
+- Structured data on every page: your profile (ProfilePage + Person with skills, education and social profiles), projects, services with prices, articles, lists and breadcrumbs.
+- Share cards: 1200×630 JPEG link previews for every page (`scripts/covers.mjs`, `scripts/thumbs.mjs`).
+- Share buttons and an author box on articles; share buttons on projects.
+- IndexNow: after each deploy, new and changed pages are sent to Bing, Yandex, Seznam and Naver (`scripts/indexnow.mjs`).
+- Sitemap with last-changed dates and images; RSS feed; web app manifest (installable on phones).
+- Search engine verification: paste the codes from Google Search Console and Bing Webmaster Tools in Admin → Site text & settings → **Search engines**.
+
 ### 8. Use your own domain (when you're ready)
 
 GitHub lets only one repository use a domain at a time.

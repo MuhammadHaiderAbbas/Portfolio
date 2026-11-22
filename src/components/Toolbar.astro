@@ -11,7 +11,7 @@ const { filters = [], search = true } = Astro.props;
 const { text: t } = await getContent();
 ---
 
-<div class="toolbar" hidden>
+<div class="toolbar needs-js">
   {
     search && (
       <label class="search">

@@ -6,6 +6,7 @@ import { getContent, md, formatPrice } from '../../lib/content';
 import { url } from '../../lib/paths';
 import { iconSvg } from '../../lib/icons';
 import type { Service } from '../../lib/types';
+import { serviceLd } from '../../lib/schema';
 
 export async function getStaticPaths() {
   const { services } = await getContent();
@@ -24,7 +25,7 @@ const steps = s.process.map((line) => {
 const subject = encodeURIComponent(`${s.title} enquiry`);
 ---
 
-<Base title={s.title} description={s.tagline || s.description}>
+<Base title={s.title} description={s.tagline || s.description} image={`/media/og/service-${s.slug}.jpg`} schema={[serviceLd(s, Astro.site!, (x) => new URL(url(x), Astro.site).href, t['services.currency'])]}>
   <PageBand
     title={s.title}
     lead={s.tagline || s.description}

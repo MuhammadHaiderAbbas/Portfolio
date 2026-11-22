@@ -27,8 +27,12 @@ const pattern = new RegExp(`${escaped}([^\\s"'()<>\\\\]+)`, 'g');
 
 const found = new Set();
 for (const t of tables) {
-  const res = await fetch(`${url}/rest/v1/${t}`, { headers: { apikey: key } });
-  if (!res.ok) throw new Error(`fetch-media: ${t} failed with ${res.status}`);
+  const res = await fetch(`${url}/rest/v1/${t}`, { headers: { apikey: key } }).catch(() => null);
+  if (!res || !res.ok) {
+    // Supabase unreachable: keep the media already cached from the last build
+    console.warn(`fetch-media: ${t} failed (${res ? res.status : 'no connection'}); using cached media`);
+    process.exit(0);
+  }
   for (const m of (await res.text()).matchAll(pattern)) found.add(decodeURIComponent(m[1]));
 }
 

@@ -2,14 +2,23 @@
 import Base from '../../layouts/Base.astro';
 import PageBand from '../../components/PageBand.astro';
 import Toolbar from '../../components/Toolbar.astro';
+import ViewInit from '../../components/ViewInit.astro';
 import ItemCard from '../../components/ItemCard.astro';
 import { getContent, formatPrice } from '../../lib/content';
 import { url } from '../../lib/paths';
+import { collectionLd, serviceLd } from '../../lib/schema';
 
 const { services, text: t } = await getContent();
 ---
 
-<Base title={t['services.title']} description={t['services.intro']}>
+<Base
+  title={t['services.title']}
+  description={t['services.intro']}
+  schema={[
+    collectionLd(t['services.title'], t['services.intro'], new URL(url('/services/'), Astro.site).href, services.filter((s) => s.slug).map((s) => ({ name: s.title, url: new URL(url(`/services/${s.slug}/`), Astro.site).href }))),
+    ...services.map((s) => serviceLd(s, Astro.site!, (x) => new URL(url(x), Astro.site).href, t['services.currency'])),
+  ]}
+>
   <PageBand title={t['services.title']} lead={t['services.intro']} crumbs={[{ href: '/', label: t['nav.about'] }, { label: t['services.title'] }]}>
     <div class="actions">
       <a class="btn" href={url('/contact/')}>{t['home.cta_button']}</a>
@@ -21,6 +30,7 @@ const { services, text: t } = await getContent();
     <ul class="items" data-items>
       {services.map((s) => (
         <ItemCard
+              level={2}
           href={s.slug ? `/services/${s.slug}/` : '/contact/'}
           icon={s.icon || 'rocket'}
           kicker={[formatPrice(s.price_label, t['services.currency']), s.price_note].filter(Boolean).join(' ')}
@@ -32,6 +42,7 @@ const { services, text: t } = await getContent();
         />
       ))}
     </ul>
+        <ViewInit name="services" />
     <p class="muted" data-empty hidden>{t['list.empty']}</p>
   </section>
 </Base>

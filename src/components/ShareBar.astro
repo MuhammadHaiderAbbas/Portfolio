@@ -1,0 +1,76 @@
+---
+// Share links for an article or project. Plain links: no tracking scripts from the
+// networks are loaded. "Share…" uses the phone's own share sheet when available.
+interface Props {
+  title: string;
+  url: string;
+  label?: string;
+}
+const { title, url: pageUrl, label = 'Share this' } = Astro.props;
+const u = encodeURIComponent(pageUrl);
+const tx = encodeURIComponent(title);
+const links = [
+  ['LinkedIn', `https://www.linkedin.com/sharing/share-offsite/?url=${u}`],
+  ['X', `https://x.com/intent/post?url=${u}&text=${tx}`],
+  ['Facebook', `https://www.facebook.com/sharer/sharer.php?u=${u}`],
+  ['WhatsApp', `https://wa.me/?text=${encodeURIComponent(`${title} ${pageUrl}`)}`],
+  ['Reddit', `https://www.reddit.com/submit?url=${u}&title=${tx}`],
+  ['Email', `mailto:?subject=${tx}&body=${encodeURIComponent(`I thought you might find this useful: ${pageUrl}`)}`],
+];
+---
+
+<div class="share" data-share-title={title} data-share-url={pageUrl}>
+  <p class="share-label">{label}</p>
+  <ul>
+    <li class="needs-js" data-share-native hidden><button type="button" class="share-btn">Share…</button></li>
+    {links.map(([name, href]) => (
+      <li><a class="share-btn" href={href} target="_blank" rel="noopener noreferrer">{name}<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+    ))}
+    <li class="needs-js"><button type="button" class="share-btn" data-copy-link>Copy link</button></li>
+  </ul>
+</div>
+
+<style>
+  .share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin: 2rem 0;
+  }
+  .share-label {
+    margin: 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .share ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.3rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.92rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .share-btn:hover,
+  .share-btn:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent-text);
+    text-decoration: none;
+  }
+</style>

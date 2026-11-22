@@ -7,8 +7,7 @@ import { supabaseConfig } from '../lib/content';
 import { url } from '../lib/paths';
 ---
 
-<Base title="Article review" description="Approve or hold an article.">
-  <meta slot="head" name="robots" content="noindex, nofollow" />
+<Base title="Article review" description="Approve or hold an article." noindex>
   <PageBand title="Article review" lead="Publish or hold an article from your email." />
   <section class="wrap section">
     <div class="card review-card" id="review" data-url={supabaseConfig.url} data-key={supabaseConfig.key} data-base={url('/')}>

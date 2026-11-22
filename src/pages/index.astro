@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import ItemCard from '../components/ItemCard.astro';
 import { getContent, md, formatDate, formatPrice } from '../lib/content';
 import { url } from '../lib/paths';
+import { person, profilePage } from '../lib/schema';
 import { iconSvg } from '../lib/icons';
 import { isOn } from '../lib/site-text';
 
@@ -30,17 +31,8 @@ const study = timeline.filter((x) => x.kind === 'education').slice(0, 1);
 const journey = [...study, ...work];
 const [lead, ...rest] = featured;
 const pad = (i: number) => String(i + 1).padStart(2, '0');
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: profile.name,
-  url: new URL(url('/'), Astro.site).href,
-  jobTitle: roles[0],
-  email: profile.email ? `mailto:${profile.email}` : undefined,
-  image: profile.photo_url ? new URL(url(profile.photo_url), Astro.site).href : undefined,
-  address: profile.location ? { '@type': 'PostalAddress', addressLocality: profile.location } : undefined,
-  sameAs: profile.socials.map((s) => s.url),
-};
+const abs = (p: string) => new URL(url(p), Astro.site).href;
+const jsonLd = profilePage(person(profile, Astro.site!, abs, skills, timeline), abs);
 ---
 
 <Base>
@@ -65,7 +57,8 @@ const jsonLd = {
           {nameFirst} {nameLast && <em>{nameLast}</em>}
         </h1>
         {roles.length > 0 && (
-          <p class="roles" data-roles={rotate ? '' : undefined} aria-label={roles.join(', ')}>
+          <p class="roles" data-roles={rotate ? '' : undefined}>
+            <span class="visually-hidden">{roles.join(', ')}</span>
             {(rotate ? roles : roles.slice(0, 1)).map((r, i) => <span class={i === 0 ? 'on' : ''} aria-hidden="true">{r}</span>)}
           </p>
         )}

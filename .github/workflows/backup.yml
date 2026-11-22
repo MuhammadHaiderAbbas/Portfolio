@@ -1,0 +1,50 @@
+name: Weekly backup
+
+# Every Sunday: downloads all portfolio data (content, messages, job opportunities,
+# AI writer history, statistics), encrypts it with your BACKUP_PASSPHRASE secret and
+# keeps it for 90 days under this workflow's run (Artifacts). Nothing is stored
+# unencrypted. To restore, see README → "Backups".
+on:
+  schedule:
+    - cron: '41 2 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: supabase.config.json
+          sparse-checkout-cone-mode: false
+
+      - name: Download and encrypt
+        env:
+          AGENT_TOKEN: ${{ secrets.AGENT_TOKEN }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKUP_PASSPHRASE:-}" ] || [ -z "${AGENT_TOKEN:-}" ]; then
+            echo "::error::Add the BACKUP_PASSPHRASE (and AGENT_TOKEN) repository secrets to turn on backups."
+            exit 1
+          fi
+          url=$(jq -r .url supabase.config.json); key=$(jq -r .anonKey supabase.config.json)
+          jq -n --arg t "$AGENT_TOKEN" '{p_token: $t}' > req.json
+          curl -fsS --retry 3 --max-time 60 -X POST "$url/rest/v1/rpc/agent_backup" \
+            -H "apikey: $key" -H "Content-Type: application/json" --data @req.json -o backup.json
+          rm req.json
+          jq -e '.tables.profile | length >= 1' backup.json >/dev/null
+          jq -r '.tables | to_entries[] | "\(.key): \(.value | length) rows"' backup.json
+          gzip -9 backup.json
+          openssl enc -aes-256-cbc -pbkdf2 -iter 300000 -salt -in backup.json.gz -out "portfolio-backup-$(date -u +%F).json.gz.enc" -pass env:BACKUP_PASSPHRASE
+          rm backup.json.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-backup
+          path: portfolio-backup-*.json.gz.enc
+          retention-days: 90

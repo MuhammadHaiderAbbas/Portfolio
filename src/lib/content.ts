@@ -2,7 +2,7 @@
 // With a Supabase URL and public key (from environment variables or supabase.config.json),
 // content comes from the database: published rows only. Without them, the site builds
 // from src/data/seed.json, so it can deploy before Supabase is set up.
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { marked } from 'marked';
 import seed from '../data/seed.json';
@@ -21,12 +21,42 @@ const fc = fileConfig();
 const SUPABASE_URL = (import.meta.env.PUBLIC_SUPABASE_URL || fc.url || '').replace(/\/$/, '');
 const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || fc.anonKey || '';
 
-async function rest<T>(query: string): Promise<T> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${query}`, {
-    headers: { apikey: SUPABASE_KEY, Accept: 'application/json' },
-  });
-  if (!res.ok) throw new Error(`Supabase request failed for ${query}: ${res.status} ${await res.text()}`);
-  return res.json() as Promise<T>;
+// Each request is retried with a pause, so a brief Supabase hiccup does not break a build.
+async function rest<T>(query: string, attempt = 1): Promise<T> {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${query}`, {
+      headers: { apikey: SUPABASE_KEY, Accept: 'application/json' },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`Supabase request failed for ${query}: ${res.status} ${await res.text()}`);
+    return (await res.json()) as T;
+  } catch (e) {
+    if (attempt >= 3) throw e;
+    await new Promise((r) => setTimeout(r, attempt * 4000));
+    return rest<T>(query, attempt + 1);
+  }
+}
+
+// The last content that built successfully. If Supabase is down during a build, the
+// site is built from this instead (GitHub Actions keeps it between runs).
+const SNAPSHOT = path.join(process.cwd(), '.cache', 'content-snapshot.json');
+async function fromSupabaseOrSnapshot(): Promise<SiteContent> {
+  try {
+    const content = await fromSupabase();
+    if (!import.meta.env.DEV && content.source === 'supabase') {
+      try {
+        mkdirSync(path.dirname(SNAPSHOT), { recursive: true });
+        writeFileSync(SNAPSHOT, JSON.stringify(content));
+      } catch {}
+    }
+    return content;
+  } catch (e) {
+    if (existsSync(SNAPSHOT)) {
+      console.warn(`Supabase could not be reached (${(e as Error).message}). Building from the last good snapshot.`);
+      return JSON.parse(readFileSync(SNAPSHOT, 'utf8')) as SiteContent;
+    }
+    throw e;
+  }
 }
 
 const bySort = <T extends { sort_order?: number }>(a: T, b: T) => (a.sort_order ?? 0) - (b.sort_order ?? 0);
@@ -117,7 +147,7 @@ export function getContent(): Promise<SiteContent> {
   const stale = import.meta.env.DEV && Date.now() - cachedAt > 3000;
   if (!cached || stale) {
     cachedAt = Date.now();
-    cached = SUPABASE_URL && SUPABASE_KEY && !forceSeed ? fromSupabase() : Promise.resolve(fromSeed());
+    cached = SUPABASE_URL && SUPABASE_KEY && !forceSeed ? fromSupabaseOrSnapshot() : Promise.resolve(fromSeed());
     cached.catch(() => (cached = undefined));
   }
   return cached;

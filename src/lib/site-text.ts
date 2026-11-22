@@ -262,6 +262,12 @@ If you use the contact form or the Hire me form, what you type is stored so I ca
 The site is hosted on GitHub Pages and the data is stored with Supabase in London, UK. Contact me through the contact page with any privacy question.`,
   },
 
+  // ---- Search engines
+  { group: 'Search engines', key: 'seo.google', label: 'Google Search Console verification code', value: '', help: 'In Search Console choose "URL prefix" → HTML tag, and paste only the content="…" value.' },
+  { group: 'Search engines', key: 'seo.bing', label: 'Bing Webmaster Tools verification code', value: '', help: 'Bing → Add site → HTML meta tag: paste only the content value. (Bing also powers DuckDuckGo, Yahoo and ChatGPT search.)' },
+  { group: 'Search engines', key: 'seo.yandex', label: 'Yandex verification code', value: '' },
+  { group: 'Search engines', key: 'seo.pinterest', label: 'Pinterest domain verification code', value: '' },
+
   // ---- Footer and other
   { group: 'Footer and other', key: 'footer.copyright', label: 'Copyright line', value: '© {year} {name}', help: '{year} and {name} are filled in automatically.' },
   { group: 'Footer and other', key: 'footer.about', label: 'Footer introduction', value: 'Security, web systems, games, 3D and AI: practical work, built and documented properly.', kind: 'textarea' },

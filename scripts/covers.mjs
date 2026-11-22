@@ -32,7 +32,10 @@ async function loadPosts() {
     const prof = await fetch(`${url}/rest/v1/profile?id=eq.1&select=name`, { headers: { apikey: key } }).then((r) => (r.ok ? r.json() : [])).catch(() => []);
     if (prof[0]?.name) AUTHOR = prof[0].name;
     const res = await fetch(`${url}/rest/v1/posts?published=eq.true&select=slug,title,tags,cover_url`, { headers: { apikey: key } });
-    if (!res.ok) throw new Error(`covers: posts request failed (${res.status})`);
+    if (!res.ok) {
+      console.warn(`covers: posts request failed (${res.status}); keeping existing covers`);
+      return [];
+    }
     return res.json();
   }
   const seed = JSON.parse(await readFile('src/data/seed.json', 'utf8'));
@@ -133,7 +136,10 @@ if (process.env.COVERS_SAMPLE) {
   process.exit(0);
 }
 
-const posts = await loadPosts();
+const posts = await loadPosts().catch((e) => {
+  console.warn(`covers: could not load posts (${e.message}); keeping existing covers`);
+  return [];
+});
 await mkdir(OUT, { recursive: true });
 let made = 0;
 for (const p of posts) {
@@ -147,3 +153,55 @@ for (const p of posts) {
   made++;
 }
 console.log(`covers: ${made} new cover${made === 1 ? '' : 's'} for posts without their own image`);
+
+// Share cards (1200×630 JPEG, which every network shows) for pages without their own
+// picture: the site itself and each service. Saved to public/media/og/.
+const OG = path.join('public', 'media', 'og');
+await mkdir(OG, { recursive: true });
+let headline = 'Portfolio';
+let services = [];
+try {
+  if (url && key && process.env.CONTENT_SOURCE !== 'seed') {
+    const [prof, svc] = await Promise.all([
+      fetch(`${url}/rest/v1/profile?id=eq.1&select=name,headline`, { headers: { apikey: key } }).then((r) => (r.ok ? r.json() : [])),
+      fetch(`${url}/rest/v1/services?published=eq.true&select=slug,title,tagline`, { headers: { apikey: key } }).then((r) => (r.ok ? r.json() : [])),
+    ]);
+    if (prof[0]?.headline) headline = prof[0].headline;
+    services = svc;
+  } else {
+    const seed = JSON.parse(await readFile('src/data/seed.json', 'utf8'));
+    headline = seed.profile?.headline || headline;
+    services = (seed.services || []).filter((x) => x.published !== false);
+  }
+} catch (e) {
+  console.warn(`covers: share cards use defaults (${e.message})`);
+}
+const cards = [
+  { file: 'site.jpg', slug: 'site-card', title: AUTHOR, tags: [headline.split(/[.,|·–-]/)[0].trim().slice(0, 48) || 'Portfolio'] },
+  ...services.filter((x) => x.slug).map((x) => ({ file: `service-${x.slug}.jpg`, slug: `service-${x.slug}`, title: x.title, tags: ['Services'] })),
+];
+let ogMade = 0;
+for (const c of cards) {
+  const dest = path.join(OG, c.file);
+  try {
+    await access(dest);
+    if (!process.env.COVERS_FORCE && c.file !== 'site.jpg') continue;
+  } catch {}
+  await sharp(await cover(c)).jpeg({ quality: 86, mozjpeg: true }).toFile(dest);
+  ogMade++;
+}
+// JPEG copies of the article covers, for networks that do not show WebP previews
+for (const p of posts) {
+  if (p.cover_url || !p.slug) continue;
+  const src = path.join(OUT, `${p.slug}.webp`);
+  const dest = path.join(OG, `post-${p.slug}.jpg`);
+  try {
+    await access(dest);
+    continue;
+  } catch {}
+  try {
+    await sharp(src).jpeg({ quality: 84, mozjpeg: true }).toFile(dest);
+    ogMade++;
+  } catch {}
+}
+console.log(`covers: ${ogMade} share card${ogMade === 1 ? '' : 's'} updated`);

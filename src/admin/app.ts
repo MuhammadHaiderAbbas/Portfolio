@@ -11,6 +11,7 @@ import { opportunitiesView } from './opportunities';
 import { evaluationsView } from './evaluations';
 import { writerView } from './writer';
 import { alertsView } from './alerts';
+import { securityView, mfaChallenge, startIdleTimer, idleMinutes } from './security';
 
 type Row = Record<string, any>;
 
@@ -180,6 +181,19 @@ function renderNotAdmin(session: Session) {
   );
 }
 
+let idleStarted = false;
+function startIdle() {
+  if (idleStarted) return;
+  idleStarted = true;
+  startIdleTimer(async () => {
+    const { data } = await sb.auth.getSession();
+    if (!data.session) return;
+    await signOut();
+    const note = document.querySelector('.auth-card .form-note');
+    if (note) note.textContent = `You were signed out after ${idleMinutes()} minutes without activity.`;
+  });
+}
+
 async function signOut() {
   await sb.auth.signOut();
   adminChecked = null;
@@ -320,7 +334,9 @@ function shell(active: string, main: HTMLElement, session: Session) {
     link('#/alerts', 'Email alerts', 'alerts'),
     h('span', { class: 'side-label' }, 'Content'),
     sections.map((s) => link(`#/${s.key}`, s.label, s.key)),
-    link('#/text', 'Site text & settings', 'text')
+    link('#/text', 'Site text & settings', 'text'),
+    h('span', { class: 'side-label' }, 'Account'),
+    link('#/security', 'Security', 'security')
   );
   app.replaceChildren(
     h(
@@ -1089,6 +1105,23 @@ async function route() {
   const session = data.session;
   if (!session) return renderLogin();
 
+  // Two-step sign-in: if this account has an authenticator, ask for its code first.
+  try {
+    const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal && aal.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+      return mfaChallenge(
+        sb,
+        app,
+        () => {
+          adminChecked = null;
+          route();
+        },
+        signOut
+      );
+    }
+  } catch {}
+  startIdle();
+
   if (!adminChecked || adminChecked.userId !== session.user.id) {
     const { data: ok, error } = await sb.rpc('is_admin');
     if (error) return renderLogin(`Could not check your access: ${error.message}`);
@@ -1113,6 +1146,7 @@ async function route() {
     else if (key === 'evaluations') view = await evaluationsView(ctx);
     else if (key === 'writer') view = await writerView(ctx);
     else if (key === 'alerts') view = await alertsView(ctx);
+    else if (key === 'security') view = await securityView(sb, toast, signOut);
     else if (key === 'messages') view = await messagesView();
     else if (key === 'text') view = await siteTextView();
     else if (!section) view = await dashboardView(ctx);
